@@ -4,7 +4,8 @@ The obniz CLI is used to flashing and configuring obnizOS for processors.
 
 For more about Heroku see https://obniz.io/
 
-## Overview
+
+## Install
 
 Install from npm
 
@@ -12,6 +13,14 @@ Install from npm
 npm i obniz-cli -g
 ```
 
+### Dependency
+
+obniz-cli use esptool internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
+```
+pip install esptool
+```
+
+## Overview
 
 ```shell
 USAGE
