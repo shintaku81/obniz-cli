@@ -40,10 +40,7 @@ let port;
 export async function start() {
   port = await getPort();
 
-  let relative = "../..";
-  if (__dirname.indexOf("/dist/") >= 0) {
-    relative += "/..";
-  }
+  const relative = "../..";
   const app = express();
   app.use(express.static(path.join(__dirname, relative, "public")));
 

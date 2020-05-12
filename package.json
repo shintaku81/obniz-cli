@@ -1,8 +1,8 @@
 {
   "name": "obniz-cli",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
   "engines": {
     "node": "12.x"
   },
@@ -18,10 +18,10 @@
     "precommit": "lint-staged && npm run build",
     "clean": "rimraf ./dist",
     "local": "npx ts-node src/index.ts",
-    "start": "node dist/src/index.js"
+    "start": "node dist/index.js"
   },
   "bin": {
-    "obniz-cli": "./dist/src/index.js"
+    "obniz-cli": "./dist/index.js"
   },
   "preferGlobal": true,
   "author": "yukisato <yuki@yuki-sato.com>",

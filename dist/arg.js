@@ -21,7 +21,7 @@ exports.default = async (routes) => {
     else {
         if (!route) {
             console.error(`Unknown Command ${command} see below help`);
-            await route.help();
+            await routes.help();
             return;
         }
         await route.execute(args);

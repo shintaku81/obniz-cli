@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./ports";
@@ -11,10 +13,7 @@ const DEFAULT_BAUD = 1500000;
 const DEFAULT_HARDWARE = "esp32w";
 const DEFAULT_VERSION = "3.2.0";
 
-let relative = "../";
-if (__dirname.indexOf("/dist/") >= 0) {
-  relative += "../";
-}
+const relative = "../";
 
 const packageverion = require(`${relative}package.json`).version;
 

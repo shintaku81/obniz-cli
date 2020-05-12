@@ -34,10 +34,7 @@ let port;
 // ========== Express/Socket.io =========
 async function start() {
     port = await get_port_1.default();
-    let relative = "../..";
-    if (__dirname.indexOf("/dist/") >= 0) {
-        relative += "/..";
-    }
+    const relative = "../..";
     const app = express_1.default();
     app.use(express_1.default.static(path_1.default.join(__dirname, relative, "public")));
     const server = require("http").createServer(app);
