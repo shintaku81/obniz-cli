@@ -20,6 +20,11 @@ const serialport_guess_1 = __importDefault(require("./libs/serialport_guess"));
 const DEFAULT_BAUD = 1500000;
 const DEFAULT_HARDWARE = "esp32w";
 const DEFAULT_VERSION = "3.2.0";
+let relative = "../";
+if (__dirname.indexOf("/dist/") >= 0) {
+    relative += "../";
+}
+const packageverion = require(`${relative}package.json`).version;
 // ========== Global Errors =========
 process.on("uncaughtException", (err) => {
     console.error(err);
@@ -124,7 +129,7 @@ const routes = {
         console.log(`CLI to interact with obniz
 
 VERSION
-  obniz-cli/${require("../package.json").version}
+  obniz-cli/${packageverion}
 
 USAGE
   $ obniz-cli [COMMAND]
