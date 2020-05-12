@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const EC = require("elliptic").ec;
 const ec = new EC("p192");
-function gen() {
+exports.default = () => {
     const key = ec.genKeyPair();
     const pubPoint = key.getPublic();
     const privkey = key.getPrivate("hex");
@@ -11,6 +11,5 @@ function gen() {
         pubkey,
         privkey,
     };
-}
-exports.gen = gen;
+};
 // console.log(exports.gen());

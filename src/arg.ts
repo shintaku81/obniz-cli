@@ -1,6 +1,6 @@
 const args = require("minimist")(process.argv.slice(2), { "--": true });
 
-export default async (routes: any)=> {
+export default async (routes: any) => {
   const command = args._;
   if (!command) {
     throw new Error(`No Command Provided`);
@@ -16,8 +16,10 @@ export default async (routes: any)=> {
     }
   } else {
     if (!route) {
-      throw new Error(`Unknown Command ${command}`);
+      console.error(`Unknown Command ${command} see below help`);
+      await route.help();
+      return;
     }
     await route.execute(args);
   }
-}
+};

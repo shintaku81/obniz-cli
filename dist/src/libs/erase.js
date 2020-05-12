@@ -9,19 +9,23 @@ exports.default = (obj) => {
         let received = "";
         let success = false;
         obj.stdout("", { clear: true });
-        const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset erase_flash -z --flash_mode dio --flash_freq 40m --flash_size detect`;
+        const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} erase_flash`;
         const child = child_process_1.default.exec(cmd);
         child.stdout.setEncoding("utf8");
         child.stdout.on("data", (text) => {
             obj.stdout(text);
             received += text;
-            if (received.indexOf("Hard resetting...") >= 0) {
+            if (received.indexOf("Chip erase completed successfully") >= 0) {
                 // 終わったっぽい
                 success = true;
             }
         });
-        child.on("error", (er) => {
-            reject(er);
+        child.stderr.on("data", (text) => {
+            obj.stdout(text);
+            received += text;
+        });
+        child.on("error", (err) => {
+            reject(err);
         });
         child.on("exit", () => {
             resolve(success);

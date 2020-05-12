@@ -78,9 +78,9 @@ export async function start() {
         const success = await Flash({
           portname: portTTYName,
           hardware,
-          version: '1.0.0',
+          version: "1.0.0",
           baud,
-          stdout: ui_print
+          stdout: ui_print,
         });
         if (success) {
           await ui_print("<br>**********<br> DONE/書き込み完了 (^-^) <br>********<br>", { type: "success" });

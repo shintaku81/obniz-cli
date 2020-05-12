@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const args = require("minimist")(process.argv.slice(2), { "--": true });
-async function execute(routes) {
+exports.default = async (routes) => {
     const command = args._;
     if (!command) {
         throw new Error(`No Command Provided`);
@@ -20,9 +20,10 @@ async function execute(routes) {
     }
     else {
         if (!route) {
-            throw new Error(`Unknown Command ${command}`);
+            console.error(`Unknown Command ${command} see below help`);
+            await route.help();
+            return;
         }
         await route.execute(args);
     }
-}
-exports.default = execute;
+};

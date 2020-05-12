@@ -2,24 +2,14 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const get_port_1 = __importDefault(require("get-port"));
 const path_1 = __importDefault(require("path"));
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
-const serialport_1 = __importDefault(require("serialport"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const flash_1 = __importDefault(require("../libs/flash"));
-const KeyPair = __importStar(require("../libs/keypair"));
 const serialport_auto_detect_1 = __importDefault(require("../libs/serialport_auto_detect"));
-const ObnizApi = __importStar(require("../obnizapi"));
 // ========== Definitions =========
 const devices = [];
 let version = null;
@@ -76,7 +66,13 @@ async function start() {
                     throw new Error(`No Such a os ${hardware}`);
                 }
                 const baud = 1500000;
-                const success = await flash_1.default(portTTYName, hardware, "1.0.0", baud, ui_print);
+                const success = await flash_1.default({
+                    portname: portTTYName,
+                    hardware,
+                    version: "1.0.0",
+                    baud,
+                    stdout: ui_print,
+                });
                 if (success) {
                     await ui_print("<br>**********<br> DONE/書き込み完了 (^-^) <br>********<br>", { type: "success" });
                 }
@@ -85,10 +81,10 @@ async function start() {
                     throw new Error("NG");
                 }
                 if (license) {
-                    const hwIdentifier = "esp32w";
-                    const obnizid = await registerObnizId(portTTYName, hwIdentifier);
-                    await ui_print(`<br>**********<br> License/ライセンス完了 (^0^) <br>********<br>`, { type: "success" });
-                    await ui_print(`<br>obniz ID = ${obnizid}`, { type: "success" });
+                    // const hwIdentifier = "esp32w";
+                    // const obnizid = await registerObnizId(portTTYName, hwIdentifier);
+                    // await ui_print(`<br>**********<br> License/ライセンス完了 (^0^) <br>********<br>`, { type: "success" });
+                    // await ui_print(`<br>obniz ID = ${obnizid}`, { type: "success" });
                 }
             }
             catch (e) {
@@ -150,59 +146,57 @@ async function ui_versions() {
 async function ui_state_to(state) {
     io.emit("state_to", state);
 }
-function registerObnizId(portname, hwIdentifier) {
-    return new Promise(async (resolve, reject) => {
-        let timeoutTimer = setTimeout(() => {
-            reject(new Error("Timeout"));
-        }, 10 * 1000);
-        const serialport = new serialport_1.default(portname, { baudRate: 115200 });
-        serialport.on("open", () => {
-            // open logic
-            serialport.set({
-                rts: false,
-                dtr: false,
-            });
-            let total = "";
-            let obnizid;
-            serialport.write(`\n`);
-            console.log("serialport opened " + portname);
-            serialport.on("readable", async () => {
-                const received = serialport.read().toString("utf-8");
-                console.log(received);
-                total += received;
-                ui_print(received);
-                if (total.indexOf("DeviceKey") >= 0) {
-                    try {
-                        const keypair = KeyPair.gen();
-                        obnizid = await ObnizApi.registrate(hwIdentifier, keypair.pubkey);
-                        const devicekey = `${obnizid}&${keypair.privkey}`;
-                        console.log(devicekey);
-                        serialport.write(`${devicekey}\n`);
-                        total = "";
-                    }
-                    catch (e) {
-                        ui_print("" + e);
-                    }
-                    // found
-                }
-                if (total.indexOf("obniz id:") >= 0) {
-                    serialport.close(() => {
-                        if (timeoutTimer) {
-                            clearTimeout(timeoutTimer);
-                            timeoutTimer = null;
-                        }
-                        if (obnizid) {
-                            resolve(obnizid);
-                        }
-                        else {
-                            reject("already exist obniz id!!!");
-                        }
-                    });
-                }
-            });
-        });
-        serialport.on("error", (err) => {
-            reject(err);
-        });
-    });
-}
+// function registerObnizId(portname, hwIdentifier) {
+//   return new Promise(async (resolve, reject) => {
+//     let timeoutTimer = setTimeout(() => {
+//       reject(new Error("Timeout"));
+//     }, 10 * 1000);
+//     const serialport = new SerialPort(portname, { baudRate: 115200 });
+//     serialport.on("open", () => {
+//       // open logic
+//       serialport.set({
+//         rts: false,
+//         dtr: false,
+//       });
+//       let total = "";
+//       let obnizid;
+//       serialport.write(`\n`);
+//       console.log("serialport opened " + portname);
+//       serialport.on("readable", async () => {
+//         const received = serialport.read().toString("utf-8");
+//         console.log(received);
+//         total += received;
+//         ui_print(received);
+//         if (total.indexOf("DeviceKey") >= 0) {
+//           try {
+//             const keypair = KeyPair.gen();
+//             // obnizid = await ObnizApi.registrate(hwIdentifier, keypair.pubkey);
+//             const devicekey = `${obnizid}&${keypair.privkey}`;
+//             console.log(devicekey);
+//             serialport.write(`${devicekey}\n`);
+//             total = "";
+//           } catch (e) {
+//             ui_print("" + e);
+//           }
+//           // found
+//         }
+//         if (total.indexOf("obniz id:") >= 0) {
+//           serialport.close(() => {
+//             if (timeoutTimer) {
+//               clearTimeout(timeoutTimer);
+//               timeoutTimer = null;
+//             }
+//             if (obnizid) {
+//               resolve(obnizid);
+//             } else {
+//               reject("already exist obniz id!!!");
+//             }
+//           });
+//         }
+//       });
+//     });
+//     serialport.on("error", (err) => {
+//       reject(err);
+//     });
+//   });
+// }

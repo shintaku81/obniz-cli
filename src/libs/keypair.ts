@@ -10,6 +10,6 @@ export default () => {
     pubkey,
     privkey,
   };
-}
+};
 
 // console.log(exports.gen());

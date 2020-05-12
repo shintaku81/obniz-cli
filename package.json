@@ -1,13 +1,8 @@
 {
   "name": "obniz-cli",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "description": "",
   "main": "dist/src/index.js",
-  "files": [
-    "dist",
-    "public",
-    "temp"
-  ],
   "engines": {
     "node": "12.x"
   },
@@ -26,7 +21,7 @@
     "start": "node dist/src/index.js"
   },
   "bin": {
-    "obniz-cli": "./dist/src/index"
+    "obniz-cli": "./dist/src/index.js"
   },
   "preferGlobal": true,
   "author": "yukisato <yuki@yuki-sato.com>",

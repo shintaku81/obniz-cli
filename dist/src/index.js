@@ -12,10 +12,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
-const erase_1 = __importDefault(require("./libs/erase"));
 const ports_1 = __importDefault(require("./ports"));
+const configure_1 = __importDefault(require("./libs/configure"));
+const erase_1 = __importDefault(require("./libs/erase"));
+const flash_1 = __importDefault(require("./libs/flash"));
 const serialport_guess_1 = __importDefault(require("./libs/serialport_guess"));
 const DEFAULT_BAUD = 1500000;
+const DEFAULT_HARDWARE = "esp32w";
+const DEFAULT_VERSION = "3.2.0";
 // ========== Global Errors =========
 process.on("uncaughtException", (err) => {
     console.error(err);
@@ -26,31 +30,76 @@ process.on("unhandledRejection", (err) => {
     throw err;
 });
 // ========== Routes =========
+async function preparePort(args) {
+    let portname = args.p || args.port;
+    if (!portname) {
+        portname = await serialport_guess_1.default();
+        if (portname) {
+            console.log(`Guessed Serial Port ${portname}`);
+        }
+    }
+    let baud = args.b || args.baud;
+    if (!baud) {
+        baud = DEFAULT_BAUD;
+    }
+    if (!portname) {
+        console.log(`No port defined. And auto detect failed`);
+        process.exit(0);
+    }
+    return {
+        portname,
+        baud,
+    };
+}
 const routes = {
-    "login": {},
-    "os:create": {},
-    "os:flash": {},
+    "login": {
+        async execute(args) { },
+    },
+    "os:create": {
+        async execute(args) {
+            const obj = await preparePort(args);
+            obj.stdout = (text) => {
+                console.log(text);
+            };
+        },
+    },
+    "os:flash": {
+        async execute(args) {
+            // flashing os
+            const obj = await preparePort(args);
+            let version = args.v || args.version;
+            if (!version) {
+                version = DEFAULT_VERSION;
+            }
+            let hardware = args.h || args.hardware;
+            if (!hardware) {
+                hardware = DEFAULT_HARDWARE;
+            }
+            obj.version = version;
+            obj.hardware = hardware;
+            obj.stdout = (text) => {
+                console.log(text);
+            };
+            await flash_1.default(obj);
+            // Need something configration after flashing
+            const devicekey = args.k || args.devicekey;
+            if (devicekey) {
+                obj.configs = obj.configs || {};
+                obj.configs.devicekey = devicekey;
+            }
+            if (obj.configs) {
+                const obniz_id = await configure_1.default(obj);
+                console.log(`*** configured device.\n obniz_id = ${obniz_id}`);
+            }
+        },
+    },
     "os:erase": {
         async execute(args) {
-            let portname = args.p || args.port;
-            if (!portname) {
-                portname = await serialport_guess_1.default();
-            }
-            let baud = args.b || args.baud;
-            if (!baud) {
-                baud = DEFAULT_BAUD;
-            }
-            if (!portname) {
-                console.log(`No port defined. And auto detect failed`);
-                process.exit(0);
-            }
-            await erase_1.default({
-                portname,
-                baud,
-                stdout: (text) => {
-                    console.log(text);
-                },
-            });
+            const obj = await preparePort(args);
+            (obj.stdout = (text) => {
+                console.log(text);
+            }),
+                await erase_1.default(obj);
         },
     },
     "os:ports": {
@@ -87,10 +136,12 @@ COMMANDS
   gui         Launch GUI mode of obniz-cli
 
   os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
-               ARGS: -hw XXX -v X.X.X -p XXX -config XXXX -continue yes
+               ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
   os:flash    Flashing and configure target device.
-               ARGS: -hw XXX -v X.X.X -p XXX -key XXXX -config XXXX -continue yes
+               ARGS: -h XXX -v X.X.X -p XXX -b XXX -k XXXX -config XXXX -continue yes
   os:erase    Fully erase a flash on target device.
+               ARGS: -p XXX
+  os:terminal Simply Launch terminal
                ARGS: -p XXX
   os:ports    Getting serial ports on your machine.
   `);
@@ -99,5 +150,6 @@ COMMANDS
 arg_1.default(routes)
     .then(() => { })
     .catch((e) => {
-    throw e;
+    console.error(e);
+    process.exit(1);
 });

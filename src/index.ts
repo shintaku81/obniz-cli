@@ -2,14 +2,14 @@ import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./ports";
 
-import Flash from './libs/flash'
-import Configure from './libs/configure'
+import Configure from "./libs/configure";
 import Erase from "./libs/erase";
+import Flash from "./libs/flash";
 import SerialGuess from "./libs/serialport_guess";
 
 const DEFAULT_BAUD = 1500000;
-const DEFAULT_HARDWARE = 'esp32w';
-const DEFAULT_VERSION = '3.2.0';
+const DEFAULT_HARDWARE = "esp32w";
+const DEFAULT_VERSION = "3.2.0";
 
 // ========== Global Errors =========
 
@@ -30,7 +30,7 @@ async function preparePort(args: any): Promise<any> {
   if (!portname) {
     portname = await SerialGuess();
     if (portname) {
-      console.log(`Guessed Serial Port ${portname}`)
+      console.log(`Guessed Serial Port ${portname}`);
     }
   }
   let baud: any = args.b || args.baud;
@@ -43,28 +43,26 @@ async function preparePort(args: any): Promise<any> {
   }
   return {
     portname,
-    baud
-  }
+    baud,
+  };
 }
 
 const routes = {
   "login": {
-    async execute(args: any) {
-
-    },
+    async execute(args: any) {},
   },
   "os:create": {
     async execute(args: any) {
-      let obj = await preparePort(args);
+      const obj = await preparePort(args);
       obj.stdout = (text: string) => {
         console.log(text);
-      }
+      };
     },
   },
   "os:flash": {
     async execute(args: any) {
       // flashing os
-      let obj:any = await preparePort(args);
+      const obj: any = await preparePort(args);
       let version: any = args.v || args.version;
       if (!version) {
         version = DEFAULT_VERSION;
@@ -77,28 +75,27 @@ const routes = {
       obj.hardware = hardware;
       obj.stdout = (text: string) => {
         console.log(text);
-      }
+      };
       await Flash(obj);
       // Need something configration after flashing
-      let devicekey: any = args.k || args.devicekey;
+      const devicekey: any = args.k || args.devicekey;
       if (devicekey) {
         obj.configs = obj.configs || {};
         obj.configs.devicekey = devicekey;
       }
-      if(obj.configs) {
+      if (obj.configs) {
         const obniz_id = await Configure(obj);
-        console.log(`*** configured device.\n obniz_id = ${obniz_id}`)
+        console.log(`*** configured device.\n obniz_id = ${obniz_id}`);
       }
-
     },
   },
   "os:erase": {
     async execute(args: any) {
-      let obj = await preparePort(args);
-      obj.stdout = (text: string) => {
+      const obj = await preparePort(args);
+      (obj.stdout = (text: string) => {
         console.log(text);
-      },
-      await Erase(obj);
+      }),
+        await Erase(obj);
     },
   },
   "os:ports": {

@@ -1,18 +1,59 @@
-# BLE devices => Conect+
+# obniz-cli
 
-コネクト+にデータを投げるアプリ
+The obniz CLI is used to flashing and configuring obnizOS for processors.
+
+For more about Heroku see https://obniz.io/
+
+## Overview
+
+Install from npm
+
+```shell
+npm i obniz-cli -g
+```
 
 
-## スタート方法
+```shell
+USAGE
+  $ obniz-cli [COMMAND]
 
+COMMANDS
+
+  login       Login to obniz cloud.
+
+  gui         Launch GUI mode of obniz-cli
+
+  os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
+               ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
+  os:flash    Flashing and configure target device.
+               ARGS: -h XXX -v X.X.X -p XXX -b XXX -k XXXX -config XXXX -continue yes
+  os:erase    Fully erase a flash on target device.
+               ARGS: -p XXX
+  os:terminal Simply Launch terminal
+               ARGS: -p XXX
+  os:ports    Getting serial ports on your machine.
+```
+
+## Serial Port Setting
+
+obniz-cli will auto detect FTDI cables.
+Specify portpath when you could't find cable.
 
 ```
-npm i
-npm run local
+obniz-cli os:erase -p /dev/tty.USBSERIAL
 ```
 
-## 構成
+## Flashing
 
-- index.ts : HTTPサーバー(Heroku用)。appをconfigに基づいて生成。
-- config.ts : どのobnizが何のセンサーを担当するかなどの情報
-- app/index.ts : メインのアプリ。configに基づきobnizにつなぎbleのad拾ったりつないだりする。
+Flashing the latest obnizOS for default hardware type.
+
+```
+obniz-cli os:flash
+```
+
+You can specify configrations as arguments.
+obniz-cli will start configuraing after flashing.
+
+```
+obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63fe5448e06a'
+```

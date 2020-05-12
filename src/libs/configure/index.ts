@@ -1,11 +1,10 @@
 import SerialPort from "serialport";
-import KeyPairGen from '../keypair'
+import KeyPairGen from "../keypair";
 
 const baudRate = 115200;
 
-export default async (obj: { portname: string; stdout: any, configs:any }) => {
+export default async (obj: { portname: string; stdout: any; configs: any }) => {
   return new Promise(async (resolve, reject) => {
-
     let timeoutTimer = setTimeout(() => {
       reject(new Error("Timeout"));
     }, 20 * 1000);
@@ -14,7 +13,7 @@ export default async (obj: { portname: string; stdout: any, configs:any }) => {
 
     serialport.on("open", () => {
       // open logic
-      serialport.set({ rts: false, dtr: false, });
+      serialport.set({ rts: false, dtr: false });
       let total = "";
       let obnizid;
       console.log(`serial open ${obj.portname}`);
@@ -25,7 +24,7 @@ export default async (obj: { portname: string; stdout: any, configs:any }) => {
         if (total.indexOf("DeviceKey") >= 0) {
           if (obj.configs.devicekey) {
             let devicekey;
-            if (typeof obj.configs.devicekey === 'string') {
+            if (typeof obj.configs.devicekey === "string") {
               devicekey = obj.configs.devicekey;
             } else {
               const keypair = KeyPairGen();
@@ -34,7 +33,7 @@ export default async (obj: { portname: string; stdout: any, configs:any }) => {
             try {
               serialport.write(`${devicekey}\n`);
               total = "";
-              obnizid = devicekey.split('&')[0];
+              obnizid = devicekey.split("&")[0];
             } catch (e) {
               obj.stdout("" + e);
             }
@@ -59,11 +58,10 @@ export default async (obj: { portname: string; stdout: any, configs:any }) => {
 
       // force print DeviceKey
       serialport.write(`\n`);
-
     });
 
     serialport.on("error", (err) => {
       reject(err);
     });
   });
-}
+};
