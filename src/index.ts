@@ -4,10 +4,10 @@ import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./ports";
 
-import Configure from "./libs/configure";
-import Erase from "./libs/erase";
-import Flash from "./libs/flash";
-import SerialGuess from "./libs/serialport_guess";
+import Configure from "./libs/os/configure";
+import Erase from "./libs/os/erase";
+import Flash from "./libs/os/flash";
+import SerialGuess from "./libs/os/serialport_guess";
 
 import Login from './libs/user/login'
 import Logout from './libs/user/logout'
