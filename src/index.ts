@@ -9,6 +9,10 @@ import Erase from "./libs/erase";
 import Flash from "./libs/flash";
 import SerialGuess from "./libs/serialport_guess";
 
+import Login from './libs/user/login'
+import Logout from './libs/user/logout'
+import UserInfo from './libs/user/info'
+
 const DEFAULT_BAUD = 1500000;
 const DEFAULT_HARDWARE = "esp32w";
 const DEFAULT_VERSION = "3.2.0";
@@ -54,8 +58,20 @@ async function preparePort(args: any): Promise<any> {
 }
 
 const routes = {
-  "login": {
-    async execute(args: any) {},
+  "user:login": {
+    async execute(args: any) {
+      await Login();
+    },
+  },
+  "user:logout": {
+    async execute(args: any) {
+      await Logout();
+    },
+  },
+  "user:info": {
+    async execute(args: any) {
+      await UserInfo();
+    },
   },
   "os:create": {
     async execute(args: any) {
@@ -132,7 +148,9 @@ USAGE
 
 COMMANDS
 
-  login       Login to obniz cloud.
+  user:login  Login to obniz cloud.
+  user:logout Logout current user
+  user:info   Show current Logged in user
 
   gui         Launch GUI mode of obniz-cli
 

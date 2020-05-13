@@ -54,6 +54,7 @@
     "minimist": "^1.2.5",
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
+    "opn": "^6.0.0",
     "puppeteer-core": "^3.0.4",
     "serialport": "^9.0.0",
     "socket.io": "^2.3.0"
