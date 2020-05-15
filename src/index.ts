@@ -7,6 +7,7 @@ import Ports from "./ports";
 import Configure from "./libs/os/configure";
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
+import List from "./libs/os/list";
 import SerialGuess from "./libs/os/serialport_guess";
 
 import Login from './libs/user/login'
@@ -58,12 +59,12 @@ async function preparePort(args: any): Promise<any> {
 }
 
 const routes = {
-  "user:login": {
+  "signin": {
     async execute(args: any) {
       await Login();
     },
   },
-  "user:logout": {
+  "signout": {
     async execute(args: any) {
       await Logout();
     },
@@ -125,6 +126,15 @@ const routes = {
       await Ports();
     },
   },
+  "os:list": {
+    async execute(args: any) {
+      let hardware: any = args.h || args.hardware;
+      if (!hardware) {
+        hardware = DEFAULT_HARDWARE;
+      }
+      await List(hardware);
+    },
+  },
   "gui": {
     async execute(args: any) {
       console.log(`Launching...`);
@@ -148,11 +158,11 @@ USAGE
 
 COMMANDS
 
-  user:login  Login to obniz cloud.
-  user:logout Logout current user
-  user:info   Show current Logged in user
-
   gui         Launch GUI mode of obniz-cli
+
+  signin      Signin to obniz cloud.
+  signout     Signout
+  user:info   Show current Logged in user
 
   os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
                ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
@@ -162,6 +172,8 @@ COMMANDS
                ARGS: -p XXX
   os:terminal Simply Launch terminal
                ARGS: -p XXX
+  os:list     List of available obnizOS for specified hardware
+               ARGS: -h XXX
   os:ports    Getting serial ports on your machine.
   `);
   },

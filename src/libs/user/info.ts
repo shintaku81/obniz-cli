@@ -8,6 +8,7 @@ export default async () => {
     console.log(`Not Logged In`);
     return;
   }
+  console.log(`Contacting to obniz Cloud...`)
   const user = await User(token);
   console.log(`Logged In User`);
   console.log(` name : ${user.name}`);
