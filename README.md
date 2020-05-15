@@ -2,7 +2,9 @@
 
 The obniz CLI is used to flashing and configuring obnizOS for processors.
 
-For more about Heroku see https://obniz.io/
+For more about obniz see https://obniz.io/
+
+obniz-cli works with Nodejs12 and MacOS.
 
 
 ## Install
@@ -15,53 +17,144 @@ npm i obniz-cli -g
 
 ### Dependency
 
-obniz-cli use esptool internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
+obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
 ```
 pip install esptool
 ```
 
-## Overview
+## Help
 
 ```shell
+$ obniz-cli --help
+
 USAGE
   $ obniz-cli [COMMAND]
 
 COMMANDS
 
-  login       Login to obniz cloud.
+  signin            Signin to obniz cloud.
+  signout           Signout
 
-  gui         Launch GUI mode of obniz-cli
+  user:info         Show current Logged in user
 
-  os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
-  os:flash    Flashing and configure target device.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -k XXXX -config XXXX -continue yes
-  os:erase    Fully erase a flash on target device.
-               ARGS: -p XXX
-  os:terminal Simply Launch terminal
-               ARGS: -p XXX
-  os:ports    Getting serial ports on your machine.
+  os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash          Flashing and configure target device.
+  os:erase          Fully erase a flash on target device.
+  os:list           List of available obnizOS for specified hardware
+  os:ports          Getting serial ports on your machine.
 ```
 
-## Serial Port Setting
+Each command may respond to help
 
-obniz-cli will auto detect FTDI cables.
-Specify portpath when you could't find cable.
+```shell
+$obniz-cli os:flash --help
+
+Usage for
+$obniz-cli os:flash
+
+Flash obnizOS and configure it
+
+[serial setting]
+ -p --port      serial port path to flash. If not specified. will be automatically selected.
+ -b --baud      flashing baud rate. default to 1500000
+
+[flashing setting]
+ -h --hardware  hardware to be flashed. default to esp32w
+ -v --version   obnizOS version to be flashed. default to latest one.
+
+[configrations]
+ -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
+ -i --id        obnizID to be configured. You need to signin before use this.
+ ```
+
+
+##  Signin
+
+First of all, singin to your account
+
+```shell
+obniz-cli signin
+```
+
+obniz Cloud authentication page will appear. Approve it, then obniz-cli get credential.
+
+You can check currently signin user by using.
+
+```shel
+obniz-cli user:info
+```
+
+## Serial Port
+
+Connect a device to your machine.
+You can check available ports
+
+```shel
+obniz-cli os:ports
+```
+
+Some command require port arguments `-p`. If not specified, obniz-cli will automatically determine one port.
+
+```shel
+obniz-cli os:erase  => scan ports and use one of them.
+obniz-cli os:erase -p /dev/tty.USBSerial => it use specified
+```
+
+
+## Flashing with creation of obnizID
+
+Flashing obnizOS and adding a device on your account at once.
+Before to do this, You need to add payment method on your account.
+
+Connect target device to your machine. And call like below.
+
+```shel
+obniz-cli os:flash-create --description "For testing" -p /dev/tty.USBSERIAL
+```
+
+You can see generated device on your shell and obnizCloud.
 
 ```
-obniz-cli os:erase -p /dev/tty.USBSERIAL
+***
+created device
+  obnizID: 0000-0000
+  region: jp
+  description: For testing
+***
 ```
 
-## Flashing
+
+## Flashing without creation.
 
 Flashing the latest obnizOS for default hardware type.
 
-```
-obniz-cli os:flash
+```shell
+obniz-cli os:flash -p /dev/tty.USBSERIAL
 ```
 
-You can specify configrations as arguments.
-obniz-cli will start configuraing after flashing.
+Version of obnizOS is determined for latest one. You can check available versions.
+
+```shell
+$obniz-cli os:list
+OS versions for esp32w
+
+  3.2.0
+  3.1.0
+```
+
+You can specify version by using `--version`.
+
+### DeviceKey Configration
+
+If you specify obnizID or Devicekey, obniz-cli will configure it for your device.
+
+Specify obnizID to be configured. Devicekey will be downloaded from Cloud and flashed to your device.
+
+```
+obniz-cli os:flash --id 0000-0000  -p /dev/tty.USBSERIAL
+```
+
+Or, you can specify Devicekey like below
 
 ```
 obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63fe5448e06a'
