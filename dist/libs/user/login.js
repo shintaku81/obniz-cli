@@ -16,6 +16,6 @@ const Storage = __importStar(require("../storage"));
 exports.default = async () => {
     const token = await login_1.default();
     const user = await user_1.default(token);
-    Storage.set('token', token);
+    Storage.set("token", token);
     console.log(`Logged in as "${user.email}"`);
 };

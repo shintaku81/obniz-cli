@@ -8,7 +8,7 @@ const get_port_1 = __importDefault(require("get-port"));
 const path_1 = __importDefault(require("path"));
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const socket_io_1 = __importDefault(require("socket.io"));
-const flash_1 = __importDefault(require("../libs/os/flash"));
+const _flash_1 = __importDefault(require("../libs/os/_flash"));
 const serialport_auto_detect_1 = __importDefault(require("../libs/os/serialport_auto_detect"));
 // ========== Definitions =========
 const devices = [];
@@ -63,7 +63,7 @@ async function start() {
                     throw new Error(`No Such a os ${hardware}`);
                 }
                 const baud = 1500000;
-                const success = await flash_1.default({
+                const success = await _flash_1.default({
                     portname: portTTYName,
                     hardware,
                     version: "1.0.0",

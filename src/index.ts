@@ -4,17 +4,17 @@ import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./ports";
 
-import Create from './libs/os/flashcreate'
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
+import Create from "./libs/os/flashcreate";
 import List from "./libs/os/list";
 import SerialGuess from "./libs/os/serialport_guess";
 
-import Login from './libs/user/login'
-import Logout from './libs/user/logout'
-import UserInfo from './libs/user/info'
+import UserInfo from "./libs/user/info";
+import Login from "./libs/user/login";
+import Logout from "./libs/user/logout";
 
-import Defaults from './defaults'
+import Defaults from "./defaults";
 
 const relative = "../";
 
@@ -80,24 +80,17 @@ const routes = {
   "os:erase": {
     async execute(args: any) {
       const obj = await preparePort(args);
-      (obj.stdout = (text: string) => {
+      obj.stdout = (text: string) => {
         console.log(text);
-      }),
-        await Erase(obj);
+      };
+      await Erase(obj);
     },
   },
+  "os:list": List,
   "os:ports": {
+    help: `List your machine's serial ports`,
     async execute(args: any) {
       await Ports();
-    },
-  },
-  "os:list": {
-    async execute(args: any) {
-      let hardware: any = args.h || args.hardware;
-      if (!hardware) {
-        hardware = Defaults.HARDWARE;
-      }
-      await List(hardware);
     },
   },
   "gui": {
@@ -114,13 +107,13 @@ const routes = {
   },
   "help": async () => {
     console.log(`
-       _           _               _ _ 
+       _           _               _ _
   ___ | |__  _ __ (_)____      ___| (_)
  / _ \\| '_ \\| '_ \\| |_  /____ / __| | |
 | (_) | |_) | | | | |/ /_____| (__| | |
  \\___/|_.__/|_| |_|_/___|     \\___|_|_|
-                                       
-    
+
+
 CLI to interact with obniz device and cloud.
 
 VERSION

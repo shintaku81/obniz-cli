@@ -1,10 +1,10 @@
-import Device from '../obnizio/device'
-import * as Storage from '../storage'
+import Defaults from "../../defaults";
+import OS from "../../libs/obnizio/os";
 import Configure from "../../libs/os/configure";
-import OS from '../../libs/obnizio/os'
-import Defaults from '../../defaults'
-import Flash from './_flash'
+import Device from "../obnizio/device";
 import SerialGuess from "../os/serialport_guess";
+import * as Storage from "../storage";
+import Flash from "./_flash";
 
 async function preparePort(args: any): Promise<any> {
   let portname: string = args.p || args.port;
@@ -28,15 +28,14 @@ async function preparePort(args: any): Promise<any> {
   };
 }
 
-
 export default {
   help: `Flash obnizOS and configure it
 
-[serial setting]  
+[serial setting]
  -p --port        serial port path to flash. If not specified. will be automatically selected.
  -b --baud        flashing baud rate. default to ${Defaults.BAUD}
 
-[flashing setting]  
+[flashing setting]
  -h --hardware    hardware to be flashed. default to ${Defaults.HARDWARE}
  -v --version     obnizOS version to be flashed. default to latest one.
 
@@ -45,22 +44,21 @@ export default {
  -d --description device config description
   `,
   async execute(args: any) {
-
     // login check
-    const token = Storage.get('token');
+    const token = Storage.get("token");
     if (!token) {
       throw new Error(`You must singin before create device`);
     }
 
     // flashing os
     const obj: any = await preparePort(args);
-    let region: any = args.r || args.region || 'jp';
-    let description: any = args.d || args.description || '';
-    let hardware: any = args.h || args.hardware || Defaults.HARDWARE;
+    const region: any = args.r || args.region || "jp";
+    const description: any = args.d || args.description || "";
+    const hardware: any = args.h || args.hardware || Defaults.HARDWARE;
     let version: any = args.v || args.version;
     if (!version) {
       version = await OS.latestPublic(hardware);
-      console.log(`${version} is the latest for ${hardware}. going to use it.`)
+      console.log(`${version} is the latest for ${hardware}. going to use it.`);
     }
     obj.version = version;
     obj.hardware = hardware;
@@ -74,8 +72,8 @@ export default {
     const device = await Device.create(token, {
       region,
       description,
-      hardware
-    })
+      hardware,
+    });
     console.log(`
 ***
 created one device on obniz Cloud.
@@ -96,4 +94,4 @@ obniz-cli going to flash Devicekey to connected device.
 Finished Device  ${device.id}
     `);
   },
-}
+};

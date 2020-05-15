@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = __importDefault(require("../obnizio/user"));
 const Storage = __importStar(require("../storage"));
 exports.default = async () => {
-    const token = Storage.get('token');
+    const token = Storage.get("token");
     if (!token) {
         console.log(`Not Logged In`);
         return;

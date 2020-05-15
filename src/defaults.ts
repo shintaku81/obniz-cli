@@ -1,4 +1,4 @@
 export default {
-  HARDWARE: 'esp32w',
-  BAUD:1500000
-}
+  HARDWARE: "esp32w",
+  BAUD: 1500000,
+};

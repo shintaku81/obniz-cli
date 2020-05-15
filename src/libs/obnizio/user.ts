@@ -16,4 +16,4 @@ export default async (token: string) => {
 
   const ret = await graphQLClient.request(query);
   return ret.user;
-}
+};

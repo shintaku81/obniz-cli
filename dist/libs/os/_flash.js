@@ -4,24 +4,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = __importDefault(require("child_process"));
-const filepath_1 = __importDefault(require("./filepath"));
+const os_1 = __importDefault(require("../obnizio/os"));
 function flash(obj) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        // prepare files
+        const files = await os_1.default.prepareLocalFile(obj.hardware, obj.version);
         let received = "";
         obj.stdout("", { clear: true });
-        console.log(`flashing
+        console.log(`
+***
+flashing obnizOS
  serialport: ${obj.portname}
  baud: ${obj.baud}
 
- hw: ${obj.hardware}
+ hardware: ${obj.hardware}
  version: ${obj.version}
+***
 `);
         const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset` +
             ` write_flash` +
             ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-            ` 0x1000 ${filepath_1.default(obj.hardware, obj.version, "bootloader")}` +
-            ` 0x10000 ${filepath_1.default(obj.hardware, obj.version, "app")}` +
-            ` 0x8000 ${filepath_1.default(obj.hardware, obj.version, "partition")}`;
+            ` 0x1000 ${files.bootloader_path}` +
+            ` 0x10000 ${files.app_path}` +
+            ` 0x8000 ${files.partition_path}`;
         const child = child_process_1.default.exec(cmd);
         child.stdout.setEncoding("utf8");
         child.stdout.on("data", (text) => {

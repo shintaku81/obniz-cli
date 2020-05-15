@@ -1,31 +1,28 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-const filepath = path.join(__dirname, '../..', 'storage.json')
+const filepath = path.join(__dirname, "../..", "storage.json");
 
 function read() {
-  let obj = {}
+  let obj = {};
   try {
-    const txt = fs.readFileSync(filepath, {encoding: 'utf8'});
+    const txt = fs.readFileSync(filepath, { encoding: "utf8" });
     obj = JSON.parse(txt);
-  } catch(e) {
-
-  }
+  } catch (e) {}
 
   return obj;
 }
 
-function write(obj:any) {
+function write(obj: any) {
   fs.writeFileSync(filepath, JSON.stringify(obj));
 }
 
-export function set(key:string, value: string) {
+export function set(key: string, value: string) {
   const obj = read();
   obj[key] = value;
   write(obj);
 }
 
-
-export function get(key:string) {
+export function get(key: string) {
   return read()[key];
 }

@@ -1,19 +1,18 @@
+import fs from "fs";
 import { GraphQLClient } from "graphql-request";
-import semver from 'semver';
-import filepath from './filepath'
-import fs from 'fs';
-import path from 'path'
-import fetch from 'node-fetch'
+import fetch from "node-fetch";
+import path from "path";
+import semver from "semver";
+import filepath from "./filepath";
 
 export default class OS {
-
-  static async list(hardware: string, token?:string) {
-    let headers:any = {}
+  public static async list(hardware: string, token?: string) {
+    const headers: any = {};
     if (token) {
-      headers.authorization = `Bearer ${token}`
+      headers.authorization = `Bearer ${token}`;
     }
     const graphQLClient = new GraphQLClient(`https://api.obniz.io/v1/graphql`, {
-      headers
+      headers,
     });
     const query = `{
       os(hardware: "${hardware}") {
@@ -23,24 +22,24 @@ export default class OS {
         partition_url
       }
     }`;
-  
+
     const ret = await graphQLClient.request(query);
-    return ret.os
+    return ret.os;
   }
 
-  static async latestPublic(hardware: string) {
+  public static async latestPublic(hardware: string) {
     const versions = await this.list(hardware);
-    for(const v of versions) {
-      if(!semver.prerelease(v)) {
+    for (const v of versions) {
+      if (!semver.prerelease(v)) {
         return v.version;
       }
     }
     throw new Error(`No available obnizOS Found for ${hardware}`);
   }
 
-  static async os(hardware:string, version: string) {
+  public static async os(hardware: string, version: string) {
     const versions = await this.list(hardware);
-    for(const v of versions) {
+    for (const v of versions) {
       if (v.version === version) {
         return v;
       }
@@ -48,10 +47,10 @@ export default class OS {
     throw new Error(`No obnizOS Found for ${hardware}`);
   }
 
-  static async prepareLocalFile(hardware:string, version: string) { 
-    const appPath = filepath(hardware, version, 'app');
-    const bootloaderPath = filepath(hardware, version, 'bootloader');
-    const partitionPath = filepath(hardware, version, 'partition');
+  public static async prepareLocalFile(hardware: string, version: string) {
+    const appPath = filepath(hardware, version, "app");
+    const bootloaderPath = filepath(hardware, version, "bootloader");
+    const partitionPath = filepath(hardware, version, "partition");
     let v;
     if (!fs.existsSync(appPath)) {
       if (!v) {
@@ -74,28 +73,28 @@ export default class OS {
     return {
       app_path: appPath,
       bootloader_path: bootloaderPath,
-      partition_path: partitionPath
-    }
+      partition_path: partitionPath,
+    };
   }
 }
 
-async function downloadFile(url, filepath) {
+async function downloadFile(url, pathtodownload) {
   console.log(`Downloading ${url}`);
 
-  const dirpath = path.dirname(filepath);
+  const dirpath = path.dirname(pathtodownload);
   if (!fs.existsSync(dirpath)) {
     fs.mkdirSync(dirpath);
   }
 
   const res = await fetch(url);
-  const fileStream = fs.createWriteStream(filepath);
+  const fileStream = fs.createWriteStream(pathtodownload);
   await new Promise((resolve, reject) => {
-      res.body.pipe(fileStream);
-      res.body.on("error", (err) => {
-        reject(err);
-      });
-      fileStream.on("finish", function() {
-        resolve();
-      });
+    res.body.pipe(fileStream);
+    res.body.on("error", (err) => {
+      reject(err);
     });
-};
+    fileStream.on("finish", () => {
+      resolve();
+    });
+  });
+}

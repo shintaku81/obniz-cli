@@ -3,19 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
 const graphql_request_1 = require("graphql-request");
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const path_1 = __importDefault(require("path"));
 const semver_1 = __importDefault(require("semver"));
 const filepath_1 = __importDefault(require("./filepath"));
-const fs_1 = __importDefault(require("fs"));
-const node_fetch_1 = __importDefault(require("node-fetch"));
 class OS {
     static async list(hardware, token) {
-        let headers = {};
+        const headers = {};
         if (token) {
             headers.authorization = `Bearer ${token}`;
         }
         const graphQLClient = new graphql_request_1.GraphQLClient(`https://api.obniz.io/v1/graphql`, {
-            headers
+            headers,
         });
         const query = `{
       os(hardware: "${hardware}") {
@@ -40,7 +41,6 @@ class OS {
     static async os(hardware, version) {
         const versions = await this.list(hardware);
         for (const v of versions) {
-            console.log(version, v.version);
             if (v.version === version) {
                 return v;
             }
@@ -48,9 +48,9 @@ class OS {
         throw new Error(`No obnizOS Found for ${hardware}`);
     }
     static async prepareLocalFile(hardware, version) {
-        const appPath = filepath_1.default(hardware, version, 'app');
-        const bootloaderPath = filepath_1.default(hardware, version, 'bootloader');
-        const partitionPath = filepath_1.default(hardware, version, 'partition');
+        const appPath = filepath_1.default(hardware, version, "app");
+        const bootloaderPath = filepath_1.default(hardware, version, "bootloader");
+        const partitionPath = filepath_1.default(hardware, version, "partition");
         let v;
         if (!fs_1.default.existsSync(appPath)) {
             if (!v) {
@@ -73,23 +73,26 @@ class OS {
         return {
             app_path: appPath,
             bootloader_path: bootloaderPath,
-            partition_path: partitionPath
+            partition_path: partitionPath,
         };
     }
 }
 exports.default = OS;
-async function downloadFile(url, path) {
+async function downloadFile(url, pathtodownload) {
     console.log(`Downloading ${url}`);
+    const dirpath = path_1.default.dirname(pathtodownload);
+    if (!fs_1.default.existsSync(dirpath)) {
+        fs_1.default.mkdirSync(dirpath);
+    }
     const res = await node_fetch_1.default(url);
-    const fileStream = fs_1.default.createWriteStream(path);
+    const fileStream = fs_1.default.createWriteStream(pathtodownload);
     await new Promise((resolve, reject) => {
         res.body.pipe(fileStream);
         res.body.on("error", (err) => {
             reject(err);
         });
-        fileStream.on("finish", function () {
+        fileStream.on("finish", () => {
             resolve();
         });
     });
 }
-;

@@ -5,15 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const filepath = path_1.default.join(__dirname, '../..', 'storage.json');
+const filepath = path_1.default.join(__dirname, "../..", "storage.json");
 function read() {
     let obj = {};
     try {
-        const txt = fs_1.default.readFileSync(filepath, { encoding: 'utf8' });
+        const txt = fs_1.default.readFileSync(filepath, { encoding: "utf8" });
         obj = JSON.parse(txt);
     }
-    catch (e) {
-    }
+    catch (e) { }
     return obj;
 }
 function write(obj) {

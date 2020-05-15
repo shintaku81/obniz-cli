@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
 const express_1 = __importDefault(require("express"));
-const http_1 = __importDefault(require("http"));
 const get_port_1 = __importDefault(require("get-port"));
-const opn_1 = __importDefault(require("opn"));
+const http_1 = __importDefault(require("http"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
+const opn_1 = __importDefault(require("opn"));
 const WebAppId = `wa_MjI`;
 const WebAppToken = `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 exports.default = async () => {
@@ -47,7 +47,7 @@ function oauth(port, callback) {
             const code = req.query.code;
             try {
                 const url = new URL(`https://obniz.io/login/oauth/token`);
-                url.searchParams.append('code', code);
+                url.searchParams.append("code", code);
                 const response = await node_fetch_1.default(url, {
                     method: "post",
                     headers: {

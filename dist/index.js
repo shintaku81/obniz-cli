@@ -14,17 +14,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
 const ports_1 = __importDefault(require("./ports"));
-const configure_1 = __importDefault(require("./libs/os/configure"));
 const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
+const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
 const list_1 = __importDefault(require("./libs/os/list"));
 const serialport_guess_1 = __importDefault(require("./libs/os/serialport_guess"));
-const os_1 = __importDefault(require("./libs/obnizio/os"));
+const info_1 = __importDefault(require("./libs/user/info"));
 const login_1 = __importDefault(require("./libs/user/login"));
 const logout_1 = __importDefault(require("./libs/user/logout"));
-const info_1 = __importDefault(require("./libs/user/info"));
-const DEFAULT_BAUD = 1500000;
-const DEFAULT_HARDWARE = "esp32w";
+const defaults_1 = __importDefault(require("./defaults"));
 const relative = "../";
 const packageverion = require(`${relative}package.json`).version;
 // ========== Global Errors =========
@@ -47,7 +45,7 @@ async function preparePort(args) {
     }
     let baud = args.b || args.baud;
     if (!baud) {
-        baud = DEFAULT_BAUD;
+        baud = defaults_1.default.BAUD;
     }
     if (!portname) {
         console.log(`No port defined. And auto detect failed`);
@@ -60,66 +58,32 @@ async function preparePort(args) {
 }
 const routes = {
     "signin": {
+        help: `Signin to obniz Cloud`,
         async execute(args) {
             await login_1.default();
         },
     },
     "signout": {
+        help: `Signout`,
         async execute(args) {
             await logout_1.default();
         },
     },
     "user:info": {
+        help: `Get Currently signin user's information from cloud`,
         async execute(args) {
             await info_1.default();
         },
     },
-    "os:create": {
-        async execute(args) {
-            const obj = await preparePort(args);
-            obj.stdout = (text) => {
-                console.log(text);
-            };
-        },
-    },
-    "os:flash": {
-        async execute(args) {
-            // flashing os
-            const obj = await preparePort(args);
-            let hardware = args.h || args.hardware;
-            if (!hardware) {
-                hardware = DEFAULT_HARDWARE;
-            }
-            let version = args.v || args.version;
-            if (!version) {
-                version = await os_1.default.latestPublic(hardware);
-                console.log(`${version} is the latest. going to use it.`);
-            }
-            obj.version = version;
-            obj.hardware = hardware;
-            obj.stdout = (text) => {
-                console.log(text);
-            };
-            await flash_1.default(obj);
-            // Need something configration after flashing
-            const devicekey = args.k || args.devicekey;
-            if (devicekey) {
-                obj.configs = obj.configs || {};
-                obj.configs.devicekey = devicekey;
-            }
-            if (obj.configs) {
-                const obniz_id = await configure_1.default(obj);
-                console.log(`*** configured device.\n obniz_id = ${obniz_id}`);
-            }
-        },
-    },
+    "os:flash-create": flashcreate_1.default,
+    "os:flash": flash_1.default,
     "os:erase": {
         async execute(args) {
             const obj = await preparePort(args);
-            (obj.stdout = (text) => {
+            obj.stdout = (text) => {
                 console.log(text);
-            }),
-                await erase_1.default(obj);
+            };
+            await erase_1.default(obj);
         },
     },
     "os:ports": {
@@ -131,7 +95,7 @@ const routes = {
         async execute(args) {
             let hardware = args.h || args.hardware;
             if (!hardware) {
-                hardware = DEFAULT_HARDWARE;
+                hardware = defaults_1.default.HARDWARE;
             }
             await list_1.default(hardware);
         },
@@ -150,7 +114,15 @@ const routes = {
         },
     },
     "help": async () => {
-        console.log(`CLI to interact with obniz
+        console.log(`
+       _           _               _ _
+  ___ | |__  _ __ (_)____      ___| (_)
+ / _ \\| '_ \\| '_ \\| |_  /____ / __| | |
+| (_) | |_) | | | | |/ /_____| (__| | |
+ \\___/|_.__/|_| |_|_/___|     \\___|_|_|
+
+
+CLI to interact with obniz device and cloud.
 
 VERSION
   obniz-cli/${packageverion}
@@ -160,29 +132,22 @@ USAGE
 
 COMMANDS
 
-  gui         Launch GUI mode of obniz-cli
+  signin            Signin to obniz cloud.
+  signout           Signout
 
-  signin      Signin to obniz cloud.
-  signout     Signout
-  user:info   Show current Logged in user
+  user:info         Show current Logged in user
 
-  os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
-  os:flash    Flashing and configure target device.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -k XXXX -config XXXX -continue yes
-  os:erase    Fully erase a flash on target device.
-               ARGS: -p XXX
-  os:terminal Simply Launch terminal
-               ARGS: -p XXX
-  os:list     List of available obnizOS for specified hardware
-               ARGS: -h XXX
-  os:ports    Getting serial ports on your machine.
+  os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash          Flashing and configure target device.
+  os:erase          Fully erase a flash on target device.
+  os:list           List of available obnizOS for specified hardware
+  os:ports          Getting serial ports on your machine.
   `);
     },
 };
 arg_1.default(routes)
     .then(() => { })
     .catch((e) => {
-    console.error(e);
+    console.error(`${e}`);
     process.exit(1);
 });

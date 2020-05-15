@@ -9,6 +9,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage = __importStar(require("../storage"));
 exports.default = async () => {
-    Storage.set('token', null);
+    Storage.set("token", null);
     console.log(`Logged out`);
 };

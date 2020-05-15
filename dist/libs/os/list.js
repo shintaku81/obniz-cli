@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const os_1 = __importDefault(require("../obnizio/os"));
 const Storage = __importStar(require("../storage"));
 exports.default = async (hardware) => {
-    const token = Storage.get('token');
+    const token = Storage.get("token");
     console.log(`
 OS versions for ${hardware}
 `);

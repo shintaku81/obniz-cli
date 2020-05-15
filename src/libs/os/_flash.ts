@@ -1,20 +1,23 @@
 import child_process from "child_process";
-import OS from '../obnizio/os'
+import OS from "../obnizio/os";
 
 export default function flash(obj: { portname: string; hardware: string; version: string; baud: number; stdout: any }) {
   return new Promise(async (resolve, reject) => {
     // prepare files
     const files = await OS.prepareLocalFile(obj.hardware, obj.version);
-    
+
     let received = "";
     obj.stdout("", { clear: true });
 
-    console.log(`flashing
+    console.log(`
+***
+flashing obnizOS
  serialport: ${obj.portname}
  baud: ${obj.baud}
 
- hw: ${obj.hardware}
+ hardware: ${obj.hardware}
  version: ${obj.version}
+***
 `);
 
     const cmd =

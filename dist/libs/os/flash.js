@@ -2,46 +2,113 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const child_process_1 = __importDefault(require("child_process"));
-const os_1 = __importDefault(require("../obnizio/os"));
-function flash(obj) {
-    return new Promise(async (resolve, reject) => {
-        // prepare files
-        const files = await os_1.default.prepareLocalFile(obj.hardware, obj.version);
-        let received = "";
-        obj.stdout("", { clear: true });
-        console.log(`flashing
- serialport: ${obj.portname}
- baud: ${obj.baud}
-
- hw: ${obj.hardware}
- version: ${obj.version}
-`);
-        const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset` +
-            ` write_flash` +
-            ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-            ` 0x1000 ${files.bootloader_path}` +
-            ` 0x10000 ${files.app_path}` +
-            ` 0x8000 ${files.partition_path}`;
-        const child = child_process_1.default.exec(cmd);
-        child.stdout.setEncoding("utf8");
-        child.stdout.on("data", (text) => {
-            obj.stdout(text);
-            received += text;
-        });
-        child.stderr.on("data", (text) => {
-            obj.stdout(text);
-            received += text;
-        });
-        child.on("error", (er) => {
-            console.log(er);
-            reject(er);
-        });
-        child.on("exit", (e) => {
-            console.log(e);
-            resolve();
-        });
-    });
+const defaults_1 = __importDefault(require("../../defaults"));
+const os_1 = __importDefault(require("../../libs/obnizio/os"));
+const configure_1 = __importDefault(require("../../libs/os/configure"));
+const device_1 = __importDefault(require("../obnizio/device"));
+const serialport_guess_1 = __importDefault(require("../os/serialport_guess"));
+const Storage = __importStar(require("../storage"));
+const _flash_1 = __importDefault(require("./_flash"));
+async function preparePort(args) {
+    let portname = args.p || args.port;
+    if (!portname) {
+        portname = await serialport_guess_1.default();
+        if (portname) {
+            console.log(`Guessed Serial Port ${portname}`);
+        }
+    }
+    let baud = args.b || args.baud;
+    if (!baud) {
+        baud = defaults_1.default.BAUD;
+    }
+    if (!portname) {
+        console.log(`No port defined. And auto detect failed`);
+        process.exit(0);
+    }
+    return {
+        portname,
+        baud,
+    };
 }
-exports.default = flash;
+exports.default = {
+    help: `Flash obnizOS and configure it
+
+[serial setting]
+ -p --port      serial port path to flash. If not specified. will be automatically selected.
+ -b --baud      flashing baud rate. default to ${defaults_1.default.BAUD}
+
+[flashing setting]
+ -h --hardware  hardware to be flashed. default to ${defaults_1.default.HARDWARE}
+ -v --version   obnizOS version to be flashed. default to latest one.
+
+[configrations]
+ -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
+ -i --id        obnizID to be configured. You need to signin before use this.
+  `,
+    async execute(args) {
+        // flashing os
+        const obj = await preparePort(args);
+        let hardware = args.h || args.hardware;
+        if (!hardware) {
+            hardware = defaults_1.default.HARDWARE;
+        }
+        obj.hardware = hardware;
+        let version = args.v || args.version;
+        if (!version) {
+            version = await os_1.default.latestPublic(hardware);
+            console.log(`${version} is the latest for ${hardware}. going to use it.`);
+        }
+        obj.version = version;
+        // Need something configration after flashing
+        const devicekey = args.d || args.devicekey;
+        if (devicekey) {
+            obj.configs = obj.configs || {};
+            obj.configs.devicekey = devicekey;
+        }
+        const obniz_id = args.i || args.id;
+        if (obniz_id) {
+            if (obj.configs && obj.configs.devicekey) {
+                throw new Error(`devicekey and id are double specified.`);
+            }
+            const token = Storage.get("token");
+            if (!token) {
+                throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+            }
+            const device = await device_1.default.get(token, obniz_id);
+            if (!device) {
+                throw new Error(`device ${obniz_id} was not found in your devices.`);
+            }
+            console.log(`
+***
+device ${obniz_id}
+  description: ${device.description}
+  createdAt: ${device.createdAt}
+  hardware: ${device.hardware}
+  status: ${device.status}
+  devicekey: ${device.devicekey}
+***
+      `);
+            if (!device.devicekey) {
+                throw new Error(`device ${obniz_id} has no devicekey.`);
+            }
+            obj.configs = obj.configs || {};
+            obj.configs.devicekey = device.devicekey;
+        }
+        obj.stdout = (text) => {
+            console.log(text);
+        };
+        await _flash_1.default(obj);
+        if (obj.configs) {
+            const generated_obniz_id = await configure_1.default(obj);
+            console.log(`*** configured device.\n obniz_id = ${obniz_id || generated_obniz_id}`);
+        }
+    },
+};
