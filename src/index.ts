@@ -113,7 +113,15 @@ const routes = {
     },
   },
   "help": async () => {
-    console.log(`CLI to interact with obniz
+    console.log(`
+       _           _               _ _ 
+  ___ | |__  _ __ (_)____      ___| (_)
+ / _ \\| '_ \\| '_ \\| |_  /____ / __| | |
+| (_) | |_) | | | | |/ /_____| (__| | |
+ \\___/|_.__/|_| |_|_/___|     \\___|_|_|
+                                       
+    
+CLI to interact with obniz device and cloud.
 
 VERSION
   obniz-cli/${packageverion}
@@ -140,6 +148,6 @@ COMMANDS
 Args(routes)
   .then(() => {})
   .catch((e) => {
-    console.error(e);
+    console.error(`${e}`);
     process.exit(1);
   });
