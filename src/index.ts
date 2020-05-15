@@ -133,8 +133,6 @@ COMMANDS
   os:erase          Fully erase a flash on target device.
   os:list           List of available obnizOS for specified hardware
   os:ports          Getting serial ports on your machine.
-
-  gui               Launch GUI mode of obniz-cli
   `);
   },
 };
