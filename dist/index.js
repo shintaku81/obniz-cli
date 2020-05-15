@@ -14,13 +14,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
 const ports_1 = __importDefault(require("./ports"));
-const configure_1 = __importDefault(require("./libs/configure"));
-const erase_1 = __importDefault(require("./libs/erase"));
-const flash_1 = __importDefault(require("./libs/flash"));
-const serialport_guess_1 = __importDefault(require("./libs/serialport_guess"));
+const configure_1 = __importDefault(require("./libs/os/configure"));
+const erase_1 = __importDefault(require("./libs/os/erase"));
+const flash_1 = __importDefault(require("./libs/os/flash"));
+const list_1 = __importDefault(require("./libs/os/list"));
+const serialport_guess_1 = __importDefault(require("./libs/os/serialport_guess"));
+const os_1 = __importDefault(require("./libs/obnizio/os"));
+const login_1 = __importDefault(require("./libs/user/login"));
+const logout_1 = __importDefault(require("./libs/user/logout"));
+const info_1 = __importDefault(require("./libs/user/info"));
 const DEFAULT_BAUD = 1500000;
 const DEFAULT_HARDWARE = "esp32w";
-const DEFAULT_VERSION = "3.2.0";
 const relative = "../";
 const packageverion = require(`${relative}package.json`).version;
 // ========== Global Errors =========
@@ -55,8 +59,20 @@ async function preparePort(args) {
     };
 }
 const routes = {
-    "login": {
-        async execute(args) { },
+    "signin": {
+        async execute(args) {
+            await login_1.default();
+        },
+    },
+    "signout": {
+        async execute(args) {
+            await logout_1.default();
+        },
+    },
+    "user:info": {
+        async execute(args) {
+            await info_1.default();
+        },
     },
     "os:create": {
         async execute(args) {
@@ -70,13 +86,14 @@ const routes = {
         async execute(args) {
             // flashing os
             const obj = await preparePort(args);
-            let version = args.v || args.version;
-            if (!version) {
-                version = DEFAULT_VERSION;
-            }
             let hardware = args.h || args.hardware;
             if (!hardware) {
                 hardware = DEFAULT_HARDWARE;
+            }
+            let version = args.v || args.version;
+            if (!version) {
+                version = await os_1.default.latestPublic(hardware);
+                console.log(`${version} is the latest. going to use it.`);
             }
             obj.version = version;
             obj.hardware = hardware;
@@ -110,6 +127,15 @@ const routes = {
             await ports_1.default();
         },
     },
+    "os:list": {
+        async execute(args) {
+            let hardware = args.h || args.hardware;
+            if (!hardware) {
+                hardware = DEFAULT_HARDWARE;
+            }
+            await list_1.default(hardware);
+        },
+    },
     "gui": {
         async execute(args) {
             console.log(`Launching...`);
@@ -134,9 +160,11 @@ USAGE
 
 COMMANDS
 
-  login       Login to obniz cloud.
-
   gui         Launch GUI mode of obniz-cli
+
+  signin      Signin to obniz cloud.
+  signout     Signout
+  user:info   Show current Logged in user
 
   os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
                ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
@@ -146,6 +174,8 @@ COMMANDS
                ARGS: -p XXX
   os:terminal Simply Launch terminal
                ARGS: -p XXX
+  os:list     List of available obnizOS for specified hardware
+               ARGS: -h XXX
   os:ports    Getting serial ports on your machine.
   `);
     },

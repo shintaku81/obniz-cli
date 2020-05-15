@@ -5,7 +5,7 @@ import puppeteer from "puppeteer-core";
 import SerialPort from "serialport";
 import socketio from "socket.io";
 
-import Flash from "../libs/os/flash";
+import Flash from "../libs/os/_flash";
 import * as KeyPair from "../libs/os/keypair";
 import SerialPortAutoDetect from "../libs/os/serialport_auto_detect";
 

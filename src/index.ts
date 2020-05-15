@@ -4,7 +4,7 @@ import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./ports";
 
-import Configure from "./libs/os/configure";
+import Create from './libs/os/flashcreate'
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
 import List from "./libs/os/list";
@@ -14,9 +14,7 @@ import Login from './libs/user/login'
 import Logout from './libs/user/logout'
 import UserInfo from './libs/user/info'
 
-const DEFAULT_BAUD = 1500000;
-const DEFAULT_HARDWARE = "esp32w";
-const DEFAULT_VERSION = "3.2.0";
+import Defaults from './defaults'
 
 const relative = "../";
 
@@ -46,7 +44,7 @@ async function preparePort(args: any): Promise<any> {
   }
   let baud: any = args.b || args.baud;
   if (!baud) {
-    baud = DEFAULT_BAUD;
+    baud = Defaults.BAUD;
   }
   if (!portname) {
     console.log(`No port defined. And auto detect failed`);
@@ -60,58 +58,25 @@ async function preparePort(args: any): Promise<any> {
 
 const routes = {
   "signin": {
+    help: `Signin to obniz Cloud`,
     async execute(args: any) {
       await Login();
     },
   },
   "signout": {
+    help: `Signout`,
     async execute(args: any) {
       await Logout();
     },
   },
   "user:info": {
+    help: `Get Currently signin user's information from cloud`,
     async execute(args: any) {
       await UserInfo();
     },
   },
-  "os:create": {
-    async execute(args: any) {
-      const obj = await preparePort(args);
-      obj.stdout = (text: string) => {
-        console.log(text);
-      };
-    },
-  },
-  "os:flash": {
-    async execute(args: any) {
-      // flashing os
-      const obj: any = await preparePort(args);
-      let version: any = args.v || args.version;
-      if (!version) {
-        version = DEFAULT_VERSION;
-      }
-      let hardware: any = args.h || args.hardware;
-      if (!hardware) {
-        hardware = DEFAULT_HARDWARE;
-      }
-      obj.version = version;
-      obj.hardware = hardware;
-      obj.stdout = (text: string) => {
-        console.log(text);
-      };
-      await Flash(obj);
-      // Need something configration after flashing
-      const devicekey: any = args.k || args.devicekey;
-      if (devicekey) {
-        obj.configs = obj.configs || {};
-        obj.configs.devicekey = devicekey;
-      }
-      if (obj.configs) {
-        const obniz_id = await Configure(obj);
-        console.log(`*** configured device.\n obniz_id = ${obniz_id}`);
-      }
-    },
-  },
+  "os:flash-create": Create,
+  "os:flash": Flash,
   "os:erase": {
     async execute(args: any) {
       const obj = await preparePort(args);
@@ -130,7 +95,7 @@ const routes = {
     async execute(args: any) {
       let hardware: any = args.h || args.hardware;
       if (!hardware) {
-        hardware = DEFAULT_HARDWARE;
+        hardware = Defaults.HARDWARE;
       }
       await List(hardware);
     },
@@ -158,23 +123,18 @@ USAGE
 
 COMMANDS
 
-  gui         Launch GUI mode of obniz-cli
+  signin            Signin to obniz cloud.
+  signout           Signout
 
-  signin      Signin to obniz cloud.
-  signout     Signout
-  user:info   Show current Logged in user
+  user:info         Show current Logged in user
 
-  os:create   Flashing and configure target device and registrate it on your account on obnizCloud.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -config XXXX -continue yes
-  os:flash    Flashing and configure target device.
-               ARGS: -h XXX -v X.X.X -p XXX -b XXX -k XXXX -config XXXX -continue yes
-  os:erase    Fully erase a flash on target device.
-               ARGS: -p XXX
-  os:terminal Simply Launch terminal
-               ARGS: -p XXX
-  os:list     List of available obnizOS for specified hardware
-               ARGS: -h XXX
-  os:ports    Getting serial ports on your machine.
+  os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash          Flashing and configure target device.
+  os:erase          Fully erase a flash on target device.
+  os:list           List of available obnizOS for specified hardware
+  os:ports          Getting serial ports on your machine.
+
+  gui               Launch GUI mode of obniz-cli
   `);
   },
 };

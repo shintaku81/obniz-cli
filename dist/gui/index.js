@@ -8,8 +8,8 @@ const get_port_1 = __importDefault(require("get-port"));
 const path_1 = __importDefault(require("path"));
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const socket_io_1 = __importDefault(require("socket.io"));
-const flash_1 = __importDefault(require("../libs/flash"));
-const serialport_auto_detect_1 = __importDefault(require("../libs/serialport_auto_detect"));
+const flash_1 = __importDefault(require("../libs/os/flash"));
+const serialport_auto_detect_1 = __importDefault(require("../libs/os/serialport_auto_detect"));
 // ========== Definitions =========
 const devices = [];
 let version = null;

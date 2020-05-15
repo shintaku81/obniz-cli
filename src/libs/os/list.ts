@@ -1,4 +1,4 @@
-import OSList from '../obnizio/oslist'
+import OS from '../obnizio/os'
 import * as Storage from '../storage'
 
 export default async (hardware: string) => {
@@ -6,7 +6,7 @@ export default async (hardware: string) => {
   console.log(`
 OS versions for ${hardware}
 `)
-  const versions = await OSList(hardware, token);
+  const versions = await OS.list(hardware, token);
   for(const v of versions) {
     console.log(`  ${v.version}`);
   }

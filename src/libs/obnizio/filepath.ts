@@ -1,7 +1,7 @@
 import path from "path";
 
 export default (hw: string, version: string, type: string) => {
-  const relative = "../..";
+  const relative = "../../../";
   const map = {
     bootloader: "__bootloader.bin",
     partition: "__partition.bin",

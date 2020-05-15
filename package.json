@@ -56,6 +56,7 @@
     "node-fetch": "^2.6.0",
     "opn": "^6.0.0",
     "puppeteer-core": "^3.0.4",
+    "semver": "^7.3.2",
     "serialport": "^9.0.0",
     "socket.io": "^2.3.0"
   }

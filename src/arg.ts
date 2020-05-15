@@ -10,7 +10,12 @@ export default async (routes: any) => {
   const route = routes[command];
   if (args.help) {
     if (route && route.help) {
-      await route.help();
+      console.log(`Usage for\n$obniz-cli ${command}\n`)
+      if(typeof route.help === 'function') {
+        await route.help();
+      } else {
+        console.log(`${route.help}`)
+      }
     } else {
       await routes.help();
     }
