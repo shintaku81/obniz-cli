@@ -2,13 +2,13 @@
 
 import Args from "./arg";
 import * as gui from "./gui";
-import Ports from "./ports";
+import Ports from "./libs/os/ports";
 
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
 import Create from "./libs/os/flashcreate";
 import List from "./libs/os/list";
-import SerialGuess from "./libs/os/serialport_guess";
+import SerialGuess from "./libs/os/serial/guess";
 
 import UserInfo from "./libs/user/info";
 import Login from "./libs/user/login";

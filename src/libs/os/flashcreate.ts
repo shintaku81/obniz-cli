@@ -2,9 +2,9 @@ import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
 import Configure from "../../libs/os/configure";
 import Device from "../obnizio/device";
-import SerialGuess from "../os/serialport_guess";
 import * as Storage from "../storage";
 import Flash from "./_flash";
+import SerialGuess from "./serial/guess";
 
 async function preparePort(args: any): Promise<any> {
   let portname: string = args.p || args.port;

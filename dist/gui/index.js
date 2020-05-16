@@ -9,7 +9,7 @@ const path_1 = __importDefault(require("path"));
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const _flash_1 = __importDefault(require("../libs/os/_flash"));
-const serialport_auto_detect_1 = __importDefault(require("../libs/os/serialport_auto_detect"));
+const auto_detect_1 = __importDefault(require("../libs/os/serial/auto_detect"));
 // ========== Definitions =========
 const devices = [];
 let version = null;
@@ -127,7 +127,7 @@ async function launch() {
 async function startUI() {
     await ui_versions();
     await ui_print("Searching USB...", { clear: true });
-    portTTYName = await serialport_auto_detect_1.default();
+    portTTYName = await auto_detect_1.default();
     await ui_print("Found:USB " + portTTYName, { clear: true });
     ui_state_to("normal");
 }

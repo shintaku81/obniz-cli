@@ -1,6 +1,6 @@
+import Defaults from "../../defaults";
 import OS from "../obnizio/os";
 import * as Storage from "../storage";
-import Defaults from "../../defaults"
 
 export default {
   help: `List available OS list for hardware.
@@ -14,7 +14,7 @@ export default {
     }
     await list(hardware);
   },
-}
+};
 
 async function list(hardware: string) {
   const token = Storage.get("token");
@@ -25,4 +25,4 @@ OS versions for ${hardware}
   for (const v of versions) {
     console.log(`  ${v.version}`);
   }
-};
+}

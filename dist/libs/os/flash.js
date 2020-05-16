@@ -14,13 +14,13 @@ const defaults_1 = __importDefault(require("../../defaults"));
 const os_1 = __importDefault(require("../../libs/obnizio/os"));
 const configure_1 = __importDefault(require("../../libs/os/configure"));
 const device_1 = __importDefault(require("../obnizio/device"));
-const serialport_guess_1 = __importDefault(require("../os/serialport_guess"));
 const Storage = __importStar(require("../storage"));
 const _flash_1 = __importDefault(require("./_flash"));
+const guess_1 = __importDefault(require("./serial/guess"));
 async function preparePort(args) {
     let portname = args.p || args.port;
     if (!portname) {
-        portname = await serialport_guess_1.default();
+        portname = await guess_1.default();
         if (portname) {
             console.log(`Guessed Serial Port ${portname}`);
         }
@@ -69,12 +69,14 @@ exports.default = {
         obj.version = version;
         // Need something configration after flashing
         const devicekey = args.d || args.devicekey;
+        let obniz_id = null;
         if (devicekey) {
             obj.configs = obj.configs || {};
             obj.configs.devicekey = devicekey;
+            obniz_id = devicekey.split("&")[0];
         }
-        const obniz_id = args.i || args.id;
-        if (obniz_id) {
+        if (args.i || args.id) {
+            obniz_id = args.i || args.id;
             if (obj.configs && obj.configs.devicekey) {
                 throw new Error(`devicekey and id are double specified.`);
             }
@@ -107,8 +109,13 @@ device ${obniz_id}
         };
         await _flash_1.default(obj);
         if (obj.configs) {
-            const generated_obniz_id = await configure_1.default(obj);
-            console.log(`*** configured device.\n obniz_id = ${obniz_id || generated_obniz_id}`);
+            await configure_1.default(obj);
+            console.log(`
+***
+configured device.
+ obniz_id = ${obniz_id}
+***
+ `);
         }
     },
 };

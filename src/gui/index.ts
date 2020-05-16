@@ -7,7 +7,7 @@ import socketio from "socket.io";
 
 import Flash from "../libs/os/_flash";
 import * as KeyPair from "../libs/os/keypair";
-import SerialPortAutoDetect from "../libs/os/serialport_auto_detect";
+import SerialPortAutoDetect from "../libs/os/serial/auto_detect";
 
 // ========== Definitions =========
 

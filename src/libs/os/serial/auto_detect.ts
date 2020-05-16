@@ -1,4 +1,4 @@
-import guessPort from "./serialport_guess";
+import guessPort from "./guess";
 
 export default async function waitForPort() {
   while (true) {

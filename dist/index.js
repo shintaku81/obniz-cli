@@ -13,12 +13,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
-const ports_1 = __importDefault(require("./ports"));
+const ports_1 = __importDefault(require("./libs/os/ports"));
 const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
 const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
 const list_1 = __importDefault(require("./libs/os/list"));
-const serialport_guess_1 = __importDefault(require("./libs/os/serialport_guess"));
+const guess_1 = __importDefault(require("./libs/os/serial/guess"));
 const info_1 = __importDefault(require("./libs/user/info"));
 const login_1 = __importDefault(require("./libs/user/login"));
 const logout_1 = __importDefault(require("./libs/user/logout"));
@@ -38,7 +38,7 @@ process.on("unhandledRejection", (err) => {
 async function preparePort(args) {
     let portname = args.p || args.port;
     if (!portname) {
-        portname = await serialport_guess_1.default();
+        portname = await guess_1.default();
         if (portname) {
             console.log(`Guessed Serial Port ${portname}`);
         }
@@ -86,18 +86,11 @@ const routes = {
             await erase_1.default(obj);
         },
     },
+    "os:list": list_1.default,
     "os:ports": {
+        help: `List your machine's serial ports`,
         async execute(args) {
             await ports_1.default();
-        },
-    },
-    "os:list": {
-        async execute(args) {
-            let hardware = args.h || args.hardware;
-            if (!hardware) {
-                hardware = defaults_1.default.HARDWARE;
-            }
-            await list_1.default(hardware);
         },
     },
     "gui": {

@@ -2,9 +2,9 @@ import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
 import Configure from "../../libs/os/configure";
 import Device from "../obnizio/device";
-import SerialGuess from "../os/serialport_guess";
 import * as Storage from "../storage";
 import Flash from "./_flash";
+import SerialGuess from "./serial/guess";
 
 async function preparePort(args: any): Promise<any> {
   let portname: string = args.p || args.port;
@@ -59,12 +59,15 @@ export default {
     obj.version = version;
     // Need something configration after flashing
     const devicekey: any = args.d || args.devicekey;
+    let obniz_id: any = null;
     if (devicekey) {
       obj.configs = obj.configs || {};
       obj.configs.devicekey = devicekey;
+      obniz_id = devicekey.split("&")[0];
     }
-    const obniz_id: any = args.i || args.id;
-    if (obniz_id) {
+
+    if (args.i || args.id) {
+      obniz_id = args.i || args.id;
       if (obj.configs && obj.configs.devicekey) {
         throw new Error(`devicekey and id are double specified.`);
       }
@@ -97,8 +100,13 @@ device ${obniz_id}
     };
     await Flash(obj);
     if (obj.configs) {
-      const generated_obniz_id = await Configure(obj);
-      console.log(`*** configured device.\n obniz_id = ${obniz_id || generated_obniz_id}`);
+      await Configure(obj);
+      console.log(`
+***
+configured device.
+ obniz_id = ${obniz_id}
+***
+ `);
     }
   },
 };
