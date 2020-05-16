@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import child_process from "child_process";
 import OS from "../obnizio/os";
 
@@ -9,7 +10,8 @@ export default function flash(obj: { portname: string; hardware: string; version
     let received = "";
     obj.stdout("", { clear: true });
 
-    console.log(`
+    console.log(
+      chalk.yellow(`
 ***
 flashing obnizOS
  serialport: ${obj.portname}
@@ -18,7 +20,8 @@ flashing obnizOS
  hardware: ${obj.hardware}
  version: ${obj.version}
 ***
-`);
+`),
+    );
 
     const cmd =
       `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset` +

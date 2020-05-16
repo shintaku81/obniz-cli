@@ -2,9 +2,17 @@
 
 The obniz CLI is used to flashing and configuring obnizOS for processors.
 
-For more about obniz see https://obniz.io/
+About obniz? see https://obniz.io/
 
-obniz-cli works with Nodejs12 and MacOS.
+
+obniz-cli perform flashing, network configuring, also device creation on obniz Cloud.
+
+```shell
+obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
+```
+
+
+obniz-cli works with Nodejs12 and MacOS. (Windows are not tested)
 
 
 ## Install
@@ -24,6 +32,8 @@ pip install esptool
 
 ## Help
 
+call with `--help`
+
 ```shell
 $ obniz-cli --help
 
@@ -39,6 +49,7 @@ COMMANDS
 
   os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
   os:flash          Flashing and configure target device.
+  os:cofig          Configure obnizOS flashed device.
   os:erase          Fully erase a flash on target device.
   os:list           List of available obnizOS for specified hardware
   os:ports          Getting serial ports on your machine.
@@ -65,6 +76,7 @@ Flash obnizOS and configure it
 [configrations]
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
+ -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
  ```
 
 
@@ -151,11 +163,40 @@ If you specify obnizID or Devicekey, obniz-cli will configure it for your device
 Specify obnizID to be configured. Devicekey will be downloaded from Cloud and flashed to your device.
 
 ```
-obniz-cli os:flash --id 0000-0000  -p /dev/tty.USBSERIAL
+obniz-cli os:flash --id 0000-0000  -p /dev/tty.USBSERIAL --config ./wifi-config.json
 ```
 
 Or, you can specify Devicekey like below
 
 ```
-obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63fe5448e06a'
+obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63fe5448e06a' --config ./wifi-config.json
 ```
+
+## Network Configration
+
+Specify json format configration file path when flashing.
+obniz-cli will automatically configre it.
+
+See [example](./example_config.json)
+
+```json
+{
+  "networks":[
+    {
+      "type": "wifi",
+      "settings": {
+        "ssid": "exampl_essid",
+        "password": "example_password",
+      }
+    }
+  ]
+}
+```
+
+`os:flash` and `os:flash-create` will perform that.
+
+```shell
+obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
+```
+
+

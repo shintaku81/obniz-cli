@@ -1,9 +1,10 @@
+import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
-import Configure from "../../libs/os/configure";
 import Device from "../obnizio/device";
 import * as Storage from "../storage";
 import Flash from "./_flash";
+import Config from "./config";
 import SerialGuess from "./serial/guess";
 
 async function preparePort(args: any): Promise<any> {
@@ -41,19 +42,29 @@ export default {
 
 [obnizCloud device setting]
  -r --region      device config region
- -d --description device config description
+    --description device config description
+ -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   async execute(args: any) {
+    // If device related configration exist
+    // It is not allowed. because device will be created from me.
+    if (args.d || args.devicekey || args.i || args.id) {
+      throw new Error(`You can't pass devicekey/id arguments. Because flash-create will create new device.`);
+    }
+
     // login check
     const token = Storage.get("token");
     if (!token) {
       throw new Error(`You must singin before create device`);
     }
 
-    // flashing os
+    // SerialPortSetting
     const obj: any = await preparePort(args);
-    const region: any = args.r || args.region || "jp";
-    const description: any = args.d || args.description || "";
+    obj.stdout = (text: string) => {
+      process.stdout.write(text);
+    };
+
+    // OS Setting
     const hardware: any = args.h || args.hardware || Defaults.HARDWARE;
     let version: any = args.v || args.version;
     if (!version) {
@@ -62,19 +73,19 @@ export default {
     }
     obj.version = version;
     obj.hardware = hardware;
-
-    obj.stdout = (text: string) => {
-      console.log(text);
-    };
     await Flash(obj);
 
+    // Device Creation Setting
+    const region: any = args.r || args.region || "jp";
+    const description: any = args.description || "";
     // registrate
     const device = await Device.create(token, {
       region,
       description,
       hardware,
     });
-    console.log(`
+    console.log(
+      chalk.green(`
 ***
 created one device on obniz Cloud.
   obnizID: ${device.id}
@@ -83,15 +94,13 @@ created one device on obniz Cloud.
 
 obniz-cli going to flash Devicekey to connected device.
 ***
-    `);
+    `),
+    );
 
-    obj.configs = obj.configs || {};
-    obj.configs.devicekey = device.devicekey;
-    if (obj.configs) {
-      await Configure(obj);
-    }
-    console.log(`
-Finished Device  ${device.id}
-    `);
+    // Configure it
+    args.p = undefined;
+    args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
+    args.devicekey = device.devicekey;
+    await Config.execute(args);
   },
 };

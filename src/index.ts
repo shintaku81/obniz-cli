@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
+import chalk from "chalk";
+
 import Args from "./arg";
 import * as gui from "./gui";
 import Ports from "./libs/os/ports";
 
+import Config from "./libs/os/config";
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
 import Create from "./libs/os/flashcreate";
@@ -77,11 +80,12 @@ const routes = {
   },
   "os:flash-create": Create,
   "os:flash": Flash,
+  "os:config": Config,
   "os:erase": {
     async execute(args: any) {
       const obj = await preparePort(args);
       obj.stdout = (text: string) => {
-        console.log(text);
+        process.stdout.write(text);
       };
       await Erase(obj);
     },
@@ -131,6 +135,7 @@ COMMANDS
 
   os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
   os:flash          Flashing and configure target device.
+  os:cofig          Configure obnizOS flashed device.
   os:erase          Fully erase a flash on target device.
   os:list           List of available obnizOS for specified hardware
   os:ports          Getting serial ports on your machine.
@@ -141,6 +146,6 @@ COMMANDS
 Args(routes)
   .then(() => {})
   .catch((e) => {
-    console.error(`${e}`);
+    console.log(chalk.red(`${e}`));
     process.exit(1);
   });

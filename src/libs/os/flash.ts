@@ -1,9 +1,8 @@
+import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
-import Configure from "../../libs/os/configure";
-import Device from "../obnizio/device";
-import * as Storage from "../storage";
 import Flash from "./_flash";
+import Config from "./config";
 import SerialGuess from "./serial/guess";
 
 async function preparePort(args: any): Promise<any> {
@@ -42,10 +41,16 @@ export default {
 [configrations]
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
+ -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   async execute(args: any) {
     // flashing os
     const obj: any = await preparePort(args);
+    obj.stdout = (text) => {
+      process.stdout.write(text);
+    };
+
+    // OS setting
     let hardware: any = args.h || args.hardware;
     if (!hardware) {
       hardware = Defaults.HARDWARE;
@@ -54,59 +59,14 @@ export default {
     let version: any = args.v || args.version;
     if (!version) {
       version = await OS.latestPublic(hardware);
-      console.log(`${version} is the latest for ${hardware}. going to use it.`);
+      console.log(chalk.yellow(`${version} is the latest for ${hardware}. going to use it.`));
     }
     obj.version = version;
-    // Need something configration after flashing
-    const devicekey: any = args.d || args.devicekey;
-    let obniz_id: any = null;
-    if (devicekey) {
-      obj.configs = obj.configs || {};
-      obj.configs.devicekey = devicekey;
-      obniz_id = devicekey.split("&")[0];
-    }
-
-    if (args.i || args.id) {
-      obniz_id = args.i || args.id;
-      if (obj.configs && obj.configs.devicekey) {
-        throw new Error(`devicekey and id are double specified.`);
-      }
-      const token = Storage.get("token");
-      if (!token) {
-        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
-      }
-      const device = await Device.get(token, obniz_id);
-      if (!device) {
-        throw new Error(`device ${obniz_id} was not found in your devices.`);
-      }
-      console.log(`
-***
-device ${obniz_id}
-  description: ${device.description}
-  createdAt: ${device.createdAt}
-  hardware: ${device.hardware}
-  status: ${device.status}
-  devicekey: ${device.devicekey}
-***
-      `);
-      if (!device.devicekey) {
-        throw new Error(`device ${obniz_id} has no devicekey.`);
-      }
-      obj.configs = obj.configs || {};
-      obj.configs.devicekey = device.devicekey;
-    }
-    obj.stdout = (text: string) => {
-      console.log(text);
-    };
     await Flash(obj);
-    if (obj.configs) {
-      await Configure(obj);
-      console.log(`
-***
-configured device.
- obniz_id = ${obniz_id}
-***
- `);
-    }
+
+    // Configure it
+    args.p = undefined;
+    args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
+    await Config.execute(args);
   },
 };

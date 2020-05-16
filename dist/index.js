@@ -11,9 +11,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const chalk_1 = __importDefault(require("chalk"));
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
 const ports_1 = __importDefault(require("./libs/os/ports"));
+const config_1 = __importDefault(require("./libs/os/config"));
 const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
 const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
@@ -77,11 +79,12 @@ const routes = {
     },
     "os:flash-create": flashcreate_1.default,
     "os:flash": flash_1.default,
+    "os:config": config_1.default,
     "os:erase": {
         async execute(args) {
             const obj = await preparePort(args);
             obj.stdout = (text) => {
-                console.log(text);
+                process.stdout.write(text);
             };
             await erase_1.default(obj);
         },
@@ -132,6 +135,7 @@ COMMANDS
 
   os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
   os:flash          Flashing and configure target device.
+  os:cofig          Configure obnizOS flashed device.
   os:erase          Fully erase a flash on target device.
   os:list           List of available obnizOS for specified hardware
   os:ports          Getting serial ports on your machine.
@@ -141,6 +145,6 @@ COMMANDS
 arg_1.default(routes)
     .then(() => { })
     .catch((e) => {
-    console.error(`${e}`);
+    console.log(chalk_1.default.red(`${e}`));
     process.exit(1);
 });
