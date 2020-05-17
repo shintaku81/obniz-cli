@@ -82,6 +82,8 @@ export default class Serial {
       setTimeout(resolve, 10);
     });
     await new Promise(async (resolve, reject) => {
+      // リセット時にはクリアする
+      this.clearReceived();
       this.serialport.set(
         {
           dtr: true,
