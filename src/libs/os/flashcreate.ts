@@ -75,32 +75,76 @@ export default {
     obj.hardware = hardware;
     await Flash(obj);
 
-    // Device Creation Setting
-    const region: any = args.r || args.region || "jp";
-    const description: any = args.description || "";
-    // registrate
-    const device = await Device.create(token, {
-      region,
-      description,
-      hardware,
-    });
-    console.log(
-      chalk.green(`
+    const recoveryDeviceString = Storage.get("recovery-device");
+    let device;
+    if (recoveryDeviceString) {
+      device = JSON.parse(recoveryDeviceString);
+      const use = await askUseRecovery(device);
+      if (!use) {
+        Storage.set("recovery-device", null);
+      }
+    }
+
+    if (!device) {
+      // Device Creation Setting
+      const region: any = args.r || args.region || "jp";
+      const description: any = args.description || "";
+      // registrate
+      device = await Device.create(token, {
+        region,
+        description,
+        hardware,
+      });
+      console.log(
+        chalk.green(`
 ***
 created one device on obniz Cloud.
-  obnizID: ${device.id}
-  region: ${device.region}
-  description: ${device.description}
+obnizID: ${device.id}
+region: ${device.region}
+description: ${device.description}
 
 obniz-cli going to flash Devicekey to connected device.
 ***
-    `),
-    );
+      `),
+      );
+    }
 
-    // Configure it
-    args.p = undefined;
-    args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
-    args.devicekey = device.devicekey;
-    await Config.execute(args);
+    try {
+      // Configure it
+      args.p = undefined;
+      args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
+      args.devicekey = device.devicekey;
+      await Config.execute(args);
+    } catch (e) {
+      Storage.set("recovery-device", JSON.stringify(device));
+      throw e;
+    }
+    Storage.set("recovery-device", null);
   },
 };
+
+function askUseRecovery(device) {
+  return new Promise((resolve, reject) => {
+    console.log(
+      chalk.yellow(
+        `Would you like to use recovery device ${device.id} [ ${device.description} ] rather than create one more device?\nThat is flashing failed one last time.\nIf you choose 'n' saved recovery data will be discarded.`,
+      ),
+    );
+
+    const readline = require("readline");
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question("Use Recovery? (y or n)", (answer) => {
+      if (answer === "y") {
+        resolve(true);
+      } else if (answer === "n") {
+        resolve(false);
+      } else {
+        reject(new Error(`Enter y or n`));
+      }
+    });
+  });
+}

@@ -112,6 +112,15 @@ obniz-cli os:erase  => scan ports and use one of them.
 obniz-cli os:erase -p /dev/tty.USBSerial => it use specified
 ```
 
+## Flashing
+
+obniz-cli Do flashing obnizOS and setting once.
+
+1. Flashing obnizOS by using esptool
+2. setting your device DeviceKey and network setting via serial console.
+
+obniz-cli expect device can be entered bootload mode by using RTS.
+If your device should be operated manually, follow shell print.
 
 ## Flashing with creation of obnizID
 

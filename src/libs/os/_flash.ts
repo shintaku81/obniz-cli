@@ -45,9 +45,30 @@ flashing obnizOS
       console.log(er);
       reject(er);
     });
-    child.on("exit", (e) => {
-      console.log(e);
+    child.on("exit", (code) => {
+      try {
+        throwIfFailed(received);
+      } catch (e) {
+        reject(e);
+        return;
+      }
+      if (code !== 0) {
+        reject(new Error(`Failed Flashing.`));
+        return;
+      }
+
       resolve();
     });
   });
+}
+
+function throwIfFailed(text: string) {
+  if (text.indexOf("Leaving...") >= 0) {
+    // success
+    return;
+  }
+  if (text.indexOf("Timed out waiting for packet header") >= 0) {
+    throw new Error(`No Bootload mode ESP32 found. Check connection or Boot Mode.`);
+  }
+  throw new Error(`Failed Flashing.`);
 }

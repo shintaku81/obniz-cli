@@ -150,17 +150,48 @@ Could you reset your device? Can you press reset button?
      * @param devicekey
      */
     async setDeviceKey(devicekey) {
-        console.log(`
+        const obnizid = devicekey.split("&")[0];
+        console.log(chalk_1.default.yellow(`
 ***
 Setting DeviceKey ${devicekey}
+
+obniz-cli will make your device bootload mode by using RTS.
+If your device need manual operation to enter bootload mode, Do now and reset your device.
 ***
-    `);
-        this.send(`\n`); // force print DeviceKey
-        await this.waitFor("DeviceKey", 5 * 1000);
+    `));
+        await this.reset(); // force print DeviceKey
+        this.send(`\n`);
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, 3 * 1000);
+        });
+        if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
+            if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
+                console.log(chalk_1.default.yellow(`
+***
+This device already configured Device as obnizID ${obnizid}
+***
+            `));
+            }
+            else {
+                console.log(chalk_1.default.red(`
+***
+
+This device already has DeviceKey.
+And your argmented DeviceKey does not match to device one.
+I will ignore artumented DeviceKey now.
+if you want to flash DeviceKey to this device. Please call
+
+obniz-cli os:erase
+
+***
+    `));
+            }
+            return;
+        }
+        await this.waitFor("DeviceKey", 60 * 1000);
         this.send(`${devicekey}\n`);
         this.clearReceived();
-        const obnizid = devicekey.split("&")[0];
-        await this.waitFor(`obniz id: ${obnizid}`, 5 * 1000);
+        await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
     }
     /**
      * Setting Network Type.
@@ -173,10 +204,10 @@ Setting Network
 ***
     `);
         await this.waitForSettingMode();
-        await this.waitFor("Input char >>", 5 * 1000);
+        await this.waitFor("Input char >>", 10 * 1000);
         this.send(`s`);
-        await this.waitFor("-----Select Setting-----", 5 * 1000);
-        await this.waitFor("Input number >>", 5 * 1000);
+        await this.waitFor("-----Select Setting-----", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
         this.clearReceived();
         this.send(`1`); // Interface
         const interfaces = ["wifi", "ethernet", "celluar"];
@@ -197,7 +228,7 @@ Setting Network
 ***
     `));
         await this.waitFor("--- Select SSID Number ---", 30 * 1000);
-        await this.waitFor("Input number >>", 5 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
         const line = this._searchLine("-- Other Network --");
         if (!line) {
             throw new Error(`Not Supported OS`);
@@ -211,8 +242,8 @@ Setting Network
         this.send(`${indexNumber}\n`);
         this.clearReceived();
         // Hiden
-        await this.waitFor("--- Hidden SSID ---", 5 * 1000);
-        await this.waitFor("Input number >>", 5 * 1000);
+        await this.waitFor("--- Hidden SSID ---", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
         if (setting.hidden) {
             this.send(`1`);
         }
@@ -221,35 +252,35 @@ Setting Network
         }
         this.clearReceived();
         // SSID
-        await this.waitFor("--- SSID ---", 5 * 1000);
-        await this.waitFor("Input text >>", 5 * 1000);
+        await this.waitFor("--- SSID ---", 10 * 1000);
+        await this.waitFor("Input text >>", 10 * 1000);
         this.send(`${setting.ssid}\n`);
         this.clearReceived();
         // Password
-        await this.waitFor("--- Password ---", 5 * 1000);
-        await this.waitFor("Input text >>", 5 * 1000);
+        await this.waitFor("--- Password ---", 10 * 1000);
+        await this.waitFor("Input text >>", 10 * 1000);
         this.send(`${setting.password}\n`);
         this.clearReceived();
         // DHCP
-        await this.waitFor("--- select Network ---", 5 * 1000);
-        await this.waitFor("Input number >>", 5 * 1000);
+        await this.waitFor("--- select Network ---", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
         if (setting.dhcp === false) {
             this.send(`1`);
             this.clearReceived();
-            await this.waitFor("--- IP Address ---", 5 * 1000);
-            await this.waitFor("Input address >>", 5 * 1000);
+            await this.waitFor("--- IP Address ---", 10 * 1000);
+            await this.waitFor("Input address >>", 10 * 1000);
             this.send(`${setting.static_ip}\n`);
             this.clearReceived();
-            await this.waitFor("--- Default Gateway ---", 5 * 1000);
-            await this.waitFor("Input address >>", 5 * 1000);
+            await this.waitFor("--- Default Gateway ---", 10 * 1000);
+            await this.waitFor("Input address >>", 10 * 1000);
             this.send(`${setting.default_gateway}\n`);
             this.clearReceived();
-            await this.waitFor("--- Subnet Mask ---", 5 * 1000);
-            await this.waitFor("Input address >>", 5 * 1000);
+            await this.waitFor("--- Subnet Mask ---", 10 * 1000);
+            await this.waitFor("Input address >>", 10 * 1000);
             this.send(`${setting.subnetmask}\n`);
             this.clearReceived();
-            await this.waitFor("--- DNS Address ---", 5 * 1000);
-            await this.waitFor("Input address >>", 5 * 1000);
+            await this.waitFor("--- DNS Address ---", 10 * 1000);
+            await this.waitFor("Input address >>", 10 * 1000);
             this.send(`${setting.dns}\n`);
             this.clearReceived();
         }
@@ -258,17 +289,17 @@ Setting Network
             this.clearReceived();
         }
         // PROXY
-        await this.waitFor("--- Proxy Setting ---", 5 * 1000);
-        await this.waitFor("Input number >>", 5 * 1000);
+        await this.waitFor("--- Proxy Setting ---", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
         if (setting.proxy) {
             this.send(`1`);
             this.clearReceived();
-            await this.waitFor("--- Proxy Config ---", 5 * 1000);
-            await this.waitFor("Input text >>", 5 * 1000);
+            await this.waitFor("--- Proxy Config ---", 10 * 1000);
+            await this.waitFor("Input text >>", 10 * 1000);
             this.send(`${setting.proxy_address}\n`);
             this.clearReceived();
-            await this.waitFor("--- Proxy Port ---", 5 * 1000);
-            await this.waitFor("Input number >>", 5 * 1000);
+            await this.waitFor("--- Proxy Port ---", 10 * 1000);
+            await this.waitFor("Input number >>", 10 * 1000);
             this.send(`${setting.proxy_port}\n`);
             this.clearReceived();
         }
@@ -276,7 +307,7 @@ Setting Network
             this.send(`0`);
             this.clearReceived();
         }
-        await this.waitFor("Wi-Fi Connecting SSID", 5 * 1000);
+        await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
         console.log(chalk_1.default.green(`
 ***
 Configration Successfull`));

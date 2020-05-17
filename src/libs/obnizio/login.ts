@@ -34,7 +34,7 @@ function oauth(port: number, callback: any): Promise<http.Server> {
   return new Promise((resolve, reject) => {
     let timeout = setTimeout(() => {
       callback(new Error(`Authentication Timeout`), null);
-    }, 60 * 1000);
+    }, 3 * 60 * 1000);
 
     const expressApp = express();
 
