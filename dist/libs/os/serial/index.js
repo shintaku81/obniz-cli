@@ -67,6 +67,8 @@ class Serial {
             setTimeout(resolve, 10);
         });
         await new Promise(async (resolve, reject) => {
+            // リセット時にはクリアする
+            this.clearReceived();
             this.serialport.set({
                 dtr: true,
             }, (e) => {
@@ -78,11 +80,6 @@ class Serial {
             });
         });
     }
-    /**
-     *
-     * @param key
-     * @param timeout
-     */
     async waitFor(key, timeout = 20 * 1000) {
         return new Promise((resolve, reject) => {
             let timeoutTimer = setTimeout(() => {
@@ -194,6 +191,50 @@ obniz-cli os:erase
         await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
     }
     /**
+     * Reset All Network Setting
+     */
+    async resetWiFiSetting() {
+        console.log(`
+***
+Resetting All Network Setting
+***
+    `);
+        await this.waitForSettingMode();
+        await this.waitFor("Input char >>", 10 * 1000);
+        this.send(`s`);
+        await this.waitFor("-----Select Setting-----", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
+        this.clearReceived();
+        this.send(`3`); // Reset All
+        await this.waitFor("-----Wireless LAN Reset-----", 10 * 1000);
+        await this.waitFor("Input char >>", 10 * 1000);
+        this.send(`y`); // yes to reset
+        this.clearReceived();
+        await this.waitFor("Rebooting", 10 * 1000);
+    }
+    /**
+     * Reset All Network Setting
+     */
+    async resetAllSetting() {
+        console.log(`
+***
+Resetting All Network Setting
+***
+    `);
+        await this.waitForSettingMode();
+        await this.waitFor("Input char >>", 10 * 1000);
+        this.send(`s`);
+        await this.waitFor("-----Select Setting-----", 10 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
+        this.clearReceived();
+        this.send(`2`); // Reset All
+        await this.waitFor("-----All Reset", 10 * 1000);
+        await this.waitFor("Input char >>", 10 * 1000);
+        this.send(`y`); // yes to reset
+        this.clearReceived();
+        await this.waitFor("Rebooting", 10 * 1000);
+    }
+    /**
      * Setting Network Type.
      * @param type
      */
@@ -210,7 +251,7 @@ Setting Network
         await this.waitFor("Input number >>", 10 * 1000);
         this.clearReceived();
         this.send(`1`); // Interface
-        const interfaces = ["wifi", "ethernet", "celluar"];
+        const interfaces = ["wifi", "ethernet", "cellular"];
         const index = interfaces.indexOf(type);
         if (index < 0) {
             throw new Error(`unknown interface type ${type}`);

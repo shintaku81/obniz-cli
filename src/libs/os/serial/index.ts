@@ -99,7 +99,6 @@ export default class Serial {
     });
   }
 
-
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
     return new Promise((resolve, reject) => {
       let timeoutTimer = setTimeout(() => {
@@ -244,7 +243,7 @@ Resetting All Network Setting
     await this.waitFor("Rebooting", 10 * 1000);
   }
 
-    /**
+  /**
    * Reset All Network Setting
    */
   public async resetAllSetting() {
@@ -284,7 +283,7 @@ Setting Network
     await this.waitFor("Input number >>", 10 * 1000);
     this.clearReceived();
     this.send(`1`); // Interface
-    const interfaces = ["wifi", "ethernet", "celluar"];
+    const interfaces = ["wifi", "ethernet", "cellular"];
     const index = interfaces.indexOf(type);
     if (index < 0) {
       throw new Error(`unknown interface type ${type}`);
