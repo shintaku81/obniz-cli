@@ -99,11 +99,7 @@ export default class Serial {
     });
   }
 
-  /**
-   *
-   * @param key
-   * @param timeout
-   */
+
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
     return new Promise((resolve, reject) => {
       let timeoutTimer = setTimeout(() => {
@@ -223,6 +219,52 @@ obniz-cli os:erase
     this.send(`${devicekey}\n`);
     this.clearReceived();
     await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
+  }
+
+  /**
+   * Reset All Network Setting
+   */
+  public async resetWiFiSetting() {
+    console.log(`
+***
+Resetting All Network Setting
+***
+    `);
+    await this.waitForSettingMode();
+    await this.waitFor("Input char >>", 10 * 1000);
+    this.send(`s`);
+    await this.waitFor("-----Select Setting-----", 10 * 1000);
+    await this.waitFor("Input number >>", 10 * 1000);
+    this.clearReceived();
+    this.send(`3`); // Reset All
+    await this.waitFor("-----Wireless LAN Reset-----", 10 * 1000);
+    await this.waitFor("Input char >>", 10 * 1000);
+    this.send(`y`); // yes to reset
+    this.clearReceived();
+    await this.waitFor("Rebooting", 10 * 1000);
+  }
+
+    /**
+   * Reset All Network Setting
+   */
+  public async resetAllSetting() {
+    console.log(`
+***
+Resetting All Network Setting
+***
+    `);
+    await this.waitForSettingMode();
+    await this.waitFor("Input char >>", 10 * 1000);
+    this.send(`s`);
+    await this.waitFor("-----Select Setting-----", 10 * 1000);
+    await this.waitFor("Input number >>", 10 * 1000);
+    this.clearReceived();
+    this.send(`2`); // Reset All
+    await this.waitFor("-----All Reset", 10 * 1000);
+    await this.waitFor("Input char >>", 10 * 1000);
+    this.send(`y`); // yes to reset
+    this.clearReceived();
+    await this.waitFor("Rebooting", 10 * 1000);
   }
 
   /**
