@@ -12,7 +12,9 @@ obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.jso
 ```
 
 
-obniz-cli works with Nodejs12 and MacOS. (Windows are not tested)
+obniz-cli works with
+
+ - Nodejs12 (MacOS 10.15 / Windows 10 are tested)
 
 
 ## Install
