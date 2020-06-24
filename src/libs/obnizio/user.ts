@@ -1,7 +1,8 @@
 import { GraphQLClient } from "graphql-request";
+import { GraphQLURL } from "./url"
 
 export default async (token: string) => {
-  const graphQLClient = new GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+  const graphQLClient = new GraphQLClient(GraphQLURL, {
     headers: {
       authorization: `Bearer ${token}`,
     },

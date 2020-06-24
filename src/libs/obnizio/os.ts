@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
 import filepath from "./filepath";
+import { GraphQLURL } from "./url"
 
 export default class OS {
   public static async list(hardware: string, token?: string) {
@@ -11,7 +12,7 @@ export default class OS {
     if (token) {
       headers.authorization = `Bearer ${token}`;
     }
-    const graphQLClient = new GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+    const graphQLClient = new GraphQLClient(GraphQLURL, {
       headers,
     });
     const query = `{

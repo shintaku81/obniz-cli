@@ -1,4 +1,5 @@
 import { GraphQLClient } from "graphql-request";
+import { GraphQLURL } from "./url"
 
 export default class Device {
   public static async create(token?: string, opt: any = {}) {
@@ -22,7 +23,7 @@ export default class Device {
       }
     }`;
 
-    const graphQLClient = new GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+    const graphQLClient = new GraphQLClient(GraphQLURL, {
       headers,
     });
     const ret = await graphQLClient.request(obj);
@@ -34,7 +35,7 @@ export default class Device {
     if (token) {
       headers.authorization = `Bearer ${token}`;
     }
-    const graphQLClient = new GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+    const graphQLClient = new GraphQLClient(GraphQLURL, {
       headers,
     });
     const query = `{
