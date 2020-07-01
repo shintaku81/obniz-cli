@@ -135,7 +135,7 @@ COMMANDS
 
   os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
   os:flash          Flashing and configure target device.
-  os:cofig          Configure obnizOS flashed device.
+  os:config         Configure obnizOS flashed device.
   os:erase          Fully erase a flash on target device.
   os:list           List of available obnizOS for specified hardware
   os:ports          Getting serial ports on your machine.
