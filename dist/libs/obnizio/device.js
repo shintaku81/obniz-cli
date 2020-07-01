@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const graphql_request_1 = require("graphql-request");
+const url_1 = require("./url");
 class Device {
     static async create(token, opt = {}) {
         const headers = {};
@@ -21,7 +22,7 @@ class Device {
         description
       }
     }`;
-        const graphQLClient = new graphql_request_1.GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+        const graphQLClient = new graphql_request_1.GraphQLClient(url_1.GraphQLURL, {
             headers,
         });
         const ret = await graphQLClient.request(obj);
@@ -32,7 +33,7 @@ class Device {
         if (token) {
             headers.authorization = `Bearer ${token}`;
         }
-        const graphQLClient = new graphql_request_1.GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+        const graphQLClient = new graphql_request_1.GraphQLClient(url_1.GraphQLURL, {
             headers,
         });
         const query = `{

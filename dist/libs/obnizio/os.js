@@ -9,13 +9,14 @@ const node_fetch_1 = __importDefault(require("node-fetch"));
 const path_1 = __importDefault(require("path"));
 const semver_1 = __importDefault(require("semver"));
 const filepath_1 = __importDefault(require("./filepath"));
+const url_1 = require("./url");
 class OS {
     static async list(hardware, token) {
         const headers = {};
         if (token) {
             headers.authorization = `Bearer ${token}`;
         }
-        const graphQLClient = new graphql_request_1.GraphQLClient(`https://api.obniz.io/v1/graphql`, {
+        const graphQLClient = new graphql_request_1.GraphQLClient(url_1.GraphQLURL, {
             headers,
         });
         const query = `{

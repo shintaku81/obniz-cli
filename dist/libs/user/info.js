@@ -15,12 +15,12 @@ const Storage = __importStar(require("../storage"));
 exports.default = async () => {
     const token = Storage.get("token");
     if (!token) {
-        console.log(`Not Logged In`);
+        console.log(`Not Sign In`);
         return;
     }
     console.log(`Contacting to obniz Cloud...`);
     const user = await user_1.default(token);
-    console.log(`Logged In User`);
+    console.log(`Sigin In User`);
     console.log(` name : ${user.name}`);
     console.log(` email: ${user.email}`);
 };

@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
 import filepath from "./filepath";
-import { GraphQLURL } from "./url"
+import { GraphQLURL } from "./url";
 
 export default class OS {
   public static async list(hardware: string, token?: string) {

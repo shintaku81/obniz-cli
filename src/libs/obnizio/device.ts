@@ -1,5 +1,5 @@
 import { GraphQLClient } from "graphql-request";
-import { GraphQLURL } from "./url"
+import { GraphQLURL } from "./url";
 
 export default class Device {
   public static async create(token?: string, opt: any = {}) {

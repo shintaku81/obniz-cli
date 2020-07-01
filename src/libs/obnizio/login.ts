@@ -4,10 +4,11 @@ import getPort from "get-port";
 import http from "http";
 import fetch from "node-fetch";
 import opn from "opn";
-import { ObnizIOURL } from "./url"
+import { ObnizIOURL } from "./url";
 
 const WebAppId = process.env.APP_ID || `wa_MjI`;
-const WebAppToken = process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
+const WebAppToken =
+  process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
 export default async (): Promise<string> => {
   return await new Promise(async (resolve, reject) => {

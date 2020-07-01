@@ -9,8 +9,9 @@ const get_port_1 = __importDefault(require("get-port"));
 const http_1 = __importDefault(require("http"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const opn_1 = __importDefault(require("opn"));
-const WebAppId = `wa_MjI`;
-const WebAppToken = `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
+const url_1 = require("./url");
+const WebAppId = process.env.APP_ID || `wa_MjI`;
+const WebAppToken = process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 exports.default = async () => {
     return await new Promise(async (resolve, reject) => {
         // start server
@@ -26,7 +27,7 @@ exports.default = async () => {
         console.log(`Local Server Created ${port}`);
         console.log(`Authenticating...`);
         const redirect_uri = `http://localhost:${port}/code`;
-        const open_url = `https://obniz.io/login/oauth/authorize?webapp_id=${WebAppId}&redirect_uri=${redirect_uri}`;
+        const open_url = `${url_1.ObnizIOURL}/login/oauth/authorize?webapp_id=${WebAppId}&redirect_uri=${redirect_uri}`;
         opn_1.default(open_url);
     });
 };
@@ -46,7 +47,7 @@ function oauth(port, callback) {
             }
             const code = req.query.code;
             try {
-                const url = new URL(`https://obniz.io/login/oauth/token`);
+                const url = new URL(`${url_1.ObnizIOURL}/login/oauth/token`);
                 url.searchParams.append("code", code);
                 const response = await node_fetch_1.default(url, {
                     method: "post",
