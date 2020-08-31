@@ -11,13 +11,11 @@ import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
 import Create from "./libs/os/flashcreate";
 import List from "./libs/os/list";
-import SerialGuess from "./libs/os/serial/guess";
+import PreparePort from "./libs/os/serial/prepare";
 
 import UserInfo from "./libs/user/info";
 import Login from "./libs/user/login";
 import Logout from "./libs/user/logout";
-
-import Defaults from "./defaults";
 
 const relative = "../";
 
@@ -36,29 +34,6 @@ process.on("unhandledRejection", (err) => {
 });
 
 // ========== Routes =========
-
-async function preparePort(args: any): Promise<any> {
-  let portname: string = args.p || args.port;
-  if (!portname) {
-    portname = await SerialGuess();
-    if (portname) {
-      console.log(`Guessed Serial Port ${portname}`);
-    }
-  }
-  let baud: any = args.b || args.baud;
-  if (!baud) {
-    baud = Defaults.BAUD;
-  }
-  if (!portname) {
-    console.log(`No port defined. And auto detect failed`);
-    process.exit(0);
-  }
-  return {
-    portname,
-    baud,
-  };
-}
-
 const routes = {
   "signin": {
     help: `Signin to obniz Cloud`,
@@ -83,7 +58,7 @@ const routes = {
   "os:config": Config,
   "os:erase": {
     async execute(args: any) {
-      const obj = await preparePort(args);
+      const obj = await PreparePort(args);
       obj.stdout = (text: string) => {
         process.stdout.write(text);
       };

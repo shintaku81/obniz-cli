@@ -68,7 +68,7 @@ $obniz-cli os:flash
 Flash obnizOS and configure it
 
 [serial setting]
- -p --port      serial port path to flash. If not specified. will be automatically selected.
+ -p --port      serial port path to flash.If not specified, the port list will be displayed.
  -b --baud      flashing baud rate. default to 1500000
 
 [flashing setting]
