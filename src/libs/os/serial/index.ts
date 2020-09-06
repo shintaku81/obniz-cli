@@ -388,8 +388,6 @@ Setting Network
     }
 
     await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
-    await this.waitFor("Connecting Cloud", 10 * 1000);
-    await this.waitFor("Online", 30 * 1000);
     console.log(
       chalk.green(`
 ***
