@@ -268,11 +268,17 @@ Setting Network
 Setting Network
 ***
     `));
+        // Interface
+        await this.waitFor("-----Select Interface-----", 30 * 1000);
+        await this.waitFor("Input number >>", 10 * 1000);
+        this.send(`0`);
+        this.clearReceived();
+        // SSID
         await this.waitFor("--- Select SSID Number ---", 30 * 1000);
         await this.waitFor("Input number >>", 10 * 1000);
-        const line = this._searchLine("-- Other Network --");
+        const line = this._searchLine(setting.ssid);
         if (!line) {
-            throw new Error(`Not Supported OS`);
+            throw new Error(`Cannot find ssid="${setting.ssid}"`);
         }
         let leftside = line.split(":")[0];
         leftside = leftside.replace("-", "");
@@ -281,21 +287,6 @@ Setting Network
             throw new Error(`Failed to parse serial console. LINE="${line}"`);
         }
         this.send(`${indexNumber}\n`);
-        this.clearReceived();
-        // Hiden
-        await this.waitFor("--- Hidden SSID ---", 10 * 1000);
-        await this.waitFor("Input number >>", 10 * 1000);
-        if (setting.hidden) {
-            this.send(`1`);
-        }
-        else {
-            this.send(`0`);
-        }
-        this.clearReceived();
-        // SSID
-        await this.waitFor("--- SSID ---", 10 * 1000);
-        await this.waitFor("Input text >>", 10 * 1000);
-        this.send(`${setting.ssid}\n`);
         this.clearReceived();
         // Password
         await this.waitFor("--- Password ---", 10 * 1000);
@@ -349,6 +340,8 @@ Setting Network
             this.clearReceived();
         }
         await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
+        await this.waitFor("Connecting Cloud", 10 * 1000);
+        await this.waitFor("Online", 30 * 1000);
         console.log(chalk_1.default.green(`
 ***
 Configration Successfull`));
