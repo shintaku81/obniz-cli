@@ -276,9 +276,9 @@ Setting Network
         // SSID
         await this.waitFor("--- Select SSID Number ---", 30 * 1000);
         await this.waitFor("Input number >>", 10 * 1000);
-        const line = this._searchLine(setting.ssid);
+        const line = this._searchLine("-- Other Network --");
         if (!line) {
-            throw new Error(`Cannot find ssid="${setting.ssid}"`);
+            throw new Error(`Not Supported OS`);
         }
         let leftside = line.split(":")[0];
         leftside = leftside.replace("-", "");
@@ -287,6 +287,10 @@ Setting Network
             throw new Error(`Failed to parse serial console. LINE="${line}"`);
         }
         this.send(`${indexNumber}\n`);
+        this.clearReceived();
+        await this.waitFor("--- SSID ---", 10 * 1000);
+        await this.waitFor("Input text >>", 10 * 1000);
+        this.send(`${setting.ssid}\n`);
         this.clearReceived();
         // Password
         await this.waitFor("--- Password ---", 10 * 1000);
