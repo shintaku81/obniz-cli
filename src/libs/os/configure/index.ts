@@ -1,13 +1,13 @@
 import chalk from "chalk";
 import Serial from "../serial";
+import WiFi from "../wifi";
 
-export default async (obj: { portname: string; stdout: any; configs: any }) => {
+export default async (obj: { portname: string; stdout: any; configs: any; via: string }) => {
   // Return if no configs required
   if (!obj.configs) {
     return;
   }
-
-  // Open aport
+  // Open a port
   const serial = new Serial({
     portname: obj.portname,
     stdout: obj.stdout,
@@ -38,14 +38,29 @@ export default async (obj: { portname: string; stdout: any; configs: any }) => {
     const network = networks[0];
     const type = network.type;
     const settings = network.settings;
-    await serial.setNetworkType(type);
-    if (type === "wifi") {
-      await serial.setWiFi(settings);
+    if (obj.via === "serial") {
+      await serial.setNetworkType(type);
+      if (type === "wifi") {
+        await serial.setWiFi(settings);
+      } else {
+        console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
+      }
     } else {
-      console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
+      // close serial
+      await serial.close();
+      // Init wifi
+      const wifi = new WiFi({
+        stdout: obj.stdout,
+        onerror: (err) => {
+          throw new Error(`${err}`);
+        },
+      });
+      if (type === "wifi") {
+        await wifi.setWiFi(settings);
+      } else {
+        console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
+      }
     }
   }
-
-  // close serial
   await serial.close();
 };
