@@ -38,28 +38,11 @@ export default async (obj: { portname: string; stdout: any; configs: any; via: s
     const network = networks[0];
     const type = network.type;
     const settings = network.settings;
-    if (obj.via === "serial") {
-      await serial.setNetworkType(type);
-      if (type === "wifi") {
-        await serial.setWiFi(settings);
-      } else {
-        console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
-      }
+    await serial.setNetworkType(type);
+    if (type === "wifi") {
+      await serial.setWiFi(settings);
     } else {
-      // close serial
-      await serial.close();
-      // Init wifi
-      const wifi = new WiFi({
-        stdout: obj.stdout,
-        onerror: (err) => {
-          throw new Error(`${err}`);
-        },
-      });
-      if (type === "wifi") {
-        await wifi.setWiFi(settings);
-      } else {
-        console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
-      }
+      console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
     }
   }
   await serial.close();

@@ -16,6 +16,7 @@ const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
 const ports_1 = __importDefault(require("./libs/os/ports"));
 const config_1 = __importDefault(require("./libs/os/config"));
+const config_via_wifi_1 = __importDefault(require("./libs/os/config_via_wifi"));
 const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
 const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
@@ -80,6 +81,7 @@ const routes = {
     "os:flash-create": flashcreate_1.default,
     "os:flash": flash_1.default,
     "os:config": config_1.default,
+    "os:config-via-wifi": config_via_wifi_1.default,
     "os:erase": {
         async execute(args) {
             const obj = await preparePort(args);

@@ -7,6 +7,7 @@ import * as gui from "./gui";
 import Ports from "./libs/os/ports";
 
 import Config from "./libs/os/config";
+import ConfigViaWiFi from "./libs/os/config_via_wifi";
 import Erase from "./libs/os/erase";
 import Flash from "./libs/os/flash";
 import Create from "./libs/os/flashcreate";
@@ -81,6 +82,7 @@ const routes = {
   "os:flash-create": Create,
   "os:flash": Flash,
   "os:config": Config,
+  "os:config-via-wifi": ConfigViaWiFi,
   "os:erase": {
     async execute(args: any) {
       const obj = await preparePort(args);

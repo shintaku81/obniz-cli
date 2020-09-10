@@ -50,7 +50,6 @@ exports.default = {
  -d --devicekey   devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id          obnizID to be configured. You need to signin before use this.
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
- -v --via         serial(physically connected) or wifi. default is set to serial.
   `,
     async execute(args) {
         // Serial Port Setting
@@ -113,11 +112,6 @@ device ${obniz_id}
             }
             obj.configs = obj.configs || {};
             obj.configs.config = json;
-            obj.via = args.v || args.via || "serial";
-            if (obj.via !== "serial" && obj.via !== "wifi") {
-                console.log(`--via option must be specified with "serial" or "wifi".`);
-                return;
-            }
         }
         //
         if (!obj.configs) {

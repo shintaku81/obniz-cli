@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
 const serial_1 = __importDefault(require("../serial"));
-const wifi_1 = __importDefault(require("../wifi"));
 exports.default = async (obj) => {
     // Return if no configs required
     if (!obj.configs) {
@@ -40,31 +39,12 @@ exports.default = async (obj) => {
         const network = networks[0];
         const type = network.type;
         const settings = network.settings;
-        if (obj.via === "serial") {
-            await serial.setNetworkType(type);
-            if (type === "wifi") {
-                await serial.setWiFi(settings);
-            }
-            else {
-                console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
-            }
+        await serial.setNetworkType(type);
+        if (type === "wifi") {
+            await serial.setWiFi(settings);
         }
         else {
-            // close serial
-            await serial.close();
-            // Init wifi
-            const wifi = new wifi_1.default({
-                stdout: obj.stdout,
-                onerror: (err) => {
-                    throw new Error(`${err}`);
-                },
-            });
-            if (type === "wifi") {
-                await wifi.setWiFi(settings);
-            }
-            else {
-                console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
-            }
+            console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
         }
     }
     await serial.close();
