@@ -69,10 +69,5 @@ exports.default = {
         else {
             console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
         }
-        console.log(chalk_1.default.green(`
-***
-configured device.
-***
-`));
     },
 };
