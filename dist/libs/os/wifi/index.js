@@ -119,6 +119,7 @@ Configration Successfull of ${network.ssid}`));
             if (obnizNetworks.length === 1) {
                 console.log(`Found 1 connectable obniz(${obnizNetworks[0].ssid}).`);
                 rl.question(`Apply Wi-Fi setting to this obniz? (y or n)`, (answer) => {
+                    rl.close();
                     if (answer === "y") {
                         resolve(obnizNetworks);
                     }
@@ -136,6 +137,7 @@ Configration Successfull of ${network.ssid}`));
                     console.log(`${i} : ${obnizNetworks[i].ssid}`);
                 }
                 rl.question(`Select obniz to apply Wi-Fi setting. (Integer from 0 to ${obnizNetworks.length - 1}, or if all, input a)`, (answer) => {
+                    rl.close();
                     if (answer === "a") {
                         resolve(obnizNetworks);
                     }
