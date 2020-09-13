@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
+const semver_1 = __importDefault(require("semver"));
 const serialport_1 = __importDefault(require("serialport"));
 const baudRate = 115200;
 class Serial {
@@ -268,11 +269,23 @@ Setting Network
 Setting Network
 ***
     `));
-        // Interface
-        await this.waitFor("-----Select Interface-----", 30 * 1000);
-        await this.waitFor("Input number >>", 10 * 1000);
-        this.send(`0`);
-        this.clearReceived();
+        // check obnizOS ver
+        await this.waitFor("obniz ver:", 10 * 1000);
+        const verLine = this._searchLine("obniz ver:");
+        let version = "0.0.0";
+        if (!verLine) {
+            console.log(chalk_1.default.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
+        }
+        else {
+            version = semver_1.default.clean(verLine.split("obniz ver: ")[1]);
+        }
+        if (semver_1.default.satisfies(version, ">=3.4.2")) {
+            // Interface
+            await this.waitFor("-----Select Interface-----", 30 * 1000);
+            await this.waitFor("Input number >>", 10 * 1000);
+            this.send(`0`);
+            this.clearReceived();
+        }
         // SSID
         await this.waitFor("--- Select SSID Number ---", 30 * 1000);
         await this.waitFor("Input number >>", 10 * 1000);
@@ -288,6 +301,18 @@ Setting Network
         }
         this.send(`${indexNumber}\n`);
         this.clearReceived();
+        if (semver_1.default.satisfies(version, "<3.4.2")) {
+            // Hidden
+            await this.waitFor("--- Hidden SSID ---", 10 * 1000);
+            await this.waitFor("Input number >>", 10 * 1000);
+            if (setting.hidden) {
+                this.send(`1`);
+            }
+            else {
+                this.send(`0`);
+            }
+            this.clearReceived();
+        }
         await this.waitFor("--- SSID ---", 10 * 1000);
         await this.waitFor("Input text >>", 10 * 1000);
         this.send(`${setting.ssid}\n`);
