@@ -22,7 +22,7 @@ exports.default = async (args) => {
         const ports = await ports_1.default();
         const guessed_portname = await guess_1.default();
         if (guessed_portname) {
-            console.log(`Guessed Serial Port ${portname}`);
+            console.log(`Guessed Serial Port ${guessed_portname}`);
             const use = await askUseGuessedPort(guessed_portname);
             if (use) {
                 portname = guessed_portname;

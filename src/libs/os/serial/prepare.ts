@@ -14,7 +14,7 @@ export default async (args: any): Promise<any> => {
 
     const guessed_portname = await SerialGuess();
     if (guessed_portname) {
-      console.log(`Guessed Serial Port ${portname}`);
+      console.log(`Guessed Serial Port ${guessed_portname}`);
       const use = await askUseGuessedPort(guessed_portname);
       if (use) {
         portname = guessed_portname;
