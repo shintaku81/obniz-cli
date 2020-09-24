@@ -20,11 +20,10 @@ const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
 const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
 const list_1 = __importDefault(require("./libs/os/list"));
-const guess_1 = __importDefault(require("./libs/os/serial/guess"));
+const prepare_1 = __importDefault(require("./libs/os/serial/prepare"));
 const info_1 = __importDefault(require("./libs/user/info"));
 const login_1 = __importDefault(require("./libs/user/login"));
 const logout_1 = __importDefault(require("./libs/user/logout"));
-const defaults_1 = __importDefault(require("./defaults"));
 const relative = "../";
 const packageverion = require(`${relative}package.json`).version;
 // ========== Global Errors =========
@@ -37,27 +36,6 @@ process.on("unhandledRejection", (err) => {
     throw err;
 });
 // ========== Routes =========
-async function preparePort(args) {
-    let portname = args.p || args.port;
-    if (!portname) {
-        portname = await guess_1.default();
-        if (portname) {
-            console.log(`Guessed Serial Port ${portname}`);
-        }
-    }
-    let baud = args.b || args.baud;
-    if (!baud) {
-        baud = defaults_1.default.BAUD;
-    }
-    if (!portname) {
-        console.log(`No port defined. And auto detect failed`);
-        process.exit(0);
-    }
-    return {
-        portname,
-        baud,
-    };
-}
 const routes = {
     "signin": {
         help: `Signin to obniz Cloud`,
@@ -82,7 +60,7 @@ const routes = {
     "os:config": config_1.default,
     "os:erase": {
         async execute(args) {
-            const obj = await preparePort(args);
+            const obj = await prepare_1.default(args);
             obj.stdout = (text) => {
                 process.stdout.write(text);
             };

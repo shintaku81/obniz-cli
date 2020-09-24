@@ -6,5 +6,5 @@ export default async () => {
   const token = await Login();
   const user = await User(token);
   Storage.set("token", token);
-  console.log(`Sigin in as "${user.email}"`);
+  console.log(`Sign in as "${user.email}"`);
 };
