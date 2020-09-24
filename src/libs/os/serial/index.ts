@@ -1,4 +1,6 @@
 import chalk from "chalk";
+import semver from "semver";
+
 import SerialPort from "serialport";
 import KeyPairGen from "../keypair";
 
@@ -303,6 +305,25 @@ Setting Network
 ***
     `),
     );
+    // check obnizOS ver
+    await this.waitFor("obniz ver:", 10 * 1000);
+    const verLine = this._searchLine("obniz ver:");
+    let version = "0.0.0";
+    if (!verLine) {
+      console.log(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
+    } else {
+      version = semver.clean(verLine.split("obniz ver: ")[1]);
+    }
+
+    if (semver.satisfies(version, ">=3.4.2")) {
+      // Interface
+      await this.waitFor("-----Select Interface-----", 30 * 1000);
+      await this.waitFor("Input number >>", 10 * 1000);
+      this.send(`0`);
+      this.clearReceived();
+    }
+
+    // SSID
     await this.waitFor("--- Select SSID Number ---", 30 * 1000);
     await this.waitFor("Input number >>", 10 * 1000);
     const line = this._searchLine("-- Other Network --");
@@ -317,18 +338,17 @@ Setting Network
     }
     this.send(`${indexNumber}\n`);
     this.clearReceived();
-
-    // Hiden
-    await this.waitFor("--- Hidden SSID ---", 10 * 1000);
-    await this.waitFor("Input number >>", 10 * 1000);
-    if (setting.hidden) {
-      this.send(`1`);
-    } else {
-      this.send(`0`);
+    if (semver.satisfies(version, "<3.4.2")) {
+      // Hidden
+      await this.waitFor("--- Hidden SSID ---", 10 * 1000);
+      await this.waitFor("Input number >>", 10 * 1000);
+      if (setting.hidden) {
+        this.send(`1`);
+      } else {
+        this.send(`0`);
+      }
+      this.clearReceived();
     }
-    this.clearReceived();
-
-    // SSID
     await this.waitFor("--- SSID ---", 10 * 1000);
     await this.waitFor("Input text >>", 10 * 1000);
     this.send(`${setting.ssid}\n`);
@@ -391,8 +411,8 @@ Setting Network
       this.send(`0`);
       this.clearReceived();
     }
-    await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
 
+    await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
     console.log(
       chalk.green(`
 ***
