@@ -16,6 +16,7 @@ const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
 const ports_1 = __importDefault(require("./libs/os/ports"));
 const config_1 = __importDefault(require("./libs/os/config"));
+const config_via_wifi_1 = __importDefault(require("./libs/os/config_via_wifi"));
 const erase_1 = __importDefault(require("./libs/os/erase"));
 const flash_1 = __importDefault(require("./libs/os/flash"));
 const flashcreate_1 = __importDefault(require("./libs/os/flashcreate"));
@@ -58,6 +59,7 @@ const routes = {
     "os:flash-create": flashcreate_1.default,
     "os:flash": flash_1.default,
     "os:config": config_1.default,
+    "os:config-via-wifi": config_via_wifi_1.default,
     "os:erase": {
         async execute(args) {
             const obj = await prepare_1.default(args);
@@ -106,17 +108,18 @@ USAGE
 
 COMMANDS
 
-  signin            Signin to obniz cloud.
-  signout           Signout
+  signin              Signin to obniz cloud.
+  signout             Signout
 
-  user:info         Show current Logged in user
+  user:info           Show current Logged in user
 
-  os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
-  os:flash          Flashing and configure target device.
-  os:config         Configure obnizOS flashed device.
-  os:erase          Fully erase a flash on target device.
-  os:list           List of available obnizOS for specified hardware
-  os:ports          Getting serial ports on your machine.
+  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash            Flashing and configure target device.
+  os:config           Configure obnizOS flashed device.
+  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
+  os:erase            Fully erase a flash on target device.
+  os:list             List of available obnizOS for specified hardware
+  os:ports            Getting serial ports on your machine.
   `);
     },
 };

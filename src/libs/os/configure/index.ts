@@ -1,13 +1,13 @@
 import chalk from "chalk";
 import Serial from "../serial";
+import WiFi from "../wifi";
 
-export default async (obj: { portname: string; stdout: any; configs: any }) => {
+export default async (obj: { portname: string; stdout: any; configs: any; via: string }) => {
   // Return if no configs required
   if (!obj.configs) {
     return;
   }
-
-  // Open aport
+  // Open a port
   const serial = new Serial({
     portname: obj.portname,
     stdout: obj.stdout,
@@ -45,7 +45,5 @@ export default async (obj: { portname: string; stdout: any; configs: any }) => {
       console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
     }
   }
-
-  // close serial
   await serial.close();
 };

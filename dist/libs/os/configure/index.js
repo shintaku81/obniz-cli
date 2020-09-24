@@ -10,7 +10,7 @@ exports.default = async (obj) => {
     if (!obj.configs) {
         return;
     }
-    // Open aport
+    // Open a port
     const serial = new serial_1.default({
         portname: obj.portname,
         stdout: obj.stdout,
@@ -47,6 +47,5 @@ exports.default = async (obj) => {
             console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
         }
     }
-    // close serial
     await serial.close();
 };
