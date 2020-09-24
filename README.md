@@ -44,17 +44,18 @@ USAGE
 
 COMMANDS
 
-  signin            Signin to obniz cloud.
-  signout           Signout
+  signin              Signin to obniz cloud.
+  signout             Signout
 
-  user:info         Show current Logged in user
+  user:info           Show current Logged in user
 
-  os:flash-create   Flashing and configure target device and registrate it on your account on obnizCloud.
-  os:flash          Flashing and configure target device.
-  os:cofig          Configure obnizOS flashed device.
-  os:erase          Fully erase a flash on target device.
-  os:list           List of available obnizOS for specified hardware
-  os:ports          Getting serial ports on your machine.
+  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash            Flashing and configure target device.
+  os:config           Configure obnizOS flashed device.
+  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
+  os:erase            Fully erase a flash on target device.
+  os:list             List of available obnizOS for specified hardware
+  os:ports            Getting serial ports on your machine.
 ```
 
 Each command may respond to help
@@ -235,4 +236,27 @@ See [example](./example_config.json)
 obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
 ```
 
+### Network Configuration via obnizOS Wi-Fi
 
+Above network configuration can be done [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser), without a physical connection.  
+
+```shell
+obniz-cli os:config-via-wifi --config ./wifi-config.json
+```
+
+When this command is executed, first you must select Wi-Fi from the obnizOS (that have SSID like `obniz-XXXXXXXX`).  
+If there is only one obnizOS, you can answer `y` or `n`.
+```shell
+Found 1 connectable obniz(obniz-XXXXXXXX).
+Apply Wi-Fi setting to this obniz? (y or n)
+```
+  
+Or there are some obnizOS, you must select one.
+```shell
+Found some connectable obniz.
+0: obniz-XXXXXXXX
+1: obniz-YYYYYYYY
+2: obniz-ZZZZZZZZ
+Select obniz to apply W-Fi setting. (Integer from 0 to 2, or if all, input a)
+```
+If you input `a`, the setting in `./wifi-config.json` applies to all found obnizOS.
