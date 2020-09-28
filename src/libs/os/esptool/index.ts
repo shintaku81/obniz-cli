@@ -1,5 +1,6 @@
 import * as bufferpack from "bufferpack";
 import SerialPort from "serialport";
+import ports from "../ports";
 
 const DEFAULT_CONNECT_ATTEMPTS = 7;
 const DEFAULT_TIMEOUT = 3;
@@ -23,7 +24,7 @@ export default class ESP {
   public UARTDEV_BUF_NO_USB = 2; // # Value of the above variable indicating that USB is in use
 
   constructor(port: string, baud: number) {
-    this._port = new SerialPort(port, { baudRate: baud });
+    this._port = new SerialPort(port, { baudRate: this.ESP_ROM_BAUD });
     this._slip_reader = slip_reader(this._port);
     this._port.on("open", async () => {
       await this.connect();
@@ -56,31 +57,31 @@ export default class ESP {
       throw Error(last_error);
     }
 
-    this._post_connect();
+    await this._post_connect();
   }
 
-  public uses_usb() {
-    const buf_no = this.read_reg(this.UARTDEV_BUF_NO) & 0xff;
+  public async uses_usb() {
+    const buf_no = (await this.read_reg(this.UARTDEV_BUF_NO)) & 0xff;
     return buf_no === this.UARTDEV_BUF_NO_USB;
   }
 
-  public sync() {
-    this.command({
+  public async sync() {
+    await this.command({
       op: this.ESP_SYNC,
       data: [0x07, 0x07, 0x12, 0x20].concat(Array(32).fill(0x55)),
       timeout: SYNC_TIMEOUT,
     });
     for (let i = 0; i < 7; i++) {
-      this.command({});
+      await this.command({});
     }
   }
 
-  public command({ op = null, data = [], chk = 0, wait_response = true, timeout = DEFAULT_TIMEOUT }) {
+  public async command({ op = null, data = [], chk = 0, wait_response = true, timeout = DEFAULT_TIMEOUT }) {
     // timeout??
 
     if (op !== null) {
       const pkt = Buffer.concat([bufferpack.pack("<BBHI", [0x00, op, data.length, chk]), Buffer.from(data)]);
-      this.write(pkt);
+      await this.write(pkt);
     }
     if (!wait_response) {
       return;
@@ -111,11 +112,30 @@ export default class ESP {
   }
 
   public async write(packet: Buffer) {
-    // replace?
-    const buf = Buffer.concat([Buffer.from([0xc0]), packet, Buffer.from([0xc0])]);
-    console.log(buf);
-    this._port.write(buf, "ascii");
-    this._port.drain();
+    return new Promise((resolve, reject) => {
+      const enc_packet = [];
+      // SLIP encoding
+      packet.forEach((e) => {
+        if (e === 0xdb) {
+          enc_packet.push(0xdb);
+          enc_packet.push(0xdd);
+        } else if (e === 0xc0) {
+          enc_packet.push(0xdb);
+          enc_packet.push(0xdc);
+        } else {
+          enc_packet.push(e);
+        }
+      });
+      const buf = Buffer.concat([Buffer.from([0xc0]), Buffer.from(enc_packet), Buffer.from([0xc0])]);
+      this._port.write(buf, "hex");
+      console.log("WRITE: " + buf.toString("hex"));
+      this._port.drain((error) => {
+        if (error) {
+          reject(error);
+        }
+        resolve();
+      });
+    });
   }
 
   public read() {
@@ -127,8 +147,19 @@ export default class ESP {
     this._slip_reader = slip_reader(this._port);
   }
 
-  public read_reg(addr) {
-    const [val, data] = this.command({
+  public async flush_output() {
+    return new Promise((resolve, reject) => {
+      this._port.flush((error) => {
+        if (error) {
+          reject(error);
+        }
+        resolve();
+      });
+    });
+  }
+
+  public async read_reg(addr) {
+    const [val, data] = await this.command({
       op: this.ESP_READ_REG,
       data: bufferpack.pack("<I", addr),
     });
@@ -138,8 +169,8 @@ export default class ESP {
     return val;
   }
 
-  private _post_connect() {
-    if (this.uses_usb()) {
+  private async _post_connect() {
+    if (await this.uses_usb()) {
       this.ESP_RAM_BLOCK = this.USB_RAM_BLOCK;
     }
   }
@@ -147,29 +178,29 @@ export default class ESP {
   private async _connect_attempt({ mode = "default_reset", esp32r0_delay = false }) {
     let last_error = null;
     if (mode !== "no_reset") {
-      this._setDTR(false); // IO0=HIGH
-      this._setRTS(true); // EN=LOW, chip in reset
+      await this._setDTR(false); // IO0=HIGH
+      await this._setRTS(true); // EN=LOW, chip in reset
       await this._sleep(100);
       if (esp32r0_delay) {
         await this._sleep(1200);
       }
-      this._setDTR(true); // IO0=LOW
-      this._setRTS(false); // EN=HIGH, chip out of reset
+      await this._setDTR(true); // IO0=LOW
+      await this._setRTS(false); // EN=HIGH, chip out of reset
       if (esp32r0_delay) {
         await this._sleep(400);
       }
       await this._sleep(50);
-      this._setDTR(false); // IO0=HIGH, done
+      await this._setDTR(false); // IO0=HIGH, done
     }
 
     for (let i = 0; i < 5; i++) {
       try {
         this.flush_input();
-        this._port.flush();
-        this.sync();
+        await this.flush_output();
+        await this.sync();
         return null;
       } catch (err) {
-        console.log(err);
+        console.log(err.message);
         if (esp32r0_delay) {
           process.stdout.write("_");
         } else {
@@ -186,12 +217,28 @@ export default class ESP {
   // change baud rate
   // send command
 
-  private _setDTR(state) {
-    this._port.set({ dtr: state });
+  private async _setDTR(state) {
+    return new Promise((resolve, reject) => {
+      this._port.set({ dtr: state }, (e) => {
+        if (e) {
+          reject(e);
+        }
+        console.log(`set DTR ${state}`);
+        resolve();
+      });
+    });
   }
 
-  private _setRTS(state) {
-    this._port.set({ rts: state });
+  private async _setRTS(state) {
+    return new Promise((resolve, reject) => {
+      this._port.set({ rts: state }, (e) => {
+        if (e) {
+          reject(e);
+        }
+        console.log(`set RTS ${state}`);
+        resolve();
+      });
+    });
   }
 
   private _sleep(msec) {
@@ -208,7 +255,7 @@ function* slip_reader(port) {
     if (read_bytes === null) {
       throw Error(`Timed out waiting for packet ${waiting_for}`);
     }
-    console.log(read_bytes.toString("hex"));
+    console.log("READ: " + read_bytes.toString("hex"));
     for (const b of read_bytes) {
       if (partial_packet === null) {
         // waiting for packet header
