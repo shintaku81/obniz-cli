@@ -210,6 +210,7 @@ class ESP {
     // send command
     async _setDTR(state) {
         return new Promise((resolve, reject) => {
+            this.dtr = state;
             this._port.set({ dtr: state }, (e) => {
                 if (e) {
                     reject(e);
@@ -221,11 +222,17 @@ class ESP {
     }
     async _setRTS(state) {
         return new Promise((resolve, reject) => {
+            this.rts = state;
             this._port.set({ rts: state }, (e) => {
                 if (e) {
                     reject(e);
                 }
                 console.log(`set RTS ${state}`);
+            });
+            this._port.set({ dtr: this.dtr }, (e) => {
+                if (e) {
+                    reject(e);
+                }
                 resolve();
             });
         });
@@ -244,7 +251,7 @@ function* slip_reader(port) {
         if (read_bytes === null) {
             throw Error(`Timed out waiting for packet ${waiting_for}`);
         }
-        console.log("READ: " + read_bytes.toString("hex"));
+        console.log("SLIP: " + read_bytes.toString("hex"));
         for (const b of read_bytes) {
             if (partial_packet === null) {
                 // waiting for packet header
