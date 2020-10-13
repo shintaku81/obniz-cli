@@ -45,6 +45,7 @@ function askUseGuessedPort(guessed_portname: string): Promise<boolean> {
   });
 
   return new Promise((resolve, reject) => {
+    rl.close();
     rl.question(`Use guessed port(${guessed_portname}?) (y or n)`, (answer) => {
       if (answer === "y") {
         resolve(true);
@@ -62,9 +63,19 @@ function selectPort(ports: any): Promise<string> {
     input: process.stdin,
     output: process.stdout,
   });
+  
 
   return new Promise((resolve, reject) => {
-    rl.question(`Select a port from the list above. (integer from 0 to ${ports.length - 1})`, (answer) => {
+    let portCatalog: string;
+    if (ports.length == 0) {
+      reject(new Error(`No port found.`));
+    } else if (ports.length == 1) {
+      portCatalog = "0";
+    } else {
+      portCatalog = `0 to ${ports.length - 1}`;
+    }
+    rl.question(`Select a port from the list above. (integer from ${portCatalog})`, (answer) => {
+      rl.close();
       const selected = ports[answer];
       if (selected) {
         resolve(selected.path);
