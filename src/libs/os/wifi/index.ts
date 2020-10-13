@@ -98,6 +98,7 @@ Configration Successfull of ${network.ssid}`),
           reject(new Error(err));
         });
         const obnizNetworks = [];
+        console.log(networks);
         for (const network of networks) {
           if (network.ssid.startsWith("obniz-")) {
             obnizNetworks.push(network);
