@@ -25,10 +25,10 @@
   },
   "preferGlobal": true,
   "author": "yukisato <yuki@yuki-sato.com>",
-  "homepage": "https://obniz.io/",
+  "homepage": "https://obniz.com/",
   "license": "MIT",
   "bugs": {
-    "url": "https://forum.obniz.io"
+    "url": "https://forum.obniz.com"
   },
   "private": false,
   "devDependencies": {

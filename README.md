@@ -2,7 +2,7 @@
 
 The obniz CLI is used to flashing and configuring obnizOS for processors.
 
-About obniz? see https://obniz.io/
+About obniz? see https://obniz.com/
 
 
 obniz-cli perform flashing, network configuring, also device creation on obniz Cloud.
