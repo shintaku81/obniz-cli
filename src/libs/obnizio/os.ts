@@ -5,11 +5,13 @@ import path from "path";
 import semver from "semver";
 import filepath from "./filepath";
 import { GraphQLURL } from "./url";
+import * as Storage from "../storage";
 
 export default class OS {
-  public static async list(hardware: string, token?: string) {
+  public static async list(hardware: string, type: string | null = null) {
     const headers: any = {};
-    if (token) {
+    const token = Storage.get("token");
+    if (token && type !== "public") {
       headers.authorization = `Bearer ${token}`;
     }
     const graphQLClient = new GraphQLClient(GraphQLURL, {
@@ -24,12 +26,12 @@ export default class OS {
       }
     }`;
 
-    const ret = await graphQLClient.request(query);
+    const ret:any = await graphQLClient.request(query);
     return ret.os;
   }
 
   public static async latestPublic(hardware: string) {
-    const versions = await this.list(hardware);
+    const versions = await this.list(hardware, "public");
     for (const v of versions) {
       if (!semver.prerelease(v)) {
         return v.version;
@@ -39,13 +41,13 @@ export default class OS {
   }
 
   public static async os(hardware: string, version: string) {
-    const versions = await this.list(hardware);
+    const versions = await this.list(hardware, null);
     for (const v of versions) {
       if (v.version === version) {
         return v;
       }
     }
-    throw new Error(`No obnizOS Found for ${hardware}`);
+    throw new Error(`No obnizOS and Version Found for hardware=${hardware} version=${version}`);
   }
 
   public static async prepareLocalFile(hardware: string, version: string) {
