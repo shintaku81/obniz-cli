@@ -182,7 +182,7 @@ export default class Serial {
     if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
       if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
         if(this.progress) {
-          this.progress(chalk.yellow(`This device already configured Device as obnizID ${obnizid}`))
+          this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`))
         }
       } else {
         if(this.progress) {
@@ -245,7 +245,7 @@ export default class Serial {
    */
   public async setNetworkType(type: "wifi" | "ethernet" | "cellular") {
     if(this.progress) {
-      this.progress(`Setting Network`)
+      this.progress(`Setting Network Type`)
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
@@ -268,7 +268,7 @@ export default class Serial {
    */
   public async setWiFi(setting: any) {
     if(this.progress) {
-      this.progress(`Setting Network`)
+      this.progress(`Setting Wi-Fi`)
     }
     // check obnizOS ver
     await this.waitFor("obniz ver:", 10 * 1000);

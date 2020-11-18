@@ -2,7 +2,7 @@ import chalk from "chalk";
 import Serial from "../serial";
 import WiFi from "../wifi";
 
-import ora from "ora";
+import ora, { Ora } from "ora";
 
 export default async (obj: { portname: string; debugserial:any, stdout: any; configs: any; via: string }) => {
   // Return if no configs required
@@ -12,7 +12,7 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
 
   let serial;
   let received = "";
-  const spinner = ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start();
+  let spinner = ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start();
   if (obj.debugserial) {
     spinner.stop();
   }
@@ -33,14 +33,13 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
         throw new Error(`${err}`);
       },
       progress: (text) => {
-        spinner.text = text;
+        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial)
       }
     });
     await serial.open();
 
     // config devicekey
     if (obj.configs.devicekey) {
-      spinner.text = `Configure: Wiring DeviceKey...`
       await serial.setDeviceKey(obj.configs.devicekey);
     }
 
@@ -60,10 +59,8 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
       const network = networks[0];
       const type = network.type;
       const settings = network.settings;
-      spinner.text = `Configure: Setting Network Type...`
       await serial.setNetworkType(type);
       if (type === "wifi") {
-        spinner.text = `Configure: Setting Wi-Fi configration`
         await serial.setWiFi(settings);
       } else {
         spinner.fail(`Configure: Not Supported Network Type ${type}`);
@@ -79,3 +76,13 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
 
   spinner.succeed(`Configure: Success`);
 };
+
+
+function nextSpinner(spinner:Ora, text:string, debugserial: any){
+  spinner.succeed()
+  spinner = ora(text).start();
+  if (debugserial) {
+    spinner.stop();
+  }
+  return spinner
+}
