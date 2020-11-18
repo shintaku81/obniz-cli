@@ -56,9 +56,10 @@ export default {
     const recoveryDeviceString = Storage.get("recovery-device");
     let device;
     if (recoveryDeviceString) {
-      device = JSON.parse(recoveryDeviceString);
       const use = await askUseRecovery(device);
-      if (!use) {
+      if (use) {
+        device = JSON.parse(recoveryDeviceString);
+      } else {
         Storage.set("recovery-device", null);
       }
     }
@@ -85,6 +86,7 @@ obniz-cli going to flash Devicekey to connected device.
 ***
       `),
       );
+      Storage.set("recovery-device", JSON.stringify(device));
     }
 
     try {
@@ -94,7 +96,9 @@ obniz-cli going to flash Devicekey to connected device.
       args.devicekey = device.devicekey;
       await Config.execute(args);
     } catch (e) {
-      Storage.set("recovery-device", JSON.stringify(device));
+      chalk.yellow(
+        `obnizID ${device.id} device key and information was sotred in recovery file`,
+      )
       throw e;
     }
     Storage.set("recovery-device", null);

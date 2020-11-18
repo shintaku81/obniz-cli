@@ -8,13 +8,13 @@ About obniz? see https://obniz.com/
 obniz-cli perform flashing, network configuring, also device creation on obniz Cloud.
 
 ```shell
-obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
+obniz-cli os:flash-create -p /dev/tty.USBSERIAL --config ./wifi-config.json
 ```
 
 
-obniz-cli works with
+obniz-cli tested with
 
- - Nodejs12 (MacOS 10.15 / Windows 10 are tested)
+ - Nodejs12 (MacOS 10.15 / Windows 10)
 
 
 ## Install
@@ -28,6 +28,7 @@ npm i obniz-cli -g
 ### Dependency
 
 obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
+
 ```
 pip install esptool
 ```
@@ -110,10 +111,25 @@ obniz-cli os:ports
 
 Some command require port arguments `-p`. If not specified, obniz-cli will automatically determine one port.
 
+
+Below scan ports and ask you to choose one.
+
 ```shel
-obniz-cli os:erase  => scan ports and use one of them.
-obniz-cli os:erase -p /dev/tty.USBSerial => it use specified
+obniz-cli os:flash
 ```
+
+Below will use specified port.
+
+```shell
+obniz-cli os:flash -p /dev/tty.USBSerial
+```
+
+`AUTO` will automatically guess and choose a one of ports.
+
+```shel
+obniz-cli os:flash -p AUTO
+```
+
 
 ## Flashing
 

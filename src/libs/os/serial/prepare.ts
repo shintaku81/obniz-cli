@@ -6,18 +6,27 @@ import SerialGuess from "./guess";
 
 export default async (args: any): Promise<any> => {
   let portname: string = args.p || args.port;
-
-  if (!portname) {
-    console.log("No port specified.");
+  const autoChoose = portname === 'AUTO';
+  if (autoChoose) {
+    portname = undefined;
+  }
+  if (!portname || autoChoose) {
+    if (!portname) {
+      console.log("No port specified.");
+    }
     // display port list
     const ports = await Ports();
 
     const guessed_portname = await SerialGuess();
     if (guessed_portname) {
       console.log(`Guessed Serial Port ${guessed_portname}`);
-      const use = await askUseGuessedPort(guessed_portname);
-      if (use) {
+      if (autoChoose) {
         portname = guessed_portname;
+      } else {
+        const use = await askUseGuessedPort(guessed_portname);
+        if (use) {
+          portname = guessed_portname;
+        }
       }
     }
 
