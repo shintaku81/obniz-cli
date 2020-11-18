@@ -2,26 +2,24 @@ import chalk from "chalk";
 import child_process from "child_process";
 import OS from "../obnizio/os";
 
-export default function flash(obj: { portname: string; hardware: string; version: string; baud: number; stdout: any }) {
+import ora from "ora"
+
+export default function flash(obj: { portname: string; hardware: string; version: string; baud: number; debugserial:any, stdout: any }) {
   return new Promise(async (resolve, reject) => {
+
+    let status = 'connecting';
+
+    const spinner = ora(`Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`).start();
+    if (obj.debugserial) {
+      spinner.stop();
+    }
+
     // prepare files
-    const files = await OS.prepareLocalFile(obj.hardware, obj.version);
+    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress)=>{
+      spinner.text = `Flashing obnizOS: ${progress}`
+    });
 
     let received = "";
-    obj.stdout("", { clear: true });
-
-    console.log(
-      chalk.yellow(`
-***
-flashing obnizOS
- serialport: ${obj.portname}
- baud: ${obj.baud}
-
- hardware: ${obj.hardware}
- version: ${obj.version}
-***
-`),
-    );
 
     const cmd =
       `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset` +
@@ -31,33 +29,52 @@ flashing obnizOS
       ` 0x10000 ${files.app_path}` +
       ` 0x8000 ${files.partition_path}`;
 
+    const onSuccess = () => {
+      spinner.succeed(`Flashing obnizOS: Flashed`);
+      resolve()
+    }
+    const onFailed = (err) => {
+      spinner.fail(`Flashing obnizOS: Fail`);
+      reject(err)
+    }
+
+    spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`
+
     const child = child_process.exec(cmd);
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (text) => {
-      obj.stdout(text);
+      if (obj.debugserial) {
+        console.log(text);
+        obj.stdout(text);
+      }
       received += text;
+
+      if (status === 'connecting' && received.indexOf(`Chip is`) >= 0) {
+        status = 'flashing';
+        spinner.text = `Flashing obnizOS: Connected. Flashing...`
+      }
     });
     child.stderr.on("data", (text) => {
-      obj.stdout(text);
-      received += text;
+      if (obj.debugserial) {
+        obj.stdout(text);
+      }
+      received += `${chalk.red(text)}`;
     });
     child.on("error", (er) => {
-      console.log(er);
-      reject(er);
+      onFailed(er);
     });
     child.on("exit", (code) => {
       try {
         throwIfFailed(received);
       } catch (e) {
-        reject(e);
+        onFailed(e);
         return;
       }
       if (code !== 0) {
         reject(new Error(`Failed Flashing.`));
         return;
       }
-
-      resolve();
+      onSuccess();
     });
   });
 }
@@ -67,8 +84,12 @@ function throwIfFailed(text: string) {
     // success
     return;
   }
+  let err;
   if (text.indexOf("Timed out waiting for packet header") >= 0) {
-    throw new Error(`No Bootload mode ESP32 found. Check connection or Boot Mode.`);
+    err = new Error(`No Bootload mode ESP32 found. Check connection or Boot Mode.`);
+  } else {
+    err = new Error(`Failed Flashing.`);
   }
-  throw new Error(`Failed Flashing.`);
+  console.log(text);
+  throw err;
 }

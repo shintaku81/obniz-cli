@@ -2,10 +2,11 @@ import SerialPort from "serialport";
 
 export default async () => {
   const ports: SerialPort.PortInfo[] = await SerialPort.list();
-  console.log(`===Found Serial Ports===`);
+  console.log(`===Founded Serial Ports===`);
 
   for (let i = 0; i < ports.length; i++) {
-    console.log(`${i}: ${ports[i].path}`);
+    const port = ports[i]
+    console.log(`${port.path}${ port.manufacturer ? ` (${port.manufacturer})` : `` }`);
   }
 
   return ports;

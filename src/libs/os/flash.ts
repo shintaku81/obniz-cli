@@ -5,6 +5,8 @@ import Flash from "./_flash";
 import Config from "./config";
 import PreparePort from "./serial/prepare";
 
+import ora from "ora";
+
 export default {
   help: `Flash obnizOS and configure it
 
@@ -28,6 +30,7 @@ export default {
       process.stdout.write(text);
     };
 
+    const spinner = ora('obnizOS:').start();
     // OS setting
     let hardware: any = args.h || args.hardware;
     if (!hardware) {
@@ -36,8 +39,11 @@ export default {
     obj.hardware = hardware;
     let version: any = args.v || args.version;
     if (!version) {
+      spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk.green(hardware)}`;
       version = await OS.latestPublic(hardware);
-      console.log(chalk.yellow(`${version} is the latest for ${hardware}. going to use it.`));
+      spinner.succeed(`obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(`${version}(Public Latest Version)`)}`);
+    } else {
+      spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
     }
     obj.version = version;
     await Flash(obj);

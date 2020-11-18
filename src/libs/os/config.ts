@@ -7,6 +7,8 @@ import * as Storage from "../storage";
 import Config from "./configure";
 import PreparePort from "./serial/prepare";
 
+import ora from 'ora';
+
 export default {
   help: `Flash obnizOS and configure it
 
@@ -21,9 +23,11 @@ export default {
   `,
   async execute(args: any) {
     // Serial Port Setting
+    let received = "";
     const obj = await PreparePort(args);
     obj.stdout = (text: string) => {
-      process.stdout.write(text);
+      // process.stdout.write(text);
+      received += text;
     };
 
     // DeviceKey Setting
@@ -35,35 +39,30 @@ export default {
       obniz_id = devicekey.split("&")[0];
     }
     if (args.i || args.id) {
-      obniz_id = args.i || args.id;
-      if (obj.configs && obj.configs.devicekey) {
-        throw new Error(`devicekey and id are double specified.`);
+      const spinner = ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start();
+      try {
+        obniz_id = args.i || args.id;
+        if (obj.configs && obj.configs.devicekey) {
+          throw new Error(`devicekey and id are double specified.`);
+        }
+        const token = Storage.get("token");
+        if (!token) {
+          throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+        }
+        const device = await Device.get(token, obniz_id);
+        if (!device) {
+          throw new Error(`device ${obniz_id} was not found in your devices.`);
+        }
+        if (!device.devicekey) {
+          throw new Error(`device ${obniz_id} has no devicekey.`);
+        }
+        obj.configs = obj.configs || {};
+        obj.configs.devicekey = device.devicekey;
+        spinner.succeed(`Configure: obnizID=${obniz_id} hardware=${device.hardware} devicekey=${device.devicekey}`)
+      } catch(e)  {
+        spinner.fail(`Configure: Failed ${e}`);
+        throw e
       }
-      const token = Storage.get("token");
-      if (!token) {
-        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
-      }
-      const device = await Device.get(token, obniz_id);
-      if (!device) {
-        throw new Error(`device ${obniz_id} was not found in your devices.`);
-      }
-      console.log(
-        chalk.green(`
-***
-device ${obniz_id}
-  description: ${device.description}
-  createdAt: ${device.createdAt}
-  hardware: ${device.hardware}
-  status: ${device.status}
-  devicekey: ${device.devicekey}
-***
-      `),
-      );
-      if (!device.devicekey) {
-        throw new Error(`device ${obniz_id} has no devicekey.`);
-      }
-      obj.configs = obj.configs || {};
-      obj.configs.devicekey = device.devicekey;
     }
 
     // Network Setting
@@ -93,12 +92,5 @@ device ${obniz_id}
     }
 
     await Config(obj);
-    console.log(
-      chalk.green(`
-***
-configured device.
-***
-`),
-    );
   },
 };

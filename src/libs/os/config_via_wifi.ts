@@ -32,7 +32,6 @@ export default {
     //
     if (!configs) {
       // no configration provided
-      console.log(`No configration found. exit.`);
       return;
     }
 

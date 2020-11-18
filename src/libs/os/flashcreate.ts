@@ -7,6 +7,9 @@ import Flash from "./_flash";
 import Config from "./config";
 import PreparePort from "./serial/prepare";
 
+import ora from 'ora';
+import inquirer from 'inquirer';
+
 export default {
   help: `Flash obnizOS and configure it
 
@@ -39,54 +42,65 @@ export default {
     // SerialPortSetting
     const obj: any = await PreparePort(args);
     obj.stdout = (text: string) => {
-      process.stdout.write(text);
+      //process.stdout.write(text);
     };
-
-    // OS Setting
-    const hardware: any = args.h || args.hardware || Defaults.HARDWARE;
-    let version: any = args.v || args.version;
-    if (!version) {
-      version = await OS.latestPublic(hardware);
-      console.log(`${version} is the latest for ${hardware}. going to use it.`);
-    }
-    obj.version = version;
-    obj.hardware = hardware;
-    await Flash(obj);
 
     const recoveryDeviceString = Storage.get("recovery-device");
     let device;
     if (recoveryDeviceString) {
-      const use = await askUseRecovery(device);
+      const readedDevice = device = JSON.parse(recoveryDeviceString);
+      const use = await askUseRecovery(readedDevice);
       if (use) {
-        device = JSON.parse(recoveryDeviceString);
+        device = readedDevice;
       } else {
         Storage.set("recovery-device", null);
       }
     }
 
-    if (!device) {
-      // Device Creation Setting
-      const region: any = args.r || args.region || "jp";
-      const description: any = args.description || "";
-      // registrate
-      device = await Device.create(token, {
-        region,
-        description,
-        hardware,
-      });
-      console.log(
-        chalk.green(`
-***
-created one device on obniz Cloud.
-obnizID: ${device.id}
-region: ${device.region}
-description: ${device.description}
+    // No more asking
 
-obniz-cli going to flash Devicekey to connected device.
-***
-      `),
-      );
-      Storage.set("recovery-device", JSON.stringify(device));
+    let hardware: any
+    let version: any
+    let spinner:any 
+    spinner = ora('obnizOS:').start();
+    // hardware
+    hardware = args.h || args.hardware || Defaults.HARDWARE;
+    obj.hardware = hardware;
+    // version
+    version = args.v || args.version;
+    if (!version) {
+      spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk.green(hardware)}`;
+      version = await OS.latestPublic(hardware);
+      spinner.succeed(`obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(`${version}(Public Latest Version)`)}`);
+    } else {
+      spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
+    }
+    obj.version = version;
+
+    await Flash(obj);
+
+
+    if(device) {
+      spinner = ora('obnizCloud:').start();
+      spinner.succeed(`obnizCloud: using recovery device obnizID=${chalk.green(device.id)} description=${chalk.green(device.description)} region=${chalk.green(device.region)}`)
+    } else {
+      spinner = ora('obnizCloud: creating device on obnizCloud...').start();
+      try {
+        // Device Creation Setting
+        const region: any = args.r || args.region || "jp";
+        const description: any = args.description || "";
+        // registrate
+        device = await Device.create(token, {
+          region,
+          description,
+          hardware,
+        });
+        Storage.set("recovery-device", JSON.stringify(device));
+        spinner.succeed(`obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(device.description)} region=${chalk.green(device.region)}`);
+      } catch(e) {
+        spinner.fail(`obnizCloud: ${e}`);
+        throw e
+      }
     }
 
     try {
@@ -95,38 +109,34 @@ obniz-cli going to flash Devicekey to connected device.
       args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
       args.devicekey = device.devicekey;
       await Config.execute(args);
+      Storage.set("recovery-device", null);
     } catch (e) {
       chalk.yellow(
         `obnizID ${device.id} device key and information was sotred in recovery file`,
       )
       throw e;
     }
-    Storage.set("recovery-device", null);
   },
 };
 
-function askUseRecovery(device) {
-  return new Promise((resolve, reject) => {
-    console.log(
-      chalk.yellow(
-        `Would you like to use recovery device ${device.id} [ ${device.description} ] rather than create one more device?\nThat is flashing failed one last time.\nIf you choose 'n' saved recovery data will be discarded.`,
-      ),
-    );
+async function askUseRecovery(device) {
 
-    const readline = require("readline");
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    rl.question("Use Recovery? (y or n)", (answer) => {
-      if (answer === "y") {
-        resolve(true);
-      } else if (answer === "n") {
-        resolve(false);
-      } else {
-        reject(new Error(`Enter y or n`));
-      }
-    });
-  });
+  const answer = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'yesno',
+      message: `Would you like to use recovery device ${device.id} [ ${device.description} ] rather than create one more device? It was failed one last time.`,
+      choices: [
+        {
+          name: `Yes. I'm going to use recovery.`,
+          value: `yes`
+        },{
+          name: `No. Discard it and create new obnizID on obnizCloud`,
+          value: `no`
+        }
+      ],
+      default: 'yes'
+    }
+  ])
+  return answer.yesno === 'yes';
 }

@@ -10,16 +10,18 @@ export default class Serial {
   public portname: string;
   public stdout: any;
   public onerror: any;
+  public progress: any;
   public serialport: SerialPort;
 
   public totalReceived = "";
 
   private _recvCallback: any;
 
-  constructor(obj: { portname: string; stdout: any; onerror: any }) {
+  constructor(obj: { portname: string; stdout: any; onerror: any, progress: any }) {
     this.portname = obj.portname;
     this.stdout = obj.stdout;
     this.onerror = obj.onerror;
+    this.progress = obj.progress;
   }
 
   public async open() {
@@ -29,7 +31,6 @@ export default class Serial {
       this.serialport.on("open", () => {
         // open logic
         this.serialport.set({ rts: false, dtr: false });
-        console.log(`serial open ${this.portname}`);
         this.serialport.on("readable", async () => {
           const received = this.serialport.read().toString("utf-8");
           this.totalReceived += received;
@@ -132,13 +133,9 @@ export default class Serial {
   public async waitForSettingMode() {
     return new Promise(async (resolve, reject) => {
       let timeoutTimer = setTimeout(() => {
-        console.log(
-          chalk.yellow(`
-***
-Could you reset your device? Can you press reset button?
-***
-`),
-        );
+        if(this.progress) {
+          this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`))
+        }
         timeoutTimer = null;
       }, 3 * 1000);
       try {
@@ -174,16 +171,9 @@ Could you reset your device? Can you press reset button?
    */
   public async setDeviceKey(devicekey: string) {
     const obnizid = devicekey.split("&")[0];
-    console.log(
-      chalk.yellow(`
-***
-Setting DeviceKey ${devicekey}
-
-obniz-cli will make your device bootload mode by using RTS.
-If your device need manual operation to enter bootload mode, Do now and reset your device.
-***
-    `),
-    );
+    if(this.progress) {
+      this.progress(`Setting Devicekey obnizID=${chalk.green(obnizid)}`)
+    }
     await this.reset(); // force print DeviceKey
     this.send(`\n`);
     await new Promise((resolve, reject) => {
@@ -191,28 +181,13 @@ If your device need manual operation to enter bootload mode, Do now and reset yo
     });
     if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
       if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
-        console.log(
-          chalk.yellow(`
-***
-This device already configured Device as obnizID ${obnizid}
-***
-            `),
-        );
+        if(this.progress) {
+          this.progress(chalk.yellow(`This device already configured Device as obnizID ${obnizid}`))
+        }
       } else {
-        console.log(
-          chalk.red(`
-***
-
-This device already has DeviceKey.
-And your argmented DeviceKey does not match to device one.
-I will ignore artumented DeviceKey now.
-if you want to flash DeviceKey to this device. Please call
-
-obniz-cli os:erase
-
-***
-    `),
-        );
+        if(this.progress) {
+          this.progress(chalk.red(`This device already configured with different device key. use 'os:erase' to flash your new devicekey`))
+        }
       }
       return;
     }
@@ -226,11 +201,9 @@ obniz-cli os:erase
    * Reset All Network Setting
    */
   public async resetWiFiSetting() {
-    console.log(`
-***
-Resetting All Network Setting
-***
-    `);
+    if(this.progress) {
+      this.progress(`Resetting All Network Setting`)
+    }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
     this.send(`s`);
@@ -249,11 +222,9 @@ Resetting All Network Setting
    * Reset All Network Setting
    */
   public async resetAllSetting() {
-    console.log(`
-***
-Resetting All Network Setting
-***
-    `);
+    if(this.progress) {
+      this.progress(`Resetting All Network Setting`)
+    }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
     this.send(`s`);
@@ -273,11 +244,9 @@ Resetting All Network Setting
    * @param type
    */
   public async setNetworkType(type: "wifi" | "ethernet" | "cellular") {
-    console.log(`
-***
-Setting Network
-***
-    `);
+    if(this.progress) {
+      this.progress(`Setting Network`)
+    }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
     this.send(`s`);
@@ -298,19 +267,17 @@ Setting Network
    * @param obj
    */
   public async setWiFi(setting: any) {
-    console.log(
-      chalk.yellow(`
-***
-Setting Network
-***
-    `),
-    );
+    if(this.progress) {
+      this.progress(`Setting Network`)
+    }
     // check obnizOS ver
     await this.waitFor("obniz ver:", 10 * 1000);
     const verLine = this._searchLine("obniz ver:");
     let version = "0.0.0";
     if (!verLine) {
-      console.log(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
+      if(this.progress) {
+        this.progress(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."))
+      }
     } else {
       version = semver.clean(verLine.split("obniz ver: ")[1]);
     }
@@ -413,16 +380,9 @@ Setting Network
     }
 
     await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
-    console.log(
-      chalk.green(`
-***
-Configration Successfull`),
-    );
-    console.log(chalk.green(JSON.stringify(setting, null, 2)));
-    console.log(
-      chalk.green(`***
-`),
-    );
+    if(this.progress) {
+      this.progress(chalk.green("Suceeded"))
+    }
   }
 
   private _searchLine(text: string): string | null {

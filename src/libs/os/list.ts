@@ -17,11 +17,10 @@ export default {
 };
 
 async function list(hardware: string) {
-  const token = Storage.get("token");
   console.log(`
 OS versions for ${hardware}
 `);
-  const versions = await OS.list(hardware, token);
+  const versions = await OS.list(hardware);
   for (const v of versions) {
     console.log(`  ${v.version}`);
   }

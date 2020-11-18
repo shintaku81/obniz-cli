@@ -22,10 +22,12 @@ export default async (routes: any) => {
     } else {
       await routes.help();
     }
-  } else if (args.version || args.v) {
-    console.log(`version ${packageverion}`);
   } else {
     if (!route) {
+      if (args.version || args.v) {
+        console.log(`version ${packageverion}`);
+        return;
+      }
       console.error(`Unknown Command ${command} see below help`);
       await routes.help();
       return;

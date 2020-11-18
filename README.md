@@ -130,6 +130,12 @@ obniz-cli os:flash -p /dev/tty.USBSerial
 obniz-cli os:flash -p AUTO
 ```
 
+`--debugserial` option for logout all serial communication.
+
+```shell
+obniz-cli os:flash-create -p AUTO --debugserial
+```
+
 
 ## Flashing
 
@@ -214,7 +220,7 @@ See [example](./example_config.json)
       "type": "wifi",
       "settings": {
         "ssid": "exampl_essid",
-        "password": "example_password",
+        "password": "example_password"
       }
     }
   ]

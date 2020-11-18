@@ -50,7 +50,7 @@ export default class OS {
     throw new Error(`No obnizOS and Version Found for hardware=${hardware} version=${version}`);
   }
 
-  public static async prepareLocalFile(hardware: string, version: string) {
+  public static async prepareLocalFile(hardware: string, version: string, progress:any) {
     const appPath = filepath(hardware, version, "app");
     const bootloaderPath = filepath(hardware, version, "bootloader");
     const partitionPath = filepath(hardware, version, "partition");
@@ -59,18 +59,21 @@ export default class OS {
       if (!v) {
         v = await this.os(hardware, version);
       }
+      progress(`Downloading from obnizCloud`)
       await downloadFile(v.app_url, appPath);
     }
     if (!fs.existsSync(bootloaderPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
+      progress(`Downloading from obnizCloud`)
       await downloadFile(v.bootloader_url, bootloaderPath);
     }
     if (!fs.existsSync(partitionPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
+      progress(`Downloading from obnizCloud`)
       await downloadFile(v.partition_url, partitionPath);
     }
     return {
