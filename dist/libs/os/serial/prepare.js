@@ -1,35 +1,47 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const readline = __importStar(require("readline"));
+const serialport_1 = __importDefault(require("serialport"));
 const defaults_1 = __importDefault(require("../../../defaults"));
-const ports_1 = __importDefault(require("../ports"));
 const guess_1 = __importDefault(require("./guess"));
+const chalk_1 = __importDefault(require("chalk"));
+const inquirer_1 = __importDefault(require("inquirer"));
+const ora_1 = __importDefault(require("ora"));
 exports.default = async (args) => {
     let portname = args.p || args.port;
     if (!portname) {
-        console.log("No port specified.");
-        // display port list
-        const ports = await ports_1.default();
-        const guessed_portname = await guess_1.default();
-        if (guessed_portname) {
-            console.log(`Guessed Serial Port ${guessed_portname}`);
-            const use = await askUseGuessedPort(guessed_portname);
-            if (use) {
-                portname = guessed_portname;
+        console.log(chalk_1.default.yellow(`No serial port specified.`));
+    }
+    const autoChoose = portname === "AUTO";
+    if (autoChoose) {
+        portname = undefined;
+    }
+    // display port list
+    const ports = await serialport_1.default.list();
+    // Specified. check ports
+    if (portname) {
+        let found = false;
+        for (const port of ports) {
+            if (port.path === portname) {
+                found = true;
+                break;
             }
         }
+        if (!found) {
+            console.log(chalk_1.default.red(`specified serial port ${portname} was not found.`));
+            portname = undefined;
+        }
+    }
+    // not specified or not found
+    if (!portname) {
+        const guessed_portname = await guess_1.default();
+        if (autoChoose) {
+            portname = guessed_portname;
+        }
         if (!portname) {
-            const selected = await selectPort(ports);
+            const selected = await selectPort(ports, guessed_portname);
             portname = selected;
         }
     }
@@ -37,56 +49,32 @@ exports.default = async (args) => {
     if (!baud) {
         baud = defaults_1.default.BAUD;
     }
+    const debugserial = args.debugserial;
+    const spinner = ora_1.default("Serial Port:").start();
+    spinner.succeed(`Serial Port: decided ${chalk_1.default.green(portname)} baundrate ${baud}`);
     return {
         portname,
         baud,
+        debugserial,
     };
 };
-function askUseGuessedPort(guessed_portname) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    return new Promise((resolve, reject) => {
-        rl.close();
-        rl.question(`Use guessed port(${guessed_portname}?) (y or n)`, (answer) => {
-            if (answer === "y") {
-                resolve(true);
-            }
-            else if (answer === "n") {
-                resolve(false);
-            }
-            else {
-                reject(new Error("Enter y or n"));
-            }
+async function selectPort(ports, defaultValue) {
+    const portNames = [];
+    for (let i = 0; i < ports.length; i++) {
+        const port = ports[i];
+        portNames.push({
+            name: `${port.path}${port.manufacturer ? ` (${port.manufacturer})` : ``}`,
+            value: port.path,
         });
-    });
-}
-function selectPort(ports) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    return new Promise((resolve, reject) => {
-        let portCatalog;
-        if (ports.length == 0) {
-            reject(new Error(`No port found.`));
-        }
-        else if (ports.length == 1) {
-            portCatalog = "0";
-        }
-        else {
-            portCatalog = `0 to ${ports.length - 1}`;
-        }
-        rl.question(`Select a port from the list above. (integer from ${portCatalog})`, (answer) => {
-            rl.close();
-            const selected = ports[answer];
-            if (selected) {
-                resolve(selected.path);
-            }
-            else {
-                reject(new Error(`Enter integer from 0 to ${ports.length - 1}`));
-            }
-        });
-    });
+    }
+    const answer = await inquirer_1.default.prompt([
+        {
+            type: "list",
+            name: "port",
+            message: "Serial Ports available on your machine",
+            choices: portNames,
+            default: defaultValue,
+        },
+    ]);
+    return answer.port;
 }

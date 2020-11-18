@@ -21,7 +21,7 @@ async function findUsbSerials(): Promise<string[]> {
   const availablePorts: string[] = [];
   const ports: SerialPort.PortInfo[] = await SerialPort.list();
   for (const port of ports) {
-    if (port.manufacturer && port.manufacturer.indexOf('M5STACK') >= 0) {
+    if (port.manufacturer && port.manufacturer.indexOf("M5STACK") >= 0) {
       availablePorts.push(port.path);
       break;
     } else if (port.path.indexOf("tty.SLAB") >= 0) {

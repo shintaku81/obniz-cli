@@ -9,6 +9,7 @@ const os_1 = __importDefault(require("../../libs/obnizio/os"));
 const _flash_1 = __importDefault(require("./_flash"));
 const config_1 = __importDefault(require("./config"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
+const ora_1 = __importDefault(require("ora"));
 exports.default = {
     help: `Flash obnizOS and configure it
 
@@ -31,6 +32,7 @@ exports.default = {
         obj.stdout = (text) => {
             process.stdout.write(text);
         };
+        const spinner = ora_1.default("obnizOS:").start();
         // OS setting
         let hardware = args.h || args.hardware;
         if (!hardware) {
@@ -39,8 +41,12 @@ exports.default = {
         obj.hardware = hardware;
         let version = args.v || args.version;
         if (!version) {
+            spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk_1.default.green(hardware)}`;
             version = await os_1.default.latestPublic(hardware);
-            console.log(chalk_1.default.yellow(`${version} is the latest for ${hardware}. going to use it.`));
+            spinner.succeed(`obnizOS: [using default] hardware=${chalk_1.default.green(hardware)} version=${chalk_1.default.green(`${version}(Public Latest Version)`)}`);
+        }
+        else {
+            spinner.succeed(`obnizOS: decided hardware=${chalk_1.default.green(hardware)} version=${chalk_1.default.green(version)}`);
         }
         obj.version = version;
         await _flash_1.default(obj);

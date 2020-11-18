@@ -65,6 +65,7 @@ async function start() {
                 const baud = 1500000;
                 const success = await _flash_1.default({
                     portname: portTTYName,
+                    debugserial: true,
                     hardware,
                     version: "1.0.0",
                     baud,

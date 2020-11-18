@@ -3,9 +3,9 @@ import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
+import * as Storage from "../storage";
 import filepath from "./filepath";
 import { GraphQLURL } from "./url";
-import * as Storage from "../storage";
 
 export default class OS {
   public static async list(hardware: string, type: string | null = null) {
@@ -26,7 +26,7 @@ export default class OS {
       }
     }`;
 
-    const ret:any = await graphQLClient.request(query);
+    const ret: any = await graphQLClient.request(query);
     return ret.os;
   }
 
@@ -50,7 +50,7 @@ export default class OS {
     throw new Error(`No obnizOS and Version Found for hardware=${hardware} version=${version}`);
   }
 
-  public static async prepareLocalFile(hardware: string, version: string, progress:any) {
+  public static async prepareLocalFile(hardware: string, version: string, progress: any) {
     const appPath = filepath(hardware, version, "app");
     const bootloaderPath = filepath(hardware, version, "bootloader");
     const partitionPath = filepath(hardware, version, "partition");
@@ -59,21 +59,21 @@ export default class OS {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`)
+      progress(`Downloading from obnizCloud`);
       await downloadFile(v.app_url, appPath);
     }
     if (!fs.existsSync(bootloaderPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`)
+      progress(`Downloading from obnizCloud`);
       await downloadFile(v.bootloader_url, bootloaderPath);
     }
     if (!fs.existsSync(partitionPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`)
+      progress(`Downloading from obnizCloud`);
       await downloadFile(v.partition_url, partitionPath);
     }
     return {

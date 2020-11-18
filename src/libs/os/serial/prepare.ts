@@ -4,9 +4,9 @@ import SerialPort from "serialport";
 import Defaults from "../../../defaults";
 import SerialGuess from "./guess";
 
-import chalk from "chalk"
-import ora from 'ora';
-import inquirer from "inquirer"
+import chalk from "chalk";
+import inquirer from "inquirer";
+import ora from "ora";
 
 export default async (args: any): Promise<any> => {
   let portname: string = args.p || args.port;
@@ -14,7 +14,7 @@ export default async (args: any): Promise<any> => {
     console.log(chalk.yellow(`No serial port specified.`));
   }
 
-  const autoChoose = portname === 'AUTO';
+  const autoChoose = portname === "AUTO";
   if (autoChoose) {
     portname = undefined;
   }
@@ -35,9 +35,9 @@ export default async (args: any): Promise<any> => {
       portname = undefined;
     }
   }
-  
+
   // not specified or not found
-  if(!portname) {
+  if (!portname) {
     const guessed_portname = await SerialGuess();
     if (autoChoose) {
       portname = guessed_portname;
@@ -54,36 +54,36 @@ export default async (args: any): Promise<any> => {
     baud = Defaults.BAUD;
   }
 
-  let debugserial: any = args.debugserial;
+  const debugserial: any = args.debugserial;
 
-  const spinner = ora('Serial Port:').start();
+  const spinner = ora("Serial Port:").start();
   spinner.succeed(`Serial Port: decided ${chalk.green(portname)} baundrate ${baud}`);
 
   return {
     portname,
     baud,
-    debugserial
+    debugserial,
   };
 };
 
 async function selectPort(ports: SerialPort.PortInfo[], defaultValue: any): Promise<string> {
-  const portNames = []
+  const portNames = [];
   for (let i = 0; i < ports.length; i++) {
-    const port = ports[i]
+    const port = ports[i];
     portNames.push({
-      name: `${port.path}${ port.manufacturer ? ` (${port.manufacturer})` : `` }`,
-      value: port.path
-    })
+      name: `${port.path}${port.manufacturer ? ` (${port.manufacturer})` : ``}`,
+      value: port.path,
+    });
   }
 
   const answer = await inquirer.prompt([
     {
-      type: 'list',
-      name: 'port',
-      message: 'Serial Ports available on your machine',
+      type: "list",
+      name: "port",
+      message: "Serial Ports available on your machine",
       choices: portNames,
-      default: defaultValue
-    }
-  ])
-  return answer.port
+      default: defaultValue,
+    },
+  ]);
+  return answer.port;
 }

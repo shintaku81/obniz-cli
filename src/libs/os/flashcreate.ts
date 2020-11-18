@@ -7,8 +7,8 @@ import Flash from "./_flash";
 import Config from "./config";
 import PreparePort from "./serial/prepare";
 
-import ora from 'ora';
-import inquirer from 'inquirer';
+import inquirer from "inquirer";
+import ora from "ora";
 
 export default {
   help: `Flash obnizOS and configure it
@@ -42,13 +42,13 @@ export default {
     // SerialPortSetting
     const obj: any = await PreparePort(args);
     obj.stdout = (text: string) => {
-      //process.stdout.write(text);
+      // process.stdout.write(text);
     };
 
     const recoveryDeviceString = Storage.get("recovery-device");
     let device;
     if (recoveryDeviceString) {
-      const readedDevice = device = JSON.parse(recoveryDeviceString);
+      const readedDevice = (device = JSON.parse(recoveryDeviceString));
       const use = await askUseRecovery(readedDevice);
       if (use) {
         device = readedDevice;
@@ -59,10 +59,10 @@ export default {
 
     // No more asking
 
-    let hardware: any
-    let version: any
-    let spinner:any 
-    spinner = ora('obnizOS:').start();
+    let hardware: any;
+    let version: any;
+    let spinner: any;
+    spinner = ora("obnizOS:").start();
     // hardware
     hardware = args.h || args.hardware || Defaults.HARDWARE;
     obj.hardware = hardware;
@@ -71,7 +71,11 @@ export default {
     if (!version) {
       spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk.green(hardware)}`;
       version = await OS.latestPublic(hardware);
-      spinner.succeed(`obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(`${version}(Public Latest Version)`)}`);
+      spinner.succeed(
+        `obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(
+          `${version}(Public Latest Version)`,
+        )}`,
+      );
     } else {
       spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
     }
@@ -79,12 +83,15 @@ export default {
 
     await Flash(obj);
 
-
-    if(device) {
-      spinner = ora('obnizCloud:').start();
-      spinner.succeed(`obnizCloud: using recovery device obnizID=${chalk.green(device.id)} description=${chalk.green(device.description)} region=${chalk.green(device.region)}`)
+    if (device) {
+      spinner = ora("obnizCloud:").start();
+      spinner.succeed(
+        `obnizCloud: using recovery device obnizID=${chalk.green(device.id)} description=${chalk.green(
+          device.description,
+        )} region=${chalk.green(device.region)}`,
+      );
     } else {
-      spinner = ora('obnizCloud: creating device on obnizCloud...').start();
+      spinner = ora("obnizCloud: creating device on obnizCloud...").start();
       try {
         // Device Creation Setting
         const region: any = args.r || args.region || "jp";
@@ -96,10 +103,14 @@ export default {
           hardware,
         });
         Storage.set("recovery-device", JSON.stringify(device));
-        spinner.succeed(`obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(device.description)} region=${chalk.green(device.region)}`);
-      } catch(e) {
+        spinner.succeed(
+          `obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(
+            device.description,
+          )} region=${chalk.green(device.region)}`,
+        );
+      } catch (e) {
         spinner.fail(`obnizCloud: ${e}`);
-        throw e
+        throw e;
       }
     }
 
@@ -111,32 +122,30 @@ export default {
       await Config.execute(args);
       Storage.set("recovery-device", null);
     } catch (e) {
-      chalk.yellow(
-        `obnizID ${device.id} device key and information was sotred in recovery file`,
-      )
+      chalk.yellow(`obnizID ${device.id} device key and information was sotred in recovery file`);
       throw e;
     }
   },
 };
 
 async function askUseRecovery(device) {
-
   const answer = await inquirer.prompt([
     {
-      type: 'list',
-      name: 'yesno',
+      type: "list",
+      name: "yesno",
       message: `Would you like to use recovery device ${device.id} [ ${device.description} ] rather than create one more device? It was failed one last time.`,
       choices: [
         {
           name: `Yes. I'm going to use recovery.`,
-          value: `yes`
-        },{
+          value: `yes`,
+        },
+        {
           name: `No. Discard it and create new obnizID on obnizCloud`,
-          value: `no`
-        }
+          value: `no`,
+        },
       ],
-      default: 'yes'
-    }
-  ])
-  return answer.yesno === 'yes';
+      default: "yes",
+    },
+  ]);
+  return answer.yesno === "yes";
 }

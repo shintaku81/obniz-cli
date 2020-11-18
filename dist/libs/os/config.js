@@ -18,6 +18,7 @@ const device_1 = __importDefault(require("../obnizio/device"));
 const Storage = __importStar(require("../storage"));
 const configure_1 = __importDefault(require("./configure"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
+const ora_1 = __importDefault(require("ora"));
 exports.default = {
     help: `Flash obnizOS and configure it
 
@@ -32,9 +33,11 @@ exports.default = {
   `,
     async execute(args) {
         // Serial Port Setting
+        let received = "";
         const obj = await prepare_1.default(args);
         obj.stdout = (text) => {
-            process.stdout.write(text);
+            // process.stdout.write(text);
+            received += text;
         };
         // DeviceKey Setting
         const devicekey = args.d || args.devicekey;
@@ -45,33 +48,31 @@ exports.default = {
             obniz_id = devicekey.split("&")[0];
         }
         if (args.i || args.id) {
-            obniz_id = args.i || args.id;
-            if (obj.configs && obj.configs.devicekey) {
-                throw new Error(`devicekey and id are double specified.`);
+            const spinner = ora_1.default(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start();
+            try {
+                obniz_id = args.i || args.id;
+                if (obj.configs && obj.configs.devicekey) {
+                    throw new Error(`devicekey and id are double specified.`);
+                }
+                const token = Storage.get("token");
+                if (!token) {
+                    throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+                }
+                const device = await device_1.default.get(token, obniz_id);
+                if (!device) {
+                    throw new Error(`device ${obniz_id} was not found in your devices.`);
+                }
+                if (!device.devicekey) {
+                    throw new Error(`device ${obniz_id} has no devicekey.`);
+                }
+                obj.configs = obj.configs || {};
+                obj.configs.devicekey = device.devicekey;
+                spinner.succeed(`Configure: obnizID=${obniz_id} hardware=${device.hardware} devicekey=${device.devicekey}`);
             }
-            const token = Storage.get("token");
-            if (!token) {
-                throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+            catch (e) {
+                spinner.fail(`Configure: Failed ${e}`);
+                throw e;
             }
-            const device = await device_1.default.get(token, obniz_id);
-            if (!device) {
-                throw new Error(`device ${obniz_id} was not found in your devices.`);
-            }
-            console.log(chalk_1.default.green(`
-***
-device ${obniz_id}
-  description: ${device.description}
-  createdAt: ${device.createdAt}
-  hardware: ${device.hardware}
-  status: ${device.status}
-  devicekey: ${device.devicekey}
-***
-      `));
-            if (!device.devicekey) {
-                throw new Error(`device ${obniz_id} has no devicekey.`);
-            }
-            obj.configs = obj.configs || {};
-            obj.configs.devicekey = device.devicekey;
         }
         // Network Setting
         const configPath = args.c || args.config;
@@ -99,10 +100,5 @@ device ${obniz_id}
             return;
         }
         await configure_1.default(obj);
-        console.log(chalk_1.default.green(`
-***
-configured device.
-***
-`));
     },
 };

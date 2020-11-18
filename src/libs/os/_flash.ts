@@ -2,21 +2,29 @@ import chalk from "chalk";
 import child_process from "child_process";
 import OS from "../obnizio/os";
 
-import ora from "ora"
+import ora from "ora";
 
-export default function flash(obj: { portname: string; hardware: string; version: string; baud: number; debugserial:any, stdout: any }) {
+export default function flash(obj: {
+  portname: string;
+  hardware: string;
+  version: string;
+  baud: number;
+  debugserial: any;
+  stdout: any;
+}) {
   return new Promise(async (resolve, reject) => {
+    let status = "connecting";
 
-    let status = 'connecting';
-
-    const spinner = ora(`Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`).start();
+    const spinner = ora(
+      `Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`,
+    ).start();
     if (obj.debugserial) {
       spinner.stop();
     }
 
     // prepare files
-    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress)=>{
-      spinner.text = `Flashing obnizOS: ${progress}`
+    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress) => {
+      spinner.text = `Flashing obnizOS: ${progress}`;
     });
 
     let received = "";
@@ -31,14 +39,14 @@ export default function flash(obj: { portname: string; hardware: string; version
 
     const onSuccess = () => {
       spinner.succeed(`Flashing obnizOS: Flashed`);
-      resolve()
-    }
+      resolve();
+    };
     const onFailed = (err) => {
       spinner.fail(`Flashing obnizOS: Fail`);
-      reject(err)
-    }
+      reject(err);
+    };
 
-    spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`
+    spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`;
 
     const child = child_process.exec(cmd);
     child.stdout.setEncoding("utf8");
@@ -49,9 +57,9 @@ export default function flash(obj: { portname: string; hardware: string; version
       }
       received += text;
 
-      if (status === 'connecting' && received.indexOf(`Chip is`) >= 0) {
-        status = 'flashing';
-        spinner.text = `Flashing obnizOS: Connected. Flashing...`
+      if (status === "connecting" && received.indexOf(`Chip is`) >= 0) {
+        status = "flashing";
+        spinner.text = `Flashing obnizOS: Connected. Flashing...`;
       }
     });
     child.stderr.on("data", (text) => {

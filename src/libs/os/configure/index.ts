@@ -4,7 +4,7 @@ import WiFi from "../wifi";
 
 import ora, { Ora } from "ora";
 
-export default async (obj: { portname: string; debugserial:any, stdout: any; configs: any; via: string }) => {
+export default async (obj: { portname: string; debugserial: any; stdout: any; configs: any; via: string }) => {
   // Return if no configs required
   if (!obj.configs) {
     return;
@@ -17,12 +17,12 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
     spinner.stop();
   }
   try {
-      // Open a port
+    // Open a port
     serial = new Serial({
       portname: obj.portname,
       stdout: (text) => {
         if (obj.debugserial) {
-          console.log(text)
+          console.log(text);
         }
         received += text;
         obj.stdout(text);
@@ -33,8 +33,8 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
         throw new Error(`${err}`);
       },
       progress: (text) => {
-        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial)
-      }
+        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+      },
     });
     await serial.open();
 
@@ -68,7 +68,7 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
       }
     }
     await serial.close();
-  } catch(e) {
+  } catch (e) {
     console.log(received);
     spinner.fail(`Configure: Failed ${e}`);
     throw e;
@@ -77,12 +77,11 @@ export default async (obj: { portname: string; debugserial:any, stdout: any; con
   spinner.succeed(`Configure: Success`);
 };
 
-
-function nextSpinner(spinner:Ora, text:string, debugserial: any){
-  spinner.succeed()
+function nextSpinner(spinner: Ora, text: string, debugserial: any) {
+  spinner.succeed();
   spinner = ora(text).start();
   if (debugserial) {
     spinner.stop();
   }
-  return spinner
+  return spinner;
 }

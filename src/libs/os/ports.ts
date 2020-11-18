@@ -5,8 +5,8 @@ export default async () => {
   console.log(`===Founded Serial Ports===`);
 
   for (let i = 0; i < ports.length; i++) {
-    const port = ports[i]
-    console.log(`${port.path}${ port.manufacturer ? ` (${port.manufacturer})` : `` }`);
+    const port = ports[i];
+    console.log(`${port.path}${port.manufacturer ? ` (${port.manufacturer})` : ``}`);
   }
 
   return ports;

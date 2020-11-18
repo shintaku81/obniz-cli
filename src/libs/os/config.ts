@@ -7,7 +7,7 @@ import * as Storage from "../storage";
 import Config from "./configure";
 import PreparePort from "./serial/prepare";
 
-import ora from 'ora';
+import ora from "ora";
 
 export default {
   help: `Flash obnizOS and configure it
@@ -58,10 +58,10 @@ export default {
         }
         obj.configs = obj.configs || {};
         obj.configs.devicekey = device.devicekey;
-        spinner.succeed(`Configure: obnizID=${obniz_id} hardware=${device.hardware} devicekey=${device.devicekey}`)
-      } catch(e)  {
+        spinner.succeed(`Configure: obnizID=${obniz_id} hardware=${device.hardware} devicekey=${device.devicekey}`);
+      } catch (e) {
         spinner.fail(`Configure: Failed ${e}`);
-        throw e
+        throw e;
       }
     }
 

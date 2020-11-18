@@ -17,7 +17,7 @@ export default class Serial {
 
   private _recvCallback: any;
 
-  constructor(obj: { portname: string; stdout: any; onerror: any, progress: any }) {
+  constructor(obj: { portname: string; stdout: any; onerror: any; progress: any }) {
     this.portname = obj.portname;
     this.stdout = obj.stdout;
     this.onerror = obj.onerror;
@@ -133,8 +133,8 @@ export default class Serial {
   public async waitForSettingMode() {
     return new Promise(async (resolve, reject) => {
       let timeoutTimer = setTimeout(() => {
-        if(this.progress) {
-          this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`))
+        if (this.progress) {
+          this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
         }
         timeoutTimer = null;
       }, 3 * 1000);
@@ -171,8 +171,8 @@ export default class Serial {
    */
   public async setDeviceKey(devicekey: string) {
     const obnizid = devicekey.split("&")[0];
-    if(this.progress) {
-      this.progress(`Setting Devicekey obnizID=${chalk.green(obnizid)}`)
+    if (this.progress) {
+      this.progress(`Setting Devicekey obnizID=${chalk.green(obnizid)}`);
     }
     await this.reset(); // force print DeviceKey
     this.send(`\n`);
@@ -181,12 +181,16 @@ export default class Serial {
     });
     if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
       if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
-        if(this.progress) {
-          this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`))
+        if (this.progress) {
+          this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`));
         }
       } else {
-        if(this.progress) {
-          this.progress(chalk.red(`This device already configured with different device key. use 'os:erase' to flash your new devicekey`))
+        if (this.progress) {
+          this.progress(
+            chalk.red(
+              `This device already configured with different device key. use 'os:erase' to flash your new devicekey`,
+            ),
+          );
         }
       }
       return;
@@ -201,8 +205,8 @@ export default class Serial {
    * Reset All Network Setting
    */
   public async resetWiFiSetting() {
-    if(this.progress) {
-      this.progress(`Resetting All Network Setting`)
+    if (this.progress) {
+      this.progress(`Resetting All Network Setting`);
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
@@ -222,8 +226,8 @@ export default class Serial {
    * Reset All Network Setting
    */
   public async resetAllSetting() {
-    if(this.progress) {
-      this.progress(`Resetting All Network Setting`)
+    if (this.progress) {
+      this.progress(`Resetting All Network Setting`);
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
@@ -244,8 +248,8 @@ export default class Serial {
    * @param type
    */
   public async setNetworkType(type: "wifi" | "ethernet" | "cellular") {
-    if(this.progress) {
-      this.progress(`Setting Network Type`)
+    if (this.progress) {
+      this.progress(`Setting Network Type`);
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
@@ -267,16 +271,16 @@ export default class Serial {
    * @param obj
    */
   public async setWiFi(setting: any) {
-    if(this.progress) {
-      this.progress(`Setting Wi-Fi`)
+    if (this.progress) {
+      this.progress(`Setting Wi-Fi`);
     }
     // check obnizOS ver
     await this.waitFor("obniz ver:", 10 * 1000);
     const verLine = this._searchLine("obniz ver:");
     let version = "0.0.0";
     if (!verLine) {
-      if(this.progress) {
-        this.progress(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."))
+      if (this.progress) {
+        this.progress(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
       }
     } else {
       version = semver.clean(verLine.split("obniz ver: ")[1]);
@@ -380,8 +384,8 @@ export default class Serial {
     }
 
     await this.waitFor("Wi-Fi Connecting SSID", 10 * 1000);
-    if(this.progress) {
-      this.progress(chalk.green("Suceeded"))
+    if (this.progress) {
+      this.progress(chalk.green("Suceeded"));
     }
   }
 

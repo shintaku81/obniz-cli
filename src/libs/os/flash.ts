@@ -30,7 +30,7 @@ export default {
       process.stdout.write(text);
     };
 
-    const spinner = ora('obnizOS:').start();
+    const spinner = ora("obnizOS:").start();
     // OS setting
     let hardware: any = args.h || args.hardware;
     if (!hardware) {
@@ -41,7 +41,11 @@ export default {
     if (!version) {
       spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk.green(hardware)}`;
       version = await OS.latestPublic(hardware);
-      spinner.succeed(`obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(`${version}(Public Latest Version)`)}`);
+      spinner.succeed(
+        `obnizOS: [using default] hardware=${chalk.green(hardware)} version=${chalk.green(
+          `${version}(Public Latest Version)`,
+        )}`,
+      );
     } else {
       spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
     }
