@@ -1,5 +1,8 @@
 const args = require("minimist")(process.argv.slice(2), { "--": true });
 
+const relative = "../";
+const packageverion = require(`${relative}package.json`).version;
+
 export default async (routes: any) => {
   const command = args._;
   if (!command) {
@@ -19,6 +22,8 @@ export default async (routes: any) => {
     } else {
       await routes.help();
     }
+  } else if (args.version || args.v) {
+    console.log(`version ${packageverion}`);
   } else {
     if (!route) {
       console.error(`Unknown Command ${command} see below help`);
