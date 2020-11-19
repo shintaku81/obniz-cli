@@ -30,6 +30,25 @@ export default class OS {
     return ret.os;
   }
 
+  public static async hardwares(type: string | null = null) {
+    const headers: any = {};
+    const token = Storage.get("token");
+    if (token && type !== "public") {
+      headers.authorization = `Bearer ${token}`;
+    }
+    const graphQLClient = new GraphQLClient(GraphQLURL, {
+      headers,
+    });
+    const query = `{
+      hardwares {
+        hardware
+      }
+    }`;
+
+    const ret: any = await graphQLClient.request(query);
+    return ret.hardwares;
+  }
+
   public static async latestPublic(hardware: string) {
     const versions = await this.list(hardware, "public");
     for (const v of versions) {
