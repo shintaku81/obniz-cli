@@ -10,6 +10,7 @@ export default class Device {
 
     const obj = `mutation{
       createDevice(device: {
+        ${ opt.serialdata ? `serialdata: "${opt.serialdata}", ` : ``  }
         hardware: "${opt.hardware ? opt.hardware : "esp32w"}",
         region: "${opt.region ? opt.region : "jp"}",
         description: "${opt.description ? opt.description : ""}"

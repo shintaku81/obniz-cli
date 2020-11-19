@@ -1,3 +1,4 @@
+const {URL} = require('url')
 import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
@@ -45,16 +46,24 @@ export default {
       // process.stdout.write(text);
     };
 
+    // recovery data.
     const recoveryDeviceString = Storage.get("recovery-device");
     let device;
     if (recoveryDeviceString) {
-      const readedDevice = (device = JSON.parse(recoveryDeviceString));
+      const readedDevice = JSON.parse(recoveryDeviceString);
       const use = await askUseRecovery(readedDevice);
       if (use) {
         device = readedDevice;
       } else {
         Storage.set("recovery-device", null);
       }
+    }
+
+    let qrData:any = null
+
+    // IF manufacturer
+    if (args.bindtoken) {
+      qrData = await askSerialToken(device);
     }
 
     // No more asking
@@ -97,11 +106,15 @@ export default {
         const region: any = args.r || args.region || "jp";
         const description: any = args.description || "";
         // registrate
-        device = await Device.create(token, {
+        let obj:any = {
           region,
           description,
-          hardware,
-        });
+          hardware
+        }
+        if (qrData) {
+          obj.serialdata = `${qrData.serialcode}/${qrData.token}`;
+        }
+        device = await Device.create(token, obj);
         Storage.set("recovery-device", JSON.stringify(device));
         spinner.succeed(
           `obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(
@@ -148,4 +161,33 @@ async function askUseRecovery(device) {
     },
   ]);
   return answer.yesno === "yes";
+}
+
+async function askSerialToken(device: any) {
+  const answer = await inquirer.prompt([
+    {
+      type: "input",
+      name: "serialtoken",
+      message: `Scan QR Code. Waiting...`
+    },
+  ]);
+
+  const spinner = ora("Serial: Binding...").start();
+  try {
+    const url = new URL(answer.serialtoken);
+    const paths = url.pathname.split('/');
+    if (paths.length !== 4 || paths[1] !== 'sn') {
+      throw new Error(`Invalid Serial Code`)
+    }
+    const serialcode = paths[2];
+    const token = paths[3];
+    spinner.succeed(`Serial: SerialCode=${chalk.green(serialcode)} Token=${chalk.green(token)}`)
+    return {
+      serialcode,
+      token
+    }
+  } catch(e) {
+    spinner.fail(`Invalid SerialCode`);
+    throw e;
+  }
 }
