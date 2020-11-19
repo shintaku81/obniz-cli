@@ -10,7 +10,7 @@ const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken =
   process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
-export default async (): Promise<string> => {
+export default async (progress: any): Promise<string> => {
   return await new Promise(async (resolve, reject) => {
     // start server
     const port = await getPort();
@@ -23,8 +23,7 @@ export default async (): Promise<string> => {
       resolve(access_token);
     });
 
-    console.log(`Local Server Created ${port}`);
-    console.log(`Authenticating...`);
+    progress(`Local Server Created PORT=${port}. Waiting Permission`)
 
     const redirect_uri = `http://localhost:${port}/code`;
     const open_url = `${ObnizIOURL}/login/oauth/authorize?webapp_id=${WebAppId}&redirect_uri=${redirect_uri}`;
