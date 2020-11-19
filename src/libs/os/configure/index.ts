@@ -32,8 +32,12 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
         console.log(serial.totalReceived);
         throw new Error(`${err}`);
       },
-      progress: (text) => {
-        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+      progress: (text:string, option:any = {}) => {
+        if (option.keep) {
+          spinner.text = text;
+        } else {
+          spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+        }
       },
     });
     await serial.open();

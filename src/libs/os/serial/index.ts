@@ -174,31 +174,42 @@ export default class Serial {
     if (this.progress) {
       this.progress(`Setting Devicekey obnizID=${chalk.green(obnizid)}`);
     }
-    await this.reset(); // force print DeviceKey
-    this.send(`\n`);
-    await new Promise((resolve, reject) => {
-      setTimeout(resolve, 3 * 1000);
-    });
-    if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
-      if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
-        if (this.progress) {
-          this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`));
-        }
-      } else {
-        if (this.progress) {
-          this.progress(
-            chalk.red(
-              `This device already configured with different device key. use 'os:erase' to flash your new devicekey`,
-            ),
-          );
+    let tryCount = 0;
+    while(true) {
+      await this.reset(); // force print DeviceKey
+      await new Promise((resolve, reject) => {
+        setTimeout(resolve, 2 * 1000);
+      });
+      if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
+        if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
+          if (this.progress) {
+            this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`));
+          }
+          return;
+        } else {
+          throw new Error(`This device already configured with different device key. use 'os:erase' to flash your new devicekey`)
         }
       }
-      return;
+      this.send(`\n`);
+      try {
+        await this.waitFor("DeviceKey", 3 * 1000);
+        break;
+      } catch(e) {
+        if (++tryCount < 4){
+          this.progress(chalk.yellow(`Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`), {keep:true});
+        } else {
+          // TimedOut
+          throw new Error(`Device seems not launched. Reset the connected device to wake up as Normal Mode`);
+        }
+      }
     }
-    await this.waitFor("DeviceKey", 60 * 1000);
     this.send(`${devicekey}\n`);
     this.clearReceived();
-    await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
+    try {
+      await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
+    } catch(e) {
+      throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`)
+    }
   }
 
   /**

@@ -85,7 +85,6 @@ export default class OS {
 }
 
 async function downloadFile(url, pathtodownload) {
-  console.log(`Downloading ${url}`);
 
   const dirpath = path.dirname(pathtodownload);
   if (!fs.existsSync(dirpath)) {
