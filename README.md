@@ -1,5 +1,7 @@
 # obniz-cli
 
+[日本語はこちら](./README-ja.md)
+
 The obniz CLI is used to flashing and configuring obnizOS for processors.
 
 About obniz? see https://obniz.com/
@@ -8,7 +10,7 @@ About obniz? see https://obniz.com/
 obniz-cli perform flashing, network configuring, also device creation on obniz Cloud.
 
 ```shell
-obniz-cli os:flash-create -p /dev/tty.USBSERIAL --config ./wifi-config.json
+obniz-cli os:flash-create -p AUTO --config ./wifi-config.json
 ```
 
 
@@ -32,57 +34,6 @@ obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Instal
 ```
 pip install esptool
 ```
-
-## Help
-
-call with `--help`
-
-```shell
-$ obniz-cli --help
-
-USAGE
-  $ obniz-cli [COMMAND]
-
-COMMANDS
-
-  signin              Signin to obniz cloud.
-  signout             Signout
-
-  user:info           Show current Logged in user
-
-  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
-  os:flash            Flashing and configure target device.
-  os:config           Configure obnizOS flashed device.
-  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
-  os:erase            Fully erase a flash on target device.
-  os:list             List of available obnizOS for specified hardware
-  os:ports            Getting serial ports on your machine.
-```
-
-Each command may respond to help
-
-```shell
-$obniz-cli os:flash --help
-
-Usage for
-$obniz-cli os:flash
-
-Flash obnizOS and configure it
-
-[serial setting]
- -p --port      serial port path to flash.If not specified, the port list will be displayed.
- -b --baud      flashing baud rate. default to 1500000
-
-[flashing setting]
- -h --hardware  hardware to be flashed. default to esp32w
- -v --version   obnizOS version to be flashed. default to latest one.
-
-[configrations]
- -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
- -i --id        obnizID to be configured. You need to signin before use this.
- -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
- ```
-
 
 ##  Signin
 
@@ -159,15 +110,6 @@ obniz-cli os:flash-create --description "For testing" -p /dev/tty.USBSERIAL
 ```
 
 You can see generated device on your shell and obnizCloud.
-
-```
-***
-created device
-  obnizID: 0000-0000
-  region: jp
-  description: For testing
-***
-```
 
 
 ## Flashing without creation.
@@ -283,3 +225,55 @@ It will continue search Wi-Fi and connect then configure it via Wi-Fi.
 ![](./docs/images/viawifi.png)
 
 Pass `--duplicate false` parameter if you don't want to sent data to same device. But "data send success" doesn't mean device is online.
+
+
+## Help
+
+call with `--help`
+
+```shell
+$ obniz-cli --help
+
+USAGE
+  $ obniz-cli [COMMAND]
+
+COMMANDS
+
+  signin              Signin to obniz cloud.
+  signout             Signout
+
+  user:info           Show current Logged in user
+
+  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash            Flashing and configure target device.
+  os:config           Configure obnizOS flashed device.
+  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
+  os:erase            Fully erase a flash on target device.
+  os:list             List of available obnizOS for specified hardware
+  os:ports            Getting serial ports on your machine.
+```
+
+Each command may respond to help
+
+```shell
+$obniz-cli os:flash --help
+
+Usage for
+$obniz-cli os:flash
+
+Flash obnizOS and configure it
+
+[serial setting]
+ -p --port      serial port path to flash.If not specified, the port list will be displayed.
+ -b --baud      flashing baud rate. default to 1500000
+
+[flashing setting]
+ -h --hardware  hardware to be flashed. default to esp32w
+ -v --version   obnizOS version to be flashed. default to latest one.
+
+[configrations]
+ -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
+ -i --id        obnizID to be configured. You need to signin before use this.
+ -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+ ```
+
