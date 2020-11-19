@@ -1,7 +1,10 @@
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
+
+
 import WiFi from "./wifi";
+
 
 export default {
   help: `Configure ObnizOS network via Wi-Fi from devices.
@@ -28,12 +31,13 @@ export default {
       }
       configs = json;
     }
-
-    //
     if (!configs) {
       // no configration provided
+      console.log(chalk.red(`No configration found. exit.`));
       return;
     }
+
+    const duplicate: boolean = !(args.duplicate === "false");
 
     // Init Wi-Fi
     const wifi = new WiFi({
@@ -59,8 +63,8 @@ export default {
     const type = network.type;
     const settings = network.settings;
     // TODO: setNetworkType?
-    if (type === "wifi") {
-      await wifi.setWiFi(settings);
+    if (type === "wifi" || type === "cellular") {
+      await wifi.setNetwork(type, settings, duplicate);
     } else {
       console.log(chalk.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
     }

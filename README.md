@@ -182,10 +182,21 @@ Version of obnizOS is determined for latest one. You can check available version
 
 ```shell
 $obniz-cli os:list
-OS versions for esp32w
 
-  3.2.0
-  3.1.0
+Available Hardwares on obnizCloud
+
+  esp32w
+  esp32p
+  encored
+  m5stack_basic
+  m5stickc
+  m5atom_lite
+
+Versions for hardware=esp32w
+
+  3.4.3
+  3.4.2
+  3.4.1
 ```
 
 You can specify version by using `--version`.
@@ -266,19 +277,9 @@ Above network configuration can be done [via W-Fi](https://obniz.com/doc/referen
 obniz-cli os:config-via-wifi --config ./wifi-config.json
 ```
 
-When this command is executed, first you must select Wi-Fi from the obnizOS (that have SSID like `obniz-XXXXXXXX`).  
-If there is only one obnizOS, you can answer `y` or `n`.
-```shell
-Found 1 connectable obniz(obniz-XXXXXXXX).
-Apply Wi-Fi setting to this obniz? (y or n)
-```
-  
-Or there are some obnizOS, you must select one.
-```shell
-Found some connectable obniz.
-0: obniz-XXXXXXXX
-1: obniz-YYYYYYYY
-2: obniz-ZZZZZZZZ
-Select obniz to apply W-Fi setting. (Integer from 0 to 2, or if all, input a)
-```
-If you input `a`, the setting in `./wifi-config.json` applies to all found obnizOS.
+It will continue search Wi-Fi and connect then configure it via Wi-Fi.
+
+
+![](./docs/images/viawifi.png)
+
+Pass `--duplicate false` parameter if you don't want to sent data to same device. But "data send success" doesn't mean device is online.
