@@ -1,4 +1,4 @@
-const {URL} = require('url')
+const { URL } = require("url");
 import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
@@ -59,7 +59,7 @@ export default {
       }
     }
 
-    let qrData:any = null
+    let qrData: any = null;
 
     // IF manufacturer
     if (args.bindtoken) {
@@ -106,15 +106,15 @@ export default {
         const region: any = args.r || args.region || "jp";
         const description: any = args.description || "";
         // registrate
-        let obj:any = {
+        const requestObj: any = {
           region,
           description,
-          hardware
-        }
+          hardware,
+        };
         if (qrData) {
-          obj.serialdata = `${qrData.serialcode}/${qrData.token}`;
+          requestObj.serialdata = `${qrData.serialcode}/${qrData.token}`;
         }
-        device = await Device.create(token, obj);
+        device = await Device.create(token, requestObj);
         Storage.set("recovery-device", JSON.stringify(device));
         spinner.succeed(
           `obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(
@@ -168,25 +168,25 @@ async function askSerialToken(device: any) {
     {
       type: "input",
       name: "serialtoken",
-      message: `Scan QR Code. Waiting...`
+      message: `Scan QR Code. Waiting...`,
     },
   ]);
 
   const spinner = ora("Serial: Binding...").start();
   try {
     const url = new URL(answer.serialtoken);
-    const paths = url.pathname.split('/');
-    if (paths.length !== 4 || paths[1] !== 'sn') {
-      throw new Error(`Invalid Serial Code`)
+    const paths = url.pathname.split("/");
+    if (paths.length !== 4 || paths[1] !== "sn") {
+      throw new Error(`Invalid Serial Code`);
     }
     const serialcode = paths[2];
     const token = paths[3];
-    spinner.succeed(`Serial: SerialCode=${chalk.green(serialcode)} Token=${chalk.green(token)}`)
+    spinner.succeed(`Serial: SerialCode=${chalk.green(serialcode)} Token=${chalk.green(token)}`);
     return {
       serialcode,
-      token
-    }
-  } catch(e) {
+      token,
+    };
+  } catch (e) {
     spinner.fail(`Invalid SerialCode`);
     throw e;
   }

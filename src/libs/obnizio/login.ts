@@ -23,7 +23,7 @@ export default async (progress: any): Promise<string> => {
       resolve(access_token);
     });
 
-    progress(`Local Server Created PORT=${port}. Waiting Permission`)
+    progress(`Local Server Created PORT=${port}. Waiting Permission`);
 
     const redirect_uri = `http://localhost:${port}/code`;
     const open_url = `${ObnizIOURL}/login/oauth/authorize?webapp_id=${WebAppId}&redirect_uri=${redirect_uri}`;

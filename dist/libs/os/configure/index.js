@@ -33,8 +33,13 @@ exports.default = async (obj) => {
                 console.log(serial.totalReceived);
                 throw new Error(`${err}`);
             },
-            progress: (text) => {
-                spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+            progress: (text, option = {}) => {
+                if (option.keep) {
+                    spinner.text = text;
+                }
+                else {
+                    spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+                }
             },
         });
         await serial.open();

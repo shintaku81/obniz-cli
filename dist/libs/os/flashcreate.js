@@ -10,6 +10,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const { URL } = require("url");
 const chalk_1 = __importDefault(require("chalk"));
 const defaults_1 = __importDefault(require("../../defaults"));
 const os_1 = __importDefault(require("../../libs/obnizio/os"));
@@ -52,10 +53,11 @@ exports.default = {
         obj.stdout = (text) => {
             // process.stdout.write(text);
         };
+        // recovery data.
         const recoveryDeviceString = Storage.get("recovery-device");
         let device;
         if (recoveryDeviceString) {
-            const readedDevice = (device = JSON.parse(recoveryDeviceString));
+            const readedDevice = JSON.parse(recoveryDeviceString);
             const use = await askUseRecovery(readedDevice);
             if (use) {
                 device = readedDevice;
@@ -63,6 +65,11 @@ exports.default = {
             else {
                 Storage.set("recovery-device", null);
             }
+        }
+        let qrData = null;
+        // IF manufacturer
+        if (args.bindtoken) {
+            qrData = await askSerialToken(device);
         }
         // No more asking
         let hardware;
@@ -95,11 +102,15 @@ exports.default = {
                 const region = args.r || args.region || "jp";
                 const description = args.description || "";
                 // registrate
-                device = await device_1.default.create(token, {
+                const requestObj = {
                     region,
                     description,
                     hardware,
-                });
+                };
+                if (qrData) {
+                    requestObj.serialdata = `${qrData.serialcode}/${qrData.token}`;
+                }
+                device = await device_1.default.create(token, requestObj);
                 Storage.set("recovery-device", JSON.stringify(device));
                 spinner.succeed(`obnizCloud: created device on obnizCloud obnizID=${chalk_1.default.green(device.id)} description=${chalk_1.default.green(device.description)} region=${chalk_1.default.green(device.region)}`);
             }
@@ -142,4 +153,32 @@ async function askUseRecovery(device) {
         },
     ]);
     return answer.yesno === "yes";
+}
+async function askSerialToken(device) {
+    const answer = await inquirer_1.default.prompt([
+        {
+            type: "input",
+            name: "serialtoken",
+            message: `Scan QR Code. Waiting...`,
+        },
+    ]);
+    const spinner = ora_1.default("Serial: Binding...").start();
+    try {
+        const url = new URL(answer.serialtoken);
+        const paths = url.pathname.split("/");
+        if (paths.length !== 4 || paths[1] !== "sn") {
+            throw new Error(`Invalid Serial Code`);
+        }
+        const serialcode = paths[2];
+        const token = paths[3];
+        spinner.succeed(`Serial: SerialCode=${chalk_1.default.green(serialcode)} Token=${chalk_1.default.green(token)}`);
+        return {
+            serialcode,
+            token,
+        };
+    }
+    catch (e) {
+        spinner.fail(`Invalid SerialCode`);
+        throw e;
+    }
 }

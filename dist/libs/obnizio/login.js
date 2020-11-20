@@ -12,7 +12,7 @@ const opn_1 = __importDefault(require("opn"));
 const url_1 = require("./url");
 const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken = process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
-exports.default = async () => {
+exports.default = async (progress) => {
     return await new Promise(async (resolve, reject) => {
         // start server
         const port = await get_port_1.default();
@@ -24,8 +24,7 @@ exports.default = async () => {
             }
             resolve(access_token);
         });
-        console.log(`Local Server Created ${port}`);
-        console.log(`Authenticating...`);
+        progress(`Local Server Created PORT=${port}. Waiting Permission`);
         const redirect_uri = `http://localhost:${port}/code`;
         const open_url = `${url_1.ObnizIOURL}/login/oauth/authorize?webapp_id=${WebAppId}&redirect_uri=${redirect_uri}`;
         opn_1.default(open_url);

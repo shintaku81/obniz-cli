@@ -32,7 +32,7 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
         console.log(serial.totalReceived);
         throw new Error(`${err}`);
       },
-      progress: (text:string, option:any = {}) => {
+      progress: (text: string, option: any = {}) => {
         if (option.keep) {
           spinner.text = text;
         } else {

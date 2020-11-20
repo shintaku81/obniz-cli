@@ -104,7 +104,6 @@ export default class OS {
 }
 
 async function downloadFile(url, pathtodownload) {
-
   const dirpath = path.dirname(pathtodownload);
   if (!fs.existsSync(dirpath)) {
     fs.mkdirSync(dirpath);

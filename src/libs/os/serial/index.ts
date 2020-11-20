@@ -175,7 +175,7 @@ export default class Serial {
       this.progress(`Setting Devicekey obnizID=${chalk.green(obnizid)}`);
     }
     let tryCount = 0;
-    while(true) {
+    while (true) {
       await this.reset(); // force print DeviceKey
       await new Promise((resolve, reject) => {
         setTimeout(resolve, 2 * 1000);
@@ -187,16 +187,23 @@ export default class Serial {
           }
           return;
         } else {
-          throw new Error(`This device already configured with different device key. use 'os:erase' to flash your new devicekey`)
+          throw new Error(
+            `This device already configured with different device key. use 'os:erase' to flash your new devicekey`,
+          );
         }
       }
       this.send(`\n`);
       try {
         await this.waitFor("DeviceKey", 3 * 1000);
         break;
-      } catch(e) {
-        if (++tryCount < 4){
-          this.progress(chalk.yellow(`Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`), {keep:true});
+      } catch (e) {
+        if (++tryCount < 4) {
+          this.progress(
+            chalk.yellow(
+              `Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`,
+            ),
+            { keep: true },
+          );
         } else {
           // TimedOut
           throw new Error(`Device seems not launched. Reset the connected device to wake up as Normal Mode`);
@@ -207,8 +214,8 @@ export default class Serial {
     this.clearReceived();
     try {
       await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
-    } catch(e) {
-      throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`)
+    } catch (e) {
+      throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`);
     }
   }
 

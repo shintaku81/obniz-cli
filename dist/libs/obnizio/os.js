@@ -39,6 +39,23 @@ class OS {
         const ret = await graphQLClient.request(query);
         return ret.os;
     }
+    static async hardwares(type = null) {
+        const headers = {};
+        const token = Storage.get("token");
+        if (token && type !== "public") {
+            headers.authorization = `Bearer ${token}`;
+        }
+        const graphQLClient = new graphql_request_1.GraphQLClient(url_1.GraphQLURL, {
+            headers,
+        });
+        const query = `{
+      hardwares {
+        hardware
+      }
+    }`;
+        const ret = await graphQLClient.request(query);
+        return ret.hardwares;
+    }
     static async latestPublic(hardware) {
         const versions = await this.list(hardware, "public");
         for (const v of versions) {
@@ -92,7 +109,6 @@ class OS {
 }
 exports.default = OS;
 async function downloadFile(url, pathtodownload) {
-    console.log(`Downloading ${url}`);
     const dirpath = path_1.default.dirname(pathtodownload);
     if (!fs_1.default.existsSync(dirpath)) {
         fs_1.default.mkdirSync(dirpath);

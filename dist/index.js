@@ -118,7 +118,7 @@ COMMANDS
   os:config           Configure obnizOS flashed device.
   os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
   os:erase            Fully erase a flash on target device.
-  os:list             List of available obnizOS for specified hardware
+  os:list             List of available obnizOS hardwares and versions
   os:ports            Getting serial ports on your machine.
   `);
     },

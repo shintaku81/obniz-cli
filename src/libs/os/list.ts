@@ -1,4 +1,4 @@
-import chalk from "chalk"
+import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../obnizio/os";
 import * as Storage from "../storage";
@@ -13,7 +13,6 @@ export default {
     if (!hardware) {
       hardware = Defaults.HARDWARE;
       await listHardwares();
-
     }
     await listForHardware(hardware);
   },

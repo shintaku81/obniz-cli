@@ -33,11 +33,12 @@ exports.default = {
             }
             configs = json;
         }
-        //
         if (!configs) {
             // no configration provided
+            console.log(chalk_1.default.red(`No configration found. exit.`));
             return;
         }
+        const duplicate = !(args.duplicate === "false");
         // Init Wi-Fi
         const wifi = new wifi_1.default({
             stdout: (text) => {
@@ -62,8 +63,8 @@ exports.default = {
         const type = network.type;
         const settings = network.settings;
         // TODO: setNetworkType?
-        if (type === "wifi") {
-            await wifi.setWiFi(settings);
+        if (type === "wifi" || type === "cellular") {
+            await wifi.setNetwork(type, settings, duplicate);
         }
         else {
             console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
