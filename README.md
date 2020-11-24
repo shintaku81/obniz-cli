@@ -19,6 +19,22 @@ obniz-cli tested with
  - Nodejs12 (MacOS 10.15 / Windows 10)
 
 
+### Dependency
+
+obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
+
+```
+pip install esptool
+```
+
+And you need to instal Node.js on your machine.
+
+If you are using Windows. You may need to install below before installing obniz-cli
+
+```
+npm install windows-build-tools -g
+```
+
 ## Install
 
 Install from npm
@@ -27,13 +43,7 @@ Install from npm
 npm i obniz-cli -g
 ```
 
-### Dependency
 
-obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
-
-```
-pip install esptool
-```
 
 ##  Signin
 

@@ -26,6 +26,14 @@ obniz-cli は [esptool](https://github.com/espressif/esptool) を利用します
 pip install esptool
 ```
 
+また、Nodejsをマシンにインストールする必要があります。
+
+Windowsをお使いでしたら以下がobniz-cliをインストールするよりも先に必要です。
+
+```
+npm install windows-build-tools -g
+```
+
 obniz-cliはnpmからインストール可能です。
 
 ```shell
