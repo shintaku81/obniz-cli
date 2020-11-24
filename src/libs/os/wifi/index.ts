@@ -46,9 +46,25 @@ export default class WiFi {
             }
             spinner.text = `Connected ${chalk.green(network.ssid)}. Configuring...`;
 
-            await new Promise((resolve) => {
-              setTimeout(resolve, 300);
-            });
+            let getCount = 0;
+            while (true) {
+              await new Promise((resolve) => {
+                setTimeout(resolve, 1000);
+              });
+              try {
+                const getRes = await fetch("http://192.168.0.1/");
+                if (getRes.ok) {
+                  break;
+                }
+              } catch (e) {
+                // ignore fetching error
+              }
+              ++getCount;
+              spinner.text = `${chalk.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
+              if (getCount >= 10) {
+                throw new Error(`${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
+              }
+            }
 
             // Send HTTP Request
             let url = "http://192.168.0.1/";
@@ -66,7 +82,7 @@ export default class WiFi {
               throw new Error(`Configuration failed ${chalk.green(network.ssid)}`);
             }
           } catch (e) {
-            spinner.fail(`${e.toString()}`);
+            spinner.fail(`${chalk.green(network.ssid)} Configuration failed reson=${e.toString()}`);
           }
         }
       } catch (e) {

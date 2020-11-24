@@ -46,9 +46,26 @@ class WiFi {
                             throw new Error(`Connection to ${chalk_1.default.green(network.ssid)} failed`);
                         }
                         spinner.text = `Connected ${chalk_1.default.green(network.ssid)}. Configuring...`;
-                        await new Promise((resolve) => {
-                            setTimeout(resolve, 300);
-                        });
+                        let getCount = 0;
+                        while (true) {
+                            await new Promise((resolve) => {
+                                setTimeout(resolve, 1000);
+                            });
+                            try {
+                                const getRes = await fetch("http://192.168.0.1/");
+                                if (getRes.ok) {
+                                    break;
+                                }
+                            }
+                            catch (e) {
+                                // ignore fetching error
+                            }
+                            ++getCount;
+                            spinner.text = `${chalk_1.default.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
+                            if (getCount >= 10) {
+                                throw new Error(`${chalk_1.default.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
+                            }
+                        }
                         // Send HTTP Request
                         let url = "http://192.168.0.1/";
                         if (type === "wifi") {
@@ -68,7 +85,7 @@ class WiFi {
                         }
                     }
                     catch (e) {
-                        spinner.fail(`${e.toString()}`);
+                        spinner.fail(`${chalk_1.default.green(network.ssid)} Configuration failed reson=${e.toString()}`);
                     }
                 }
             }
