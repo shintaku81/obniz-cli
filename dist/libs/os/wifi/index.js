@@ -52,7 +52,19 @@ class WiFi {
                                 setTimeout(resolve, 1000);
                             });
                             try {
-                                const getRes = await fetch("http://192.168.0.1/");
+                                const getRes = await new Promise((resolve, reject) => {
+                                    const timeout = 3000;
+                                    setTimeout(() => {
+                                        reject(new Error(`Timed out ${timeout}`));
+                                    }, timeout);
+                                    fetch("http://192.168.0.1/")
+                                        .then((result) => {
+                                        resolve(result);
+                                    })
+                                        .catch((e) => {
+                                        reject(e);
+                                    });
+                                });
                                 if (getRes.ok) {
                                     break;
                                 }
@@ -62,7 +74,7 @@ class WiFi {
                             }
                             ++getCount;
                             spinner.text = `${chalk_1.default.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
-                            if (getCount >= 10) {
+                            if (getCount >= 4) {
                                 throw new Error(`${chalk_1.default.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
                             }
                         }
