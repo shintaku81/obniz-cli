@@ -34,6 +34,9 @@ exports.default = async (obj) => {
                 throw new Error(`${err}`);
             },
             progress: (text, option = {}) => {
+                if (obj.debugserial) {
+                    console.log(text);
+                }
                 if (option.keep) {
                     spinner.text = text;
                 }

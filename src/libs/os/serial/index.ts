@@ -176,10 +176,6 @@ export default class Serial {
     }
     let tryCount = 0;
     while (true) {
-      await this.reset(); // force print DeviceKey
-      await new Promise((resolve, reject) => {
-        setTimeout(resolve, 2 * 1000);
-      });
       if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
         if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
           if (this.progress) {
@@ -197,13 +193,23 @@ export default class Serial {
         await this.waitFor("DeviceKey", 3 * 1000);
         break;
       } catch (e) {
-        if (++tryCount < 4) {
+        ++tryCount;
+        if (tryCount <= 2) {
+          await this.reset(); // force print DeviceKey
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, 2 * 1000);
+          });
           this.progress(
             chalk.yellow(
               `Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`,
             ),
             { keep: true },
           );
+        } else if (tryCount === 3) {
+          chalk.yellow(
+            `Failed Setting devicekey ${tryCount} times. Device seems not launched. Trying ReOpening Serial Port`,
+          ),
+            await this._tryCloseOpenSerial();
         } else {
           // TimedOut
           throw new Error(`Device seems not launched. Reset the connected device to wake up as Normal Mode`);
@@ -405,6 +411,11 @@ export default class Serial {
     if (this.progress) {
       this.progress(chalk.green("Suceeded"));
     }
+  }
+
+  private async _tryCloseOpenSerial() {
+    await this.close();
+    await this.open();
   }
 
   private _searchLine(text: string): string | null {
