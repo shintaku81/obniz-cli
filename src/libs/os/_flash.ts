@@ -30,12 +30,12 @@ export default function flash(obj: {
     let received = "";
 
     const cmd =
-      `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} --before default_reset --after hard_reset` +
+      `esptool.py --chip esp32 --port "${obj.portname}" --baud ${obj.baud} --before default_reset --after hard_reset` +
       ` write_flash` +
       ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-      ` 0x1000 ${files.bootloader_path}` +
-      ` 0x10000 ${files.app_path}` +
-      ` 0x8000 ${files.partition_path}`;
+      ` 0x1000 "${files.bootloader_path}"` +
+      ` 0x10000 "${files.app_path}"` +
+      ` 0x8000 "${files.partition_path}"`;
 
     const onSuccess = () => {
       spinner.succeed(`Flashing obnizOS: Flashed`);
