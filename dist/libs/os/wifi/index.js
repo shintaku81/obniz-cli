@@ -112,7 +112,8 @@ class WiFi {
         };
         if (type === "wifi") {
             const urlSetting = {
-                ssid: setting.ssid,
+                ssid: "other",
+                input_ssid: setting.ssid,
                 pw: setting.password,
                 si: "",
                 nm: "",
