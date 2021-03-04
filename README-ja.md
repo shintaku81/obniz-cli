@@ -16,6 +16,58 @@ obniz-cli os:flash-create -p AUTO --config ./wifi-config.json
 
  - Nodejs12 (MacOS 10.15 / Windows 10)
 
+
+## 利用方法
+
+call with `--help`
+
+```shell
+$ obniz-cli --help
+
+USAGE
+  $ obniz-cli [COMMAND]
+
+COMMANDS
+
+  signin              Signin to obniz cloud.
+  signout             Signout
+
+  user:info           Show current Logged in user
+
+  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
+  os:flash            Flashing and configure target device.
+  os:config           Configure obnizOS flashed device.
+  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
+  os:erase            Fully erase a flash on target device.
+  os:list             List of available obnizOS for specified hardware
+  os:ports            Getting serial ports on your machine.
+```
+
+Each command may respond to help
+
+```shell
+$obniz-cli os:flash --help
+
+Usage for
+$obniz-cli os:flash
+
+Flash obnizOS and configure it
+
+[serial setting]
+ -p --port      serial port path to flash.If not specified, the port list will be displayed.
+ -b --baud      flashing baud rate. default to 1500000
+
+[flashing setting]
+ -h --hardware  hardware to be flashed. default to esp32w
+ -v --version   obnizOS version to be flashed. default to latest one.
+
+[configrations]
+ -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
+ -i --id        obnizID to be configured. You need to signin before use this.
+ -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+ ```
+
+
 ## インストール
 
 ### 事前準備
@@ -40,7 +92,7 @@ obniz-cliはnpmからインストール可能です。
 npm i obniz-cli -g
 ```
 
-##  Signin
+## signin
 
 obnizCloudの機能を利用するにはサインインが必要です。以下でサインインできます。
 
@@ -59,7 +111,7 @@ obnizCloudにサインインしていない場合は先にログインを行っ�
 obniz-cli user:info
 ```
 
-## Serial Port
+## Serial Portについて
 
 マシンからobnizOSを書き込むのにシリアルポートを利用します。利用可能なものは以下で確認できます。
 
@@ -86,11 +138,7 @@ obniz-cli os:flash-create -p AUTO --debugserial
 ```
 
 
-## Flashing
-
-
-
-## obnizIDの生成と書き込み。
+## os:flash-create
 
 サインインしているアカウントでobnizIDを１つ作成し、書き込み、デバイスキーの書き込みまで完了させることができます。
 
@@ -141,8 +189,24 @@ Wi-Fiなどネットワークの設定も行うことができる`--config`な�
 obniz-cli os:flash-create --help
 ```
 
+### Binding Token (パートナー専用)
 
-## OSのみの書き込み
+obnizのパートナーでobnizIDとシリアルコードを紐付ける場合には`--bindtoken`を利用します
+
+```shel
+obniz-cli os:flash-create -p AUTO --hardware m5stickc --bindtoken
+```
+
+起動後、以下のようにシリアルトークンの文字列を受け付ける画面となります。
+
+```
+? Scan QR Code. Waiting...
+```
+
+バーコードリーダーなどでQRを読み取ることで生成されるobnizIDと読み取ったQR(シリアルコード)を紐付けることができます。
+
+
+## os:flash
 
 OSのみを書き込むには`os:flash`を利用します。
 
@@ -219,7 +283,7 @@ jsonで保存されたWi-FiのSSID,パスワードを使って書き込み後に
 obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
 ```
 
-### Wi-Fi経由での設定。
+## os:config-via-wifi
 
 有線で接続されていなくても、Wi-Fi経由での設定が可能です。 [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser)。
 
@@ -241,53 +305,3 @@ obniz-cli os:config-via-wifi --config ./wifi-config.json
 
 `--duplicate false`を指定すると一度設定を送ったobnizに送らないようにできますが、送信が完了したからといって設定が保存されたか、オンラインになったかは分からないので推奨できない使い方となります。
 
-
-## Help
-
-call with `--help`
-
-```shell
-$ obniz-cli --help
-
-USAGE
-  $ obniz-cli [COMMAND]
-
-COMMANDS
-
-  signin              Signin to obniz cloud.
-  signout             Signout
-
-  user:info           Show current Logged in user
-
-  os:flash-create     Flashing and configure target device and registrate it on your account on obnizCloud.
-  os:flash            Flashing and configure target device.
-  os:config           Configure obnizOS flashed device.
-  os:config-via-wifi  Configure ObnizOS network via Wi-Fi from devices.
-  os:erase            Fully erase a flash on target device.
-  os:list             List of available obnizOS for specified hardware
-  os:ports            Getting serial ports on your machine.
-```
-
-Each command may respond to help
-
-```shell
-$obniz-cli os:flash --help
-
-Usage for
-$obniz-cli os:flash
-
-Flash obnizOS and configure it
-
-[serial setting]
- -p --port      serial port path to flash.If not specified, the port list will be displayed.
- -b --baud      flashing baud rate. default to 1500000
-
-[flashing setting]
- -h --hardware  hardware to be flashed. default to esp32w
- -v --version   obnizOS version to be flashed. default to latest one.
-
-[configrations]
- -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
- -i --id        obnizID to be configured. You need to signin before use this.
- -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
- ```

@@ -86,7 +86,6 @@ export default class Serial {
     });
     await new Promise(async (resolve, reject) => {
       // リセット時にはクリアする
-      this.clearReceived();
       this.serialport.set(
         {
           dtr: true,
@@ -103,7 +102,7 @@ export default class Serial {
   }
 
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       let timeoutTimer = setTimeout(() => {
         this._recvCallback = null;
         reject(new Error(`Timeout. waiting for ${key}`));
@@ -131,25 +130,29 @@ export default class Serial {
    *
    */
   public async waitForSettingMode() {
-    return new Promise(async (resolve, reject) => {
-      let timeoutTimer = setTimeout(() => {
-        if (this.progress) {
-          this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
-        }
-        timeoutTimer = null;
-      }, 3 * 1000);
+    let tryCount = 0;
+    while (true) {
       try {
-        await this.reset();
-        await this.waitFor(`Press 's' to setting mode`, 60 * 1000);
-        if (timeoutTimer) {
-          clearTimeout(timeoutTimer);
-          timeoutTimer = null;
-        }
-        resolve();
+        await this.waitFor(`Press 's' to setting mode`, 3 * 1000);
+        break;
       } catch (e) {
-        reject(e);
+        ++tryCount;
+        if (tryCount <= 2) {
+          await this.reset(); // force print DeviceKey
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, 2 * 1000);
+          });
+          if (this.progress) {
+            this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
+          }
+        } else if (tryCount === 3) {
+          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`), await this._tryCloseOpenSerial();
+        } else {
+          // TimedOut
+          throw new Error(`Timed out. Target device seems not in normal mode.`);
+        }
       }
-    });
+    }
   }
 
   /**
@@ -159,7 +162,6 @@ export default class Serial {
   public send(text: string) {
     try {
       this.serialport.write(`${text}`);
-      this.totalReceived = "";
     } catch (e) {
       this.stdout("" + e);
     }
@@ -234,6 +236,7 @@ export default class Serial {
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
+    this.clearReceived();
     this.send(`s`);
     await this.waitFor("-----Select Setting-----", 10 * 1000);
     await this.waitFor("Input number >>", 10 * 1000);
@@ -255,6 +258,7 @@ export default class Serial {
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
+    this.clearReceived();
     this.send(`s`);
     await this.waitFor("-----Select Setting-----", 10 * 1000);
     await this.waitFor("Input number >>", 10 * 1000);
@@ -277,6 +281,7 @@ export default class Serial {
     }
     await this.waitForSettingMode();
     await this.waitFor("Input char >>", 10 * 1000);
+    this.clearReceived();
     this.send(`s`);
     await this.waitFor("-----Select Setting-----", 10 * 1000);
     await this.waitFor("Input number >>", 10 * 1000);
