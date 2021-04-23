@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const args = require("minimist")(process.argv.slice(2), { "--": true });
-const relative = "../";
-const packageverion = require(`${relative}package.json`).version;
+const packageverion = require(`../package.json`).version;
 exports.default = async (routes) => {
     const command = args._;
     if (!command) {

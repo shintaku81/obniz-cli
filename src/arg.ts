@@ -1,7 +1,6 @@
 const args = require("minimist")(process.argv.slice(2), { "--": true });
 
-const relative = "../";
-const packageverion = require(`${relative}package.json`).version;
+const packageverion = require(`../package.json`).version;
 
 export default async (routes: any) => {
   const command = args._;

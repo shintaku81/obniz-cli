@@ -18,9 +18,7 @@ import UserInfo from "./libs/user/info";
 import Login from "./libs/user/login";
 import Logout from "./libs/user/logout";
 
-const relative = "../";
-
-const packageverion = require(`${relative}package.json`).version;
+const packageverion = require(`../package.json`).version;
 
 // ========== Global Errors =========
 

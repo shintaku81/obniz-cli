@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import Serial from "../serial";
-import WiFi from "../wifi";
 
 import ora, { Ora } from "ora";
 
@@ -10,40 +9,38 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
     return;
   }
 
-  let serial;
+  const serial = new Serial({
+    portname: obj.portname,
+    stdout: (text) => {
+      if (obj.debugserial) {
+        console.log(text);
+      }
+      received += text;
+      obj.stdout(text);
+    },
+    onerror: (err) => {
+      received += err;
+      console.log(serial.totalReceived);
+      throw new Error(`${err}`);
+    },
+    progress: (text: string, option: any = {}) => {
+      if (obj.debugserial) {
+        console.log(text);
+        return;
+      }
+      if (option.keep) {
+        spinner.text = text;
+      } else {
+        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+      }
+    },
+  });
   let received = "";
   let spinner = ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start();
   if (obj.debugserial) {
     spinner.stop();
   }
   try {
-    // Open a port
-    serial = new Serial({
-      portname: obj.portname,
-      stdout: (text) => {
-        if (obj.debugserial) {
-          console.log(text);
-        }
-        received += text;
-        obj.stdout(text);
-      },
-      onerror: (err) => {
-        received += err;
-        console.log(serial.totalReceived);
-        throw new Error(`${err}`);
-      },
-      progress: (text: string, option: any = {}) => {
-        if (obj.debugserial) {
-          console.log(text);
-          return;
-        }
-        if (option.keep) {
-          spinner.text = text;
-        } else {
-          spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
-        }
-      },
-    });
     await serial.open();
 
     // config devicekey

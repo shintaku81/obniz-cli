@@ -11,41 +11,39 @@ exports.default = async (obj) => {
     if (!obj.configs) {
         return;
     }
-    let serial;
+    const serial = new serial_1.default({
+        portname: obj.portname,
+        stdout: (text) => {
+            if (obj.debugserial) {
+                console.log(text);
+            }
+            received += text;
+            obj.stdout(text);
+        },
+        onerror: (err) => {
+            received += err;
+            console.log(serial.totalReceived);
+            throw new Error(`${err}`);
+        },
+        progress: (text, option = {}) => {
+            if (obj.debugserial) {
+                console.log(text);
+                return;
+            }
+            if (option.keep) {
+                spinner.text = text;
+            }
+            else {
+                spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+            }
+        },
+    });
     let received = "";
     let spinner = ora_1.default(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start();
     if (obj.debugserial) {
         spinner.stop();
     }
     try {
-        // Open a port
-        serial = new serial_1.default({
-            portname: obj.portname,
-            stdout: (text) => {
-                if (obj.debugserial) {
-                    console.log(text);
-                }
-                received += text;
-                obj.stdout(text);
-            },
-            onerror: (err) => {
-                received += err;
-                console.log(serial.totalReceived);
-                throw new Error(`${err}`);
-            },
-            progress: (text, option = {}) => {
-                if (obj.debugserial) {
-                    console.log(text);
-                    return;
-                }
-                if (option.keep) {
-                    spinner.text = text;
-                }
-                else {
-                    spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
-                }
-            },
-        });
         await serial.open();
         // config devicekey
         if (obj.configs.devicekey) {

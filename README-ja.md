@@ -285,17 +285,19 @@ obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.jso
 
 ## os:config-via-wifi
 
-有線で接続されていなくても、Wi-Fi経由での設定が可能です。 [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser)。
+このソフトが動いているコンピューターのWi-Fiを利用して、Wi-Fi経由での設定が可能です。 [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser)。
 
-`os:config-via-wifi`を利用します。
+大量のデバイスに同じ設定をするのに利用します。
 
+行いたい設定は優先の場合と同じくjsonファイルで指定します。
 以下のコマンドでjsonファイルを指定することでWi-Fiを使いデバイスを見つけては順次設定を行います。
-有線のない、大量のデバイスを設定するのに便利です。
 流れは
 
-1. 以下のコマンドで設定を開始
+1. 以下のコマンドで開始
 2. 未設定デバイスを複数台とにかく電源に接続する。
 3. LEDがオンラインになったものを電源から外していく。
+
+デバイスが起動時設定モードの場合(起動後にボタンを長押しするなどで入れるモード)はネットワークのリセットを自動で行い、その後デバイスに再接続して設定を書き込みます。
 
 ```shell
 obniz-cli os:config-via-wifi --config ./wifi-config.json

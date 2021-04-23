@@ -334,13 +334,24 @@ obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.jso
 
 ## os:config-via-wifi
 
-Above network configuration can be done [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser), without a physical connection.  
+You can use the Wi-Fi of the computer on which this software is running to configure it via Wi-Fi. [via W-Fi](https://obniz.com/doc/reference/obnizos-for-esp32/settings/setting-via-browser).
+
+This is used to make the same settings for a large number of devices.
+
+The settings you want to make are specified in a json file as in the case of priority.
+By specifying the json file with the following command, it will find the devices using Wi-Fi and configure them sequentially.
+The flow is as follows
+
+1. start with the following command
+2. connect multiple unconfigured devices to the power supply anyway.
+3. Disconnect the ones whose LEDs are online from the power supply.
+
+
+If the device is in startup configuration mode (which you can enter by pressing and holding the button after booting), it will automatically reset the network and then reconnect to the device to write the settings.
 
 ```shell
 obniz-cli os:config-via-wifi --config ./wifi-config.json
 ```
-
-It will continue search Wi-Fi and connect then configure it via Wi-Fi.
 
 
 ![](./docs/images/viawifi.png)

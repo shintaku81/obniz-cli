@@ -47,12 +47,13 @@ export default class WiFi {
             spinner.text = `Connected ${chalk.green(network.ssid)}. Configuring...`;
 
             let getCount = 0;
+            let responseBody = "";
             while (true) {
               await new Promise((resolve) => {
                 setTimeout(resolve, 1000);
               });
               try {
-                const getRes: any = await new Promise((resolve, reject) => {
+                const httpResponse: any = await new Promise((resolve, reject) => {
                   const timeout = 3000;
                   setTimeout(() => {
                     reject(new Error(`Timed out ${timeout}`));
@@ -65,7 +66,8 @@ export default class WiFi {
                       reject(e);
                     });
                 });
-                if (getRes.ok) {
+                if (httpResponse.ok) {
+                  responseBody = await httpResponse.text();
                   break;
                 }
               } catch (e) {
@@ -76,6 +78,12 @@ export default class WiFi {
               if (getCount >= 4) {
                 throw new Error(`${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
               }
+            }
+
+            if (this.isSettingMode(responseBody)) {
+              await this.sendReset(spinner, network.ssid);
+              spinner.succeed(`Network Reset done. ${chalk.green(network.ssid)}`);
+              continue;
             }
 
             // Send HTTP Request
@@ -103,6 +111,42 @@ export default class WiFi {
     }
   }
 
+  private isSettingMode(responseBody: string) {
+    return responseBody.indexOf(`Normal Launch`) >= 0;
+  }
+
+  private async sendReset(spinner: any, identifier: string) {
+    // reset_all
+    const options = this.createResetData();
+    const res = await fetch("http://192.168.0.1/", options);
+    if (res.status !== 200) {
+      throw new Error(`Resetting Network failed ${chalk.green(identifier)}`);
+    }
+  }
+
+  /**
+   * リセットリクエストを送りWi-Fi設定モードに遷移させる
+   * @returns
+   */
+  private createResetData() {
+    const options: any = {
+      method: "POST",
+    };
+    const urlSetting = {
+      mode: "reset_all",
+    };
+    const params = new URLSearchParams();
+    Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+    options.body = params;
+    return options;
+  }
+
+  /**
+   * ネットワーク設定を送る
+   * @param type
+   * @param setting
+   * @returns
+   */
   private createSettingData(type: string, setting: any) {
     const options: any = {
       method: "POST",
@@ -186,7 +230,8 @@ export default class WiFi {
         }
         const obnizwifis = [];
         for (const network of networks) {
-          if (network.ssid.startsWith("obniz-")) {
+          const re = /^obniz-[0-9]{8}/;
+          if (re.test(network.ssid)) {
             obnizwifis.push(network);
           }
         }
