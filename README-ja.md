@@ -236,7 +236,8 @@ obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63f
 
 jsonで保存されたWi-FiのSSID,パスワードを使って書き込み後に設定まで完了させることができます。
 
-[example](./example_config.json)
+[Wi-Fi の設定例](./example_config.json)
+[Wi-Fi MESHの設定例](./example_config_mesh.json)
 
 ```json
 {
@@ -266,7 +267,6 @@ jsonで保存されたWi-FiのSSID,パスワードを使って書き込み後に
 |---|---|---|---|
 |ssid| yes |  | SSID for Wi-Fi |
 |password| yes |  | Password for Wi-Fi |
-|hidden| no | false | If `false`, then device connect only found SSID and will save Wi-Fi only when connection established. If `true`, then device will store Wi-Fi setting and treat SSID as hidden SSID. Device will connect without scanning on startup. |
 |dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
 |static_ip| no | automatic | Static IP |
 |default_gateway| no | automatic | Gateway IP |
@@ -276,6 +276,21 @@ jsonで保存されたWi-FiのSSID,パスワードを使って書き込み後に
 |proxy_address| no |  | Proxy Address |
 |proxy_port| no |  | Proxy Port |
 
+### Settings for Wi-Fi MESH
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+|ssid| yes |  | SSID for Wi-Fi |
+|password| yes |  | Password for Wi-Fi |
+|meshid| yes |  | MESH ID like 111111111111 |
+|dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
+|static_ip| no | automatic | Static IP |
+|default_gateway| no | automatic | Gateway IP |
+|subnetmask| no | automatic | Subnetmask |
+|dns| no |  | DNS Server IP |
+|proxy| no | false | Use Proxy or not. |
+|proxy_address| no |  | Proxy Address |
+|proxy_port| no |  | Proxy Port |
 
 `os:flash` and `os:flash-create` will perform that.
 

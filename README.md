@@ -306,6 +306,7 @@ See [example](./example_config.json)
 | Type | Description |
 |---|---|
 |wifi| Wi-Fi  |
+|wifimesh| Wi-Fi MESH  |
 |ethernet| Ethernet |
 |cellular| Cellular |
 
@@ -315,7 +316,22 @@ See [example](./example_config.json)
 |---|---|---|---|
 |ssid| yes |  | SSID for Wi-Fi |
 |password| yes |  | Password for Wi-Fi |
-|hidden| no | false | If `false`, then device connect only found SSID and will save Wi-Fi only when connection established. If `true`, then device will store Wi-Fi setting and treat SSID as hidden SSID. Device will connect without scanning on startup. |
+|dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
+|static_ip| no | automatic | Static IP |
+|default_gateway| no | automatic | Gateway IP |
+|subnetmask| no | automatic | Subnetmask |
+|dns| no |  | DNS Server IP |
+|proxy| no | false | Use Proxy or not. |
+|proxy_address| no |  | Proxy Address |
+|proxy_port| no |  | Proxy Port |
+
+### Settings for Wi-Fi MESH
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+|ssid| yes |  | SSID for Wi-Fi |
+|password| yes |  | Password for Wi-Fi |
+|meshid| yes |  | MESH ID like 111111111111 |
 |dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
 |static_ip| no | automatic | Static IP |
 |default_gateway| no | automatic | Gateway IP |

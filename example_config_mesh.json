@@ -1,10 +1,11 @@
 {
   "networks":[
     {
-      "type": "wifi",
+      "type": "wifimesh",
       "settings": {
         "ssid": "exampl_essid",
         "password": "example_password",
+        "meshid": "111111111111",
 
         "dhcp":false,
         "static_ip": "192.168.0.2",

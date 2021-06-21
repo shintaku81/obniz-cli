@@ -92,6 +92,8 @@ export default class WiFi {
               url = "http://192.168.0.1/";
             } else if (type === "cellular") {
               url = "http://192.168.0.1/lte";
+            } else if (type === "wifimesh") {
+              url = "http://192.168.0.1/mesh";
             }
             const options = this.createSettingData(type, setting);
             const res = await fetch(url, options);
@@ -172,6 +174,36 @@ export default class WiFi {
       if (setting.proxy) {
         urlSetting.proxy_ip = setting.proxy_address;
         urlSetting.proxy_port = setting.proxy_port;
+      }
+
+      const params = new URLSearchParams();
+      Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+      options.body = params;
+    } else if (type === "wifimesh") {
+      const urlSetting = {
+        ssid: "other",
+        input_ssid: setting.ssid,
+        pw: setting.password,
+        meshid: "",
+        si: "",
+        nm: "",
+        gw: "",
+        ds: "",
+        proxy_ip: "",
+        proxy_port: "",
+      };
+      if (setting.dhcp === false) {
+        urlSetting.si = setting.static_ip;
+        urlSetting.nm = setting.subnetmask;
+        urlSetting.gw = setting.default_gateway;
+        urlSetting.ds = setting.dns;
+      }
+      if (setting.proxy) {
+        urlSetting.proxy_ip = setting.proxy_address;
+        urlSetting.proxy_port = setting.proxy_port;
+      }
+      if (setting.meshid) {
+        urlSetting.meshid = setting.meshid;
       }
 
       const params = new URLSearchParams();
