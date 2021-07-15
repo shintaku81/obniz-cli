@@ -1,0 +1,21 @@
+{
+  "networks":[
+    {
+      "type": "wifi",
+      "settings": {
+        "ssid": "exampl_essid",
+        "password": "example_password",
+
+        "dhcp":false,
+        "static_ip": "192.168.0.2",
+        "default_gateway": "192.168.0.1",
+        "subnetmask": "255.255.255.0",
+        "dns": "8.8.8.8",
+
+        "proxy": true,
+        "proxy_address": "192.168.0.3",
+        "proxy_port": 80
+      }
+    }
+  ]
+}

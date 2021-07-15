@@ -126,8 +126,48 @@ export default class Serial {
     });
   }
 
+  public async detectedObnizOSVersion() {
+    let tryCount = 0;
+    while (true) {
+      try {
+        await this.waitFor(`obniz ver:`, 3 * 1000);
+        await this.waitFor(`obniz id:`, 3 * 1000);
+
+        const verLine = this._searchLine("obniz ver:");
+        let version = "0.0.0";
+        if (!verLine) {
+          throw new Error(`Failed to check obnizOS version. Subsequent flows can be failed.`);
+        }
+        version = semver.clean(verLine.split("obniz ver: ")[1]);
+
+        const obnizIDLine = this._searchLine("obniz id:");
+        const obnizid = obnizIDLine.split("obniz id: ")[1];
+        return {
+          version,
+          obnizid,
+        };
+      } catch (e) {
+        ++tryCount;
+        if (tryCount <= 2) {
+          await this.reset(); // force print DeviceKey
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, 2 * 1000);
+          });
+          if (this.progress) {
+            this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
+          }
+        } else if (tryCount === 3) {
+          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`), await this._tryCloseOpenSerial();
+        } else {
+          // TimedOut
+          throw new Error(`Timed out. Target device seems not in normal mode.`);
+        }
+      }
+    }
+  }
+
   /**
-   *
+   * <3.5.0
    */
   public async waitForSettingMode() {
     let tryCount = 0;
@@ -153,6 +193,15 @@ export default class Serial {
         }
       }
     }
+  }
+
+  /**
+   * >= 3.5.0
+   */
+  public async enterMenuMode() {
+    this.clearReceived();
+    this.send(`menu`);
+    await this.waitFor("Input number >>", 10 * 1000);
   }
 
   /**
@@ -228,46 +277,34 @@ export default class Serial {
   }
 
   /**
-   * Reset All Network Setting
+   * Setting Network Type.
+   * @param type
    */
-  public async resetWiFiSetting() {
+  public async setAllFromMenu(json: any) {
     if (this.progress) {
-      this.progress(`Resetting All Network Setting`);
+      this.progress(`Entering menu`);
     }
-    await this.waitForSettingMode();
-    await this.waitFor("Input char >>", 10 * 1000);
-    this.clearReceived();
-    this.send(`s`);
-    await this.waitFor("-----Select Setting-----", 10 * 1000);
-    await this.waitFor("Input number >>", 10 * 1000);
-    this.clearReceived();
-    this.send(`3`); // Reset All
-    await this.waitFor("-----Wireless LAN Reset-----", 10 * 1000);
-    await this.waitFor("Input char >>", 10 * 1000);
-    this.send(`y`); // yes to reset
-    this.clearReceived();
-    await this.waitFor("Rebooting", 10 * 1000);
-  }
+    await this.enterMenuMode();
 
-  /**
-   * Reset All Network Setting
-   */
-  public async resetAllSetting() {
+    // select json menu
     if (this.progress) {
-      this.progress(`Resetting All Network Setting`);
+      this.progress(`Selecting menu`);
     }
-    await this.waitForSettingMode();
-    await this.waitFor("Input char >>", 10 * 1000);
     this.clearReceived();
-    this.send(`s`);
-    await this.waitFor("-----Select Setting-----", 10 * 1000);
-    await this.waitFor("Input number >>", 10 * 1000);
+    this.send(`2`); // Configure all from data
+    this.send(`\n`);
+    await this.waitFor("Network Setting JSON", 10 * 1000);
+    await this.waitFor("Input text >>", 10 * 1000);
+
+    // send json
+    if (this.progress) {
+      this.progress(`Sending JSON`);
+    }
     this.clearReceived();
-    this.send(`2`); // Reset All
-    await this.waitFor("-----All Reset", 10 * 1000);
-    await this.waitFor("Input char >>", 10 * 1000);
-    this.send(`y`); // yes to reset
-    this.clearReceived();
+    this.send(JSON.stringify(json));
+    this.send("\n");
+
+    // check accepted
     await this.waitFor("Rebooting", 10 * 1000);
   }
 
@@ -303,16 +340,14 @@ export default class Serial {
     if (this.progress) {
       this.progress(`Setting Wi-Fi`);
     }
-    // check obnizOS ver
-    await this.waitFor("obniz ver:", 10 * 1000);
-    const verLine = this._searchLine("obniz ver:");
-    let version = "0.0.0";
-    if (!verLine) {
+    let version;
+    try {
+      const info = await this.detectedObnizOSVersion();
+      version = info.version;
+    } catch (e) {
       if (this.progress) {
         this.progress(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
       }
-    } else {
-      version = semver.clean(verLine.split("obniz ver: ")[1]);
     }
 
     if (semver.satisfies(version, ">=3.4.2")) {

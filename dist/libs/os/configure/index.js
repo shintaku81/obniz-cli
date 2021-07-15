@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
+const semver_1 = __importDefault(require("semver"));
 const serial_1 = __importDefault(require("../serial"));
 const ora_1 = __importDefault(require("ora"));
 exports.default = async (obj) => {
@@ -51,27 +52,41 @@ exports.default = async (obj) => {
         }
         // config network
         if (obj.configs.config) {
+            // JSON provided by user
             const userconf = obj.configs.config;
-            const networks = userconf.networks;
-            if (!networks) {
-                throw new Error(`please provide "networks". see more detail at example json file`);
-            }
-            if (!Array.isArray(networks)) {
-                throw new Error(`"networks" must be an array`);
-            }
-            if (networks.length !== 1) {
-                throw new Error(`"networks" must have single object in array.`);
-            }
-            const network = networks[0];
-            const type = network.type;
-            const settings = network.settings;
-            await serial.setNetworkType(type);
-            if (type === "wifi") {
-                await serial.setWiFi(settings);
+            // detect Target obnizOS
+            const info = await serial.detectedObnizOSVersion();
+            spinner.succeed(`Configure: Detect Target obnizOS. version=${chalk_1.default.green(info.version)} ${chalk_1.default.green(info.obnizid)}`);
+            if (semver_1.default.satisfies(info.version, ">=3.5.0")) {
+                // menu mode and json flashing enabled device.
+                if (userconf.networks) {
+                    throw new Error(`You can't use older version of network configration json file.`);
+                }
+                await serial.setAllFromMenu(userconf);
             }
             else {
-                spinner.fail(`Configure: Not Supported Network Type ${type}`);
-                throw new Error(`obniz-cli not supporting settings for ${type} right now. wait for future release`);
+                // virtual UI.
+                const networks = userconf.networks;
+                if (!networks) {
+                    throw new Error(`please provide "networks". see more detail at example json file`);
+                }
+                if (!Array.isArray(networks)) {
+                    throw new Error(`"networks" must be an array`);
+                }
+                if (networks.length !== 1) {
+                    throw new Error(`"networks" must have single object in array.`);
+                }
+                const network = networks[0];
+                const type = network.type;
+                const settings = network.settings;
+                await serial.setNetworkType(type);
+                if (type === "wifi") {
+                    await serial.setWiFi(settings);
+                }
+                else {
+                    spinner.fail(`Configure: Not Supported Network Type ${type}`);
+                    throw new Error(`obniz-cli not supporting settings for ${type} right now. wait for future release`);
+                }
             }
         }
         await serial.close();

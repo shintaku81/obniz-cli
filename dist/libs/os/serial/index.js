@@ -102,8 +102,48 @@ class Serial {
             check();
         });
     }
+    async detectedObnizOSVersion() {
+        let tryCount = 0;
+        while (true) {
+            try {
+                await this.waitFor(`obniz ver:`, 3 * 1000);
+                await this.waitFor(`obniz id:`, 3 * 1000);
+                const verLine = this._searchLine("obniz ver:");
+                let version = "0.0.0";
+                if (!verLine) {
+                    throw new Error(`Failed to check obnizOS version. Subsequent flows can be failed.`);
+                }
+                version = semver_1.default.clean(verLine.split("obniz ver: ")[1]);
+                const obnizIDLine = this._searchLine("obniz id:");
+                const obnizid = obnizIDLine.split("obniz id: ")[1];
+                return {
+                    version,
+                    obnizid,
+                };
+            }
+            catch (e) {
+                ++tryCount;
+                if (tryCount <= 2) {
+                    await this.reset(); // force print DeviceKey
+                    await new Promise((resolve, reject) => {
+                        setTimeout(resolve, 2 * 1000);
+                    });
+                    if (this.progress) {
+                        this.progress(chalk_1.default.yellow(`Could you reset your device? Can you press reset button?`));
+                    }
+                }
+                else if (tryCount === 3) {
+                    chalk_1.default.yellow(`Seems bad. Trying ReOpening Serial Port`), await this._tryCloseOpenSerial();
+                }
+                else {
+                    // TimedOut
+                    throw new Error(`Timed out. Target device seems not in normal mode.`);
+                }
+            }
+        }
+    }
     /**
-     *
+     * <3.5.0
      */
     async waitForSettingMode() {
         let tryCount = 0;
@@ -132,6 +172,14 @@ class Serial {
                 }
             }
         }
+    }
+    /**
+     * >= 3.5.0
+     */
+    async enterMenuMode() {
+        this.clearReceived();
+        this.send(`menu`);
+        await this.waitFor("Input number >>", 10 * 1000);
     }
     /**
      * Sending a text
@@ -201,45 +249,31 @@ class Serial {
         }
     }
     /**
-     * Reset All Network Setting
+     * Setting Network Type.
+     * @param type
      */
-    async resetWiFiSetting() {
+    async setAllFromMenu(json) {
         if (this.progress) {
-            this.progress(`Resetting All Network Setting`);
+            this.progress(`Entering menu`);
         }
-        await this.waitForSettingMode();
-        await this.waitFor("Input char >>", 10 * 1000);
-        this.clearReceived();
-        this.send(`s`);
-        await this.waitFor("-----Select Setting-----", 10 * 1000);
-        await this.waitFor("Input number >>", 10 * 1000);
-        this.clearReceived();
-        this.send(`3`); // Reset All
-        await this.waitFor("-----Wireless LAN Reset-----", 10 * 1000);
-        await this.waitFor("Input char >>", 10 * 1000);
-        this.send(`y`); // yes to reset
-        this.clearReceived();
-        await this.waitFor("Rebooting", 10 * 1000);
-    }
-    /**
-     * Reset All Network Setting
-     */
-    async resetAllSetting() {
+        await this.enterMenuMode();
+        // select json menu
         if (this.progress) {
-            this.progress(`Resetting All Network Setting`);
+            this.progress(`Selecting menu`);
         }
-        await this.waitForSettingMode();
-        await this.waitFor("Input char >>", 10 * 1000);
         this.clearReceived();
-        this.send(`s`);
-        await this.waitFor("-----Select Setting-----", 10 * 1000);
-        await this.waitFor("Input number >>", 10 * 1000);
+        this.send(`2`); // Configure all from data
+        this.send(`\n`);
+        await this.waitFor("Network Setting JSON", 10 * 1000);
+        await this.waitFor("Input text >>", 10 * 1000);
+        // send json
+        if (this.progress) {
+            this.progress(`Sending JSON`);
+        }
         this.clearReceived();
-        this.send(`2`); // Reset All
-        await this.waitFor("-----All Reset", 10 * 1000);
-        await this.waitFor("Input char >>", 10 * 1000);
-        this.send(`y`); // yes to reset
-        this.clearReceived();
+        this.send(JSON.stringify(json));
+        this.send("\n");
+        // check accepted
         await this.waitFor("Rebooting", 10 * 1000);
     }
     /**
@@ -273,17 +307,15 @@ class Serial {
         if (this.progress) {
             this.progress(`Setting Wi-Fi`);
         }
-        // check obnizOS ver
-        await this.waitFor("obniz ver:", 10 * 1000);
-        const verLine = this._searchLine("obniz ver:");
-        let version = "0.0.0";
-        if (!verLine) {
+        let version;
+        try {
+            const info = await this.detectedObnizOSVersion();
+            version = info.version;
+        }
+        catch (e) {
             if (this.progress) {
                 this.progress(chalk_1.default.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
             }
-        }
-        else {
-            version = semver_1.default.clean(verLine.split("obniz ver: ")[1]);
         }
         if (semver_1.default.satisfies(version, ">=3.4.2")) {
             // Interface

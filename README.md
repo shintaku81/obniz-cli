@@ -284,65 +284,14 @@ obniz-cli os:flash --devicekey '00000000&4591c82b119e12bd3b55ca5cb6493bcc498b63f
 
 Specify json format configration file path when flashing.
 obniz-cli will automatically configre it.
+`os:flash` and `os:flash-create` will perform that.
 
 See [example](./example_config.json)
 
-```json
-{
-  "networks":[
-    {
-      "type": "wifi",
-      "settings": {
-        "ssid": "exampl_essid",
-        "password": "example_password"
-      }
-    }
-  ]
-}
-```
+JSON file format is defined in [obnizOS Reference](https://obniz.com/doc/reference/obnizos-for-esp32/settings/).
 
-### Type
+For OS3.4.5 and older [See](./docs/config-345andolder.md).
 
-| Type | Description |
-|---|---|
-|wifi| Wi-Fi  |
-|wifimesh| Wi-Fi MESH  |
-|ethernet| Ethernet |
-|cellular| Cellular |
-
-### Settings for Wi-Fi
-
-| Key | Required | Default | Description |
-|---|---|---|---|
-|ssid| yes |  | SSID for Wi-Fi |
-|password| yes |  | Password for Wi-Fi |
-|dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
-|static_ip| no | automatic | Static IP |
-|default_gateway| no | automatic | Gateway IP |
-|subnetmask| no | automatic | Subnetmask |
-|dns| no |  | DNS Server IP |
-|proxy| no | false | Use Proxy or not. |
-|proxy_address| no |  | Proxy Address |
-|proxy_port| no |  | Proxy Port |
-
-### Settings for Wi-Fi MESH
-
-| Key | Required | Default | Description |
-|---|---|---|---|
-|ssid| yes |  | SSID for Wi-Fi |
-|password| yes |  | Password for Wi-Fi |
-|meshid| yes |  | MESH ID like 111111111111 |
-|dhcp| no | true | Use DHCP or not. If `false`, specify static ip settings |
-|static_ip| no | automatic | Static IP |
-|default_gateway| no | automatic | Gateway IP |
-|subnetmask| no | automatic | Subnetmask |
-|dns| no |  | DNS Server IP |
-|proxy| no | false | Use Proxy or not. |
-|proxy_address| no |  | Proxy Address |
-|proxy_port| no |  | Proxy Port |
-
-
-`os:flash` and `os:flash-create` will perform that.
 
 ```shell
 obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json

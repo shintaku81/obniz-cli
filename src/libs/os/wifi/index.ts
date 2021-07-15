@@ -1,6 +1,8 @@
 import chalk from "chalk";
 import wifi from "node-wifi";
-import ora from "ora";
+import ora, { Ora } from "ora";
+import { networkInterfaces } from "os";
+import config from "../config";
 
 export default class WiFi {
   public stdout: any;
@@ -14,7 +16,7 @@ export default class WiFi {
     });
   }
 
-  public async setNetwork(type: string, setting: any, duplicate: boolean = true) {
+  public async setNetwork(configs: any, duplicate: boolean = true) {
     let spinner;
     const successIds = [];
     while (true) {
@@ -44,65 +46,24 @@ export default class WiFi {
             } catch (e) {
               throw new Error(`Connection to ${chalk.green(network.ssid)} failed`);
             }
-            spinner.text = `Connected ${chalk.green(network.ssid)}. Configuring...`;
 
-            let getCount = 0;
-            let responseBody = "";
-            while (true) {
-              await new Promise((resolve) => {
-                setTimeout(resolve, 1000);
-              });
-              try {
-                const httpResponse: any = await new Promise((resolve, reject) => {
-                  const timeout = 3000;
-                  setTimeout(() => {
-                    reject(new Error(`Timed out ${timeout}`));
-                  }, timeout);
-                  fetch("http://192.168.0.1/")
-                    .then((result) => {
-                      resolve(result);
-                    })
-                    .catch((e) => {
-                      reject(e);
-                    });
-                });
-                if (httpResponse.ok) {
-                  responseBody = await httpResponse.text();
-                  break;
-                }
-              } catch (e) {
-                // ignore fetching error
+            const destIP = guessObnizIP();
+            console.log(destIP);
+            spinner.text = `Connected ${chalk.green(network.ssid)}. IP=${destIP} Configuring...`;
+            if (destIP === "1.2.3.4" || destIP === "192.168.0.1") {
+              const succeed = await this.setForUnder350Devices(destIP, spinner, configs);
+              if (!succeed) {
+                continue;
               }
-              ++getCount;
-              spinner.text = `${chalk.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
-              if (getCount >= 4) {
-                throw new Error(`${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
-              }
-            }
-
-            if (this.isSettingMode(responseBody)) {
-              await this.sendReset(spinner, network.ssid);
-              spinner.succeed(`Network Reset done. ${chalk.green(network.ssid)}`);
-              continue;
-            }
-
-            // Send HTTP Request
-            let url = "http://192.168.0.1/";
-            if (type === "wifi") {
-              url = "http://192.168.0.1/";
-            } else if (type === "cellular") {
-              url = "http://192.168.0.1/lte";
-            } else if (type === "wifimesh") {
-              url = "http://192.168.0.1/mesh";
-            }
-            const options = this.createSettingData(type, setting);
-            const res = await fetch(url, options);
-            if (res.status === 200) {
               spinner.succeed(`Configuration sent ${chalk.green(network.ssid)}`);
-              successIds[network.ssid] = true;
             } else {
-              throw new Error(`Configuration failed ${chalk.green(network.ssid)}`);
+              const succeed = await this.setForEqualOrOver350Devices(destIP, spinner, configs);
+              if (!succeed) {
+                continue;
+              }
+              spinner.succeed(`Configuration Saved and Device Rebooted ${chalk.green(network.ssid)}`);
             }
+            successIds[network.ssid] = true;
           } catch (e) {
             spinner.fail(`${chalk.green(network.ssid)} Configuration failed reson=${e.toString()}`);
           }
@@ -111,6 +72,162 @@ export default class WiFi {
         spinner.fail(`${e.toString()}`);
       }
     }
+  }
+
+  private async setForUnder350Devices(targetIP: string, spinner: Ora, configs: any) {
+    // Configure network via wifi
+    const networks = configs.networks;
+    if (!networks) {
+      throw new Error(`please provide "networks". see more detail at example json file`);
+    }
+    if (!Array.isArray(networks)) {
+      throw new Error(`"networks" must be an array`);
+    }
+    if (networks.length !== 1) {
+      throw new Error(`"networks" must have single object in array.`);
+    }
+    const network = networks[0];
+    const type = network.type;
+    const setting = network.settings;
+
+    let getCount = 0;
+    let responseBody = "";
+    while (true) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+      try {
+        const httpResponse: any = await new Promise((resolve, reject) => {
+          const timeout = 3000;
+          setTimeout(() => {
+            reject(new Error(`Timed out ${timeout}`));
+          }, timeout);
+          fetch(`http://${targetIP}/`)
+            .then((result) => {
+              resolve(result);
+            })
+            .catch((e) => {
+              reject(e);
+            });
+        });
+        if (httpResponse.ok) {
+          responseBody = await httpResponse.text();
+          break;
+        }
+      } catch (e) {
+        // ignore fetching error
+      }
+      ++getCount;
+      spinner.text = `${chalk.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
+      if (getCount >= 4) {
+        throw new Error(`${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
+      }
+    }
+
+    if (this.isSettingMode(responseBody)) {
+      await this.sendReset(spinner, network.ssid);
+      spinner.succeed(`Network Reset done. ${chalk.green(network.ssid)}`);
+      return false;
+    }
+
+    // Send HTTP Request
+    let url = "http://192.168.0.1/";
+    if (type === "wifi") {
+      url = "http://192.168.0.1/";
+    } else if (type === "cellular") {
+      url = "http://192.168.0.1/lte";
+    } else if (type === "wifimesh") {
+      url = "http://192.168.0.1/mesh";
+    }
+    const options = this.createSettingData(type, setting);
+    const res = await fetch(url, options);
+    if (res.status !== 200) {
+      throw new Error(`Configuration failed ${chalk.green(network.ssid)}`);
+    }
+    return true;
+  }
+
+  /**
+   * setting configration for OS3.5.0 or older
+   * @param spinner Ora object
+   * @param configs json user set
+   * @returns
+   */
+  private async setForEqualOrOver350Devices(targetIP: string, spinner: Ora, configs: any) {
+    // Configure network via wifi
+
+    let getCount = 0;
+    const responseBody = "";
+
+    // Login Loop
+    spinner.text = `Logining...`;
+    while (true) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+      try {
+        const res: any = await new Promise((resolve, reject) => {
+          const timeout = 3000;
+          setTimeout(() => {
+            reject(new Error(`Timed out ${timeout}`));
+          }, timeout);
+          fetch(`http://${targetIP}/api/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json;charset=utf-8",
+            },
+            body: JSON.stringify({ passkey: "obniz" }),
+          })
+            .then((result) => {
+              resolve(result);
+            })
+            .catch((e) => {
+              reject(e);
+            });
+        });
+        if (res.status === 404) {
+          // already logged in
+          break;
+        }
+        if (res.status !== 200) {
+          throw new Error(`Can't Logged In`);
+        }
+        break;
+      } catch (e) {
+        // throw new Error(`Login Error`)
+      }
+      ++getCount;
+      spinner.text = `Accessing and Logining... ${getCount}`;
+      if (getCount >= 4) {
+        throw new Error(`Login Failed ${getCount} times. abort`);
+      }
+    }
+
+    // after login
+    spinner.text = `Sending JSON`;
+
+    const setRes = await fetch(`http://${targetIP}/api/setting`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(configs),
+    });
+    if (setRes.status !== 201) {
+      throw new Error(`Configration Failed with status ${setRes.status}`);
+    }
+    const options: any = {
+      method: "POST",
+    };
+
+    spinner.text = `Rebooting`;
+    const params = new URLSearchParams();
+    params.append("mode", "reboot");
+    options.body = params;
+    // this will never done. because device will reboot
+    fetch(`http://${targetIP}/setting`, options).then();
+
+    return true;
   }
 
   private isSettingMode(responseBody: string) {
@@ -218,36 +335,6 @@ export default class WiFi {
     return options;
   }
 
-  // private scanObnizWiFi(timeout: number): Promise<any> {
-  //   console.log(`Searching connectable obniz...`);
-  //   return new Promise(async (resolve, reject) => {
-  //     let timer = setTimeout(() => {
-  //       reject(new Error(`Timeout. Cannot find any connectable obniz.`));
-  //     }, timeout);
-
-  //     while (true) {
-  //       const networks = await wifi.scan().catch((err) => {
-  //         reject(new Error(err));
-  //       });
-  //       const obnizNetworks = [];
-  //       for (const network of networks) {
-  //         if (network.ssid.startsWith("obniz-")) {
-  //           obnizNetworks.push(network);
-  //         }
-  //       }
-
-  //       if (obnizNetworks.length === 0) {
-  //         continue;
-  //       } else {
-  //         clearTimeout(timer);
-  //         timer = null;
-  //         resolve(obnizNetworks);
-  //         break;
-  //       }
-  //     }
-  //   });
-  // }
-
   private scanObnizWiFi(timeout: number): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const timer = setTimeout(() => {
@@ -272,42 +359,32 @@ export default class WiFi {
       });
     });
   }
+}
 
-  // private async selectObnizWiFi(): Promise<any> {
-  //   const readline = require("readline");
-  //   const rl = readline.createInterface({
-  //     input: process.stdin,
-  //     output: process.stdout,
-  //   });
+function currentLocalIP() {
+  const nets = networkInterfaces();
 
-  //   return new Promise(async (resolve, reject) => {
-  //     const obnizNetworks = await this.scanObnizWiFi(3 * 1000)
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (net.family === "IPv4" && !net.internal) {
+        if (net.address.startsWith("192.168") || net.address.startsWith("1.2.3.")) {
+          return net.address;
+        }
+      }
+    }
+  }
+  // obnizOS 3.5.0 standard
+  return "192.168.254.2";
+}
 
-  //     if (obnizNetworks.length === 1) {
-  //       console.log(`Found 1 connectable obniz(${obnizNetworks[0].ssid}).`);
-  //       resolve(obnizNetworks);
-  //     } else {
-  //       console.log(`Found some connectable obniz.`);
-  //       for (let i; i < obnizNetworks.length; i++) {
-  //         console.log(`${i} : ${obnizNetworks[i].ssid}`);
-  //       }
-  //       rl.question(
-  //         `Select obniz to apply Wi-Fi setting. (Integer from 0 to ${obnizNetworks.length - 1}, or if all, input a)`,
-  //         (answer) => {
-  //           rl.close();
-  //           if (answer === "a") {
-  //             resolve(obnizNetworks);
-  //           } else {
-  //             const selectedNetwork = obnizNetworks[answer];
-  //             if (selectedNetwork) {
-  //               resolve([selectedNetwork]);
-  //             } else {
-  //               reject(new Error(`Input integer from 0 to ${obnizNetworks.length - 1}, or if all, input a`));
-  //             }
-  //           }
-  //         },
-  //       );
-  //     }
-  //   });
-  // }
+function guessObnizIP() {
+  const ip = currentLocalIP();
+  if (ip === "1.2.3.5") {
+    return "1.2.3.4";
+  } else if (ip === "192.168.0.2") {
+    return "192.168.0.1";
+  } else {
+    return "192.168.254.1";
+  }
 }

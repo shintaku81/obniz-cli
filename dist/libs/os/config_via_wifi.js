@@ -48,26 +48,6 @@ exports.default = {
                 throw new Error(`${err}`);
             },
         });
-        // Configure network via wifi
-        const networks = configs.networks;
-        if (!networks) {
-            throw new Error(`please provide "networks". see more detail at example json file`);
-        }
-        if (!Array.isArray(networks)) {
-            throw new Error(`"networks" must be an array`);
-        }
-        if (networks.length !== 1) {
-            throw new Error(`"networks" must have single object in array.`);
-        }
-        const network = networks[0];
-        const type = network.type;
-        const settings = network.settings;
-        // TODO: setNetworkType?
-        if (type === "wifi" || type === "cellular") {
-            await wifi.setNetwork(type, settings, duplicate);
-        }
-        else {
-            console.log(chalk_1.default.red(`obniz-cli not supporting settings for ${type} right now. wait for future release`));
-        }
+        await wifi.setNetwork(configs, duplicate);
     },
 };
