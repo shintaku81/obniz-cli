@@ -1,0 +1,22 @@
+query getOperations {
+    operations {
+        edges {
+            node {
+                name
+                id
+                facilityId
+                completionLevel
+                needPicEvidence
+                needLocationNote
+                dueDate
+                operationKey
+                createdAt
+            }
+            facilityName
+            amountExpectedDevices
+            amountOperatedDevices
+            amountReport
+            errorLevelReport
+        }
+    }
+}
