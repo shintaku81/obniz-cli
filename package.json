@@ -15,7 +15,8 @@
     "precommit": "lint-staged && npm run build",
     "clean": "rimraf ./dist",
     "local": "npx ts-node src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "codegen": "graphql-codegen"
   },
   "bin": {
     "obniz-cli": "./dist/index.js"
@@ -29,6 +30,10 @@
   },
   "private": false,
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.13.5",
+    "@graphql-codegen/typescript": "^1.13.5",
+    "@graphql-codegen/typescript-graphql-request": "^1.13.5",
+    "@graphql-codegen/typescript-operations": "^1.13.5",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-jasmine": "^2.10.1",
@@ -47,6 +52,7 @@
     "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "get-port": "^5.1.1",
+    "graphql": "^15.5.1",
     "graphql-request": "^1.8.2",
     "inquirer": "^7.3.3",
     "log4js": "^6.1.2",

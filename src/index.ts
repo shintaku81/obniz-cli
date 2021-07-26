@@ -18,6 +18,9 @@ import UserInfo from "./libs/user/info";
 import Login from "./libs/user/login";
 import Logout from "./libs/user/logout";
 
+import OperationList from "./libs/operation/list";
+import OperationInfo from "./libs/operation/info";
+
 const packageverion = require(`../package.json`).version;
 
 // ========== Global Errors =========
@@ -72,6 +75,8 @@ const routes = {
       await Ports();
     },
   },
+  "operation:list": OperationList,
+  "operation:info": OperationInfo,
   "gui": {
     async execute(args: any) {
       console.log(`Launching...`);
@@ -115,6 +120,9 @@ COMMANDS
   os:erase            Fully erase a flash on target device.
   os:list             List of available obnizOS hardwares and versions
   os:ports            Getting serial ports on your machine.
+
+  operation:list      List of available operations.
+  operation:info      Show operation info.
   `);
   },
 };

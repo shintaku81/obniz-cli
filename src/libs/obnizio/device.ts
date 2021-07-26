@@ -1,4 +1,5 @@
 import { GraphQLClient } from "graphql-request";
+import { DeviceCreateInput, getSdk, MutationCreateDeviceArgs } from "../generated/client";
 import { GraphQLURL } from "./url";
 
 export default class Device {
@@ -8,26 +9,21 @@ export default class Device {
       headers.authorization = `Bearer ${token}`;
     }
 
-    const obj = `mutation{
-      createDevice(device: {
-        ${opt.serialdata ? `serialdata: "${opt.serialdata}", ` : ``}
-        hardware: "${opt.hardware ? opt.hardware : "esp32w"}",
-        region: "${opt.region ? opt.region : "jp"}",
-        description: "${opt.description ? opt.description : ""}"
-      }){
-        id,
-        createdAt,
-        devicekey,
-        region,
-        hardware,
-        description
-      }
-    }`;
+    const input: DeviceCreateInput = {
+      description: opt.description ? opt.description : "",
+      hardware: opt.hardware ? opt.hardware : "esp32w",
+      region: opt.region ? opt.region : "jp",
+    };
+    if (opt.serialdata) {
+      input.serialdata = opt.serialdata;
+    }
 
     const graphQLClient = new GraphQLClient(GraphQLURL, {
       headers,
     });
-    const ret = await graphQLClient.request(obj);
+    const sdk = getSdk(graphQLClient);
+
+    const ret = await sdk.createDevice({ createDeviceDevice: input });
     return ret.createDevice;
   }
 
@@ -39,27 +35,8 @@ export default class Device {
     const graphQLClient = new GraphQLClient(GraphQLURL, {
       headers,
     });
-    const query = `{
-      devices(id:"${id}") {
-        totalCount,
-        pageInfo {
-          hasNextPage,
-          hasPreviousPage
-        },
-        edges{
-          node {
-            id,
-            createdAt,
-            description,
-            devicekey,
-            hardware,
-            status
-          }
-        }
-      }
-    }`;
-
-    const ret = await graphQLClient.request(query);
+    const sdk = getSdk(graphQLClient);
+    const ret = await sdk.getDeviceById({ deviceId: id });
     let device = null;
     for (const edge of ret.devices.edges) {
       device = edge.node;

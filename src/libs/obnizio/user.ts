@@ -1,4 +1,5 @@
 import { GraphQLClient } from "graphql-request";
+import { getSdk } from "../generated/client";
 import { GraphQLURL } from "./url";
 
 export default async (token: string) => {
@@ -7,14 +8,8 @@ export default async (token: string) => {
       authorization: `Bearer ${token}`,
     },
   });
-  const query = `{
-    user {
-      id,
-      name,
-      email
-    }
-  }`;
+  const sdk = getSdk(graphQLClient);
 
-  const ret = await graphQLClient.request(query);
+  const ret = await sdk.currentUser();
   return ret.user;
 };

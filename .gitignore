@@ -15,3 +15,5 @@ log
 .vscode
 
 storage.json
+/.graphqlconfig
+/schema.graphql
