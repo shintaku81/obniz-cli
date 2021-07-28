@@ -42,7 +42,7 @@ export default {
       stdout: (text: string) => {
         process.stdout.write(text);
       },
-      onerror: (err) => {
+      onerror: (err:any) => {
         throw new Error(`${err}`);
       },
     });

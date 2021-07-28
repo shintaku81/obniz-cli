@@ -24,7 +24,7 @@ export default class Device {
     const sdk = getSdk(graphQLClient);
 
     const ret = await sdk.createDevice({ createDeviceDevice: input });
-    return ret.createDevice;
+    return ret.createDevice!;
   }
 
   public static async get(token: string, id: string) {
@@ -37,11 +37,8 @@ export default class Device {
     });
     const sdk = getSdk(graphQLClient);
     const ret = await sdk.getDeviceById({ deviceId: id });
-    let device = null;
-    for (const edge of ret.devices.edges) {
-      device = edge.node;
-      break;
-    }
+    const device = ret.devices?.edges.find((e) => true)?.node || null;
+
     return device;
   }
 }

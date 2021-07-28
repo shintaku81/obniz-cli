@@ -23,7 +23,7 @@ export default function flash(obj: {
     }
 
     // prepare files
-    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress) => {
+    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress: string) => {
       spinner.text = `Flashing obnizOS: ${progress}`;
     });
 
@@ -41,7 +41,7 @@ export default function flash(obj: {
       spinner.succeed(`Flashing obnizOS: Flashed`);
       resolve();
     };
-    const onFailed = (err) => {
+    const onFailed = (err:any) => {
       spinner.fail(`Flashing obnizOS: Fail`);
       reject(err);
     };
@@ -49,8 +49,8 @@ export default function flash(obj: {
     spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`;
 
     const child = child_process.exec(cmd);
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (text) => {
+    child.stdout?.setEncoding("utf8");
+    child.stdout?.on("data", (text) => {
       if (obj.debugserial) {
         console.log(text);
         obj.stdout(text);
@@ -62,7 +62,7 @@ export default function flash(obj: {
         spinner.text = `Flashing obnizOS: Connected. Flashing...`;
       }
     });
-    child.stderr.on("data", (text) => {
+    child.stderr?.on("data", (text) => {
       if (obj.debugserial) {
         obj.stdout(text);
       }

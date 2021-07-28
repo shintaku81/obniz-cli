@@ -9,6 +9,7 @@ const os_1 = __importDefault(require("../obnizio/os"));
 const ora_1 = __importDefault(require("ora"));
 function flash(obj) {
     return new Promise(async (resolve, reject) => {
+        var _a, _b, _c;
         let status = "connecting";
         const spinner = ora_1.default(`Flashing obnizOS: preparing file for hardware=${chalk_1.default.green(obj.hardware)} version=${chalk_1.default.green(obj.version)}`).start();
         if (obj.debugserial) {
@@ -35,8 +36,8 @@ function flash(obj) {
         };
         spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk_1.default.green(obj.portname)}`;
         const child = child_process_1.default.exec(cmd);
-        child.stdout.setEncoding("utf8");
-        child.stdout.on("data", (text) => {
+        (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.setEncoding("utf8");
+        (_b = child.stdout) === null || _b === void 0 ? void 0 : _b.on("data", (text) => {
             if (obj.debugserial) {
                 console.log(text);
                 obj.stdout(text);
@@ -47,7 +48,7 @@ function flash(obj) {
                 spinner.text = `Flashing obnizOS: Connected. Flashing...`;
             }
         });
-        child.stderr.on("data", (text) => {
+        (_c = child.stderr) === null || _c === void 0 ? void 0 : _c.on("data", (text) => {
             if (obj.debugserial) {
                 obj.stdout(text);
             }

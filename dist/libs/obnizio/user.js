@@ -11,5 +11,5 @@ exports.default = async (token) => {
     });
     const sdk = client_1.getSdk(graphQLClient);
     const ret = await sdk.currentUser();
-    return ret.user;
+    return ret.user || null;
 };

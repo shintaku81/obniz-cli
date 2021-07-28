@@ -71,7 +71,7 @@ class WiFi {
                 }
             }
             catch (e) {
-                spinner.fail(`${e.toString()}`);
+                spinner === null || spinner === void 0 ? void 0 : spinner.fail(`${e.toString()}`);
             }
         }
     }

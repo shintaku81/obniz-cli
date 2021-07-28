@@ -19,8 +19,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const operation_1 = require("../obnizio/operation");
 const Storage = __importStar(require("../storage"));
-const operation_1 = require("./modules/operation");
 exports.default = {
     help: `Show your operation list
   `,
@@ -30,8 +30,15 @@ exports.default = {
             console.log(`Not Sign In`);
             return;
         }
+        if (!(await operation_1.Operation.checkPermission(token))) {
+            console.log(`You don't have Facility permission. Please 'obniz-cli signin' again`);
+            return;
+        }
         console.log(`Contacting to obniz Cloud...`);
         const operations = await operation_1.Operation.getList(token);
-        console.log(operations.length);
+        operations.map((op) => {
+            var _a;
+            console.log(`${(_a = op === null || op === void 0 ? void 0 : op.node) === null || _a === void 0 ? void 0 : _a.name} (${op === null || op === void 0 ? void 0 : op.facilityName})`);
+        });
     },
 };

@@ -10,7 +10,11 @@ export default async () => {
   }
   console.log(`Contacting to obniz Cloud...`);
   const user = await User(token);
-  console.log(`Sigin In User`);
+  if (!user) {
+    console.log(`Authentication Failed.`);
+    return;
+  }
+  console.log(`Signin In User`);
   console.log(` name : ${user.name}`);
   console.log(` email: ${user.email}`);
 };

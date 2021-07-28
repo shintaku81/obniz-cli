@@ -10,13 +10,13 @@ const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken =
   process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
-export default async (progress: any): Promise<string> => {
+export default async (progress: (arg: string) => void): Promise<string> => {
   return await new Promise(async (resolve, reject) => {
     // start server
     const port = await getPort();
     const server = await oauth(port, (err, access_token) => {
       server.close();
-      if (err) {
+      if (err || !access_token) {
         reject(err);
         return;
       }
@@ -31,9 +31,9 @@ export default async (progress: any): Promise<string> => {
   });
 };
 
-function oauth(port: number, callback: any): Promise<http.Server> {
+function oauth(port: number, callback: (error: Error | null, token: string | null) => void): Promise<http.Server> {
   return new Promise((resolve, reject) => {
-    let timeout = setTimeout(() => {
+    let timeout: null | ReturnType<typeof setTimeout> = setTimeout(() => {
       callback(new Error(`Authentication Timeout`), null);
     }, 3 * 60 * 1000);
 

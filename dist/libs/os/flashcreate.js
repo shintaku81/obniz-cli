@@ -29,7 +29,7 @@ const os_1 = __importDefault(require("../../libs/obnizio/os"));
 const device_1 = __importDefault(require("../obnizio/device"));
 const Storage = __importStar(require("../storage"));
 const _flash_1 = __importDefault(require("./_flash"));
-const config_1 = __importDefault(require("./config"));
+const config_1 = __importStar(require("./config"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
 const inquirer_1 = __importDefault(require("inquirer"));
 const ora_1 = __importDefault(require("ora"));
@@ -60,6 +60,8 @@ exports.default = {
         if (!token) {
             throw new Error(`You must singin before create device`);
         }
+        // validate first
+        await config_1.validate(args);
         // SerialPortSetting
         const obj = await prepare_1.default(args);
         obj.stdout = (text) => {

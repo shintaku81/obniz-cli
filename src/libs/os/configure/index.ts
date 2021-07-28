@@ -12,14 +12,14 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
 
   const serial = new Serial({
     portname: obj.portname,
-    stdout: (text) => {
+    stdout: (text:string) => {
       if (obj.debugserial) {
         console.log(text);
       }
       received += text;
       obj.stdout(text);
     },
-    onerror: (err) => {
+    onerror: (err:string) => {
       received += err;
       console.log(serial.totalReceived);
       throw new Error(`${err}`);

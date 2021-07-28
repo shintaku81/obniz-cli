@@ -19,10 +19,12 @@ class Serial {
         return new Promise(async (resolve, reject) => {
             this.serialport = new serialport_1.default(this.portname, { baudRate });
             this.serialport.on("open", () => {
+                var _a, _b;
                 // open logic
-                this.serialport.set({ rts: false, dtr: false });
-                this.serialport.on("readable", async () => {
-                    const received = this.serialport.read().toString("utf-8");
+                (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.set({ rts: false, dtr: false });
+                (_b = this.serialport) === null || _b === void 0 ? void 0 : _b.on("readable", async () => {
+                    var _a, _b;
+                    const received = ((_b = (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.read()) === null || _b === void 0 ? void 0 : _b.toString("utf-8")) || "";
                     this.totalReceived += received;
                     this.stdout(received);
                     if (this._recvCallback) {
@@ -41,7 +43,8 @@ class Serial {
     }
     async close() {
         return new Promise((resolve, reject) => {
-            this.serialport.close(() => {
+            var _a;
+            (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.close(() => {
                 resolve();
             });
         });
@@ -54,7 +57,8 @@ class Serial {
      */
     async reset() {
         await new Promise(async (resolve, reject) => {
-            this.serialport.set({
+            var _a;
+            (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.set({
                 dtr: false,
             }, (e) => {
                 if (e) {
@@ -68,8 +72,9 @@ class Serial {
             setTimeout(resolve, 10);
         });
         await new Promise(async (resolve, reject) => {
+            var _a;
             // リセット時にはクリアする
-            this.serialport.set({
+            (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.set({
                 dtr: true,
             }, (e) => {
                 if (e) {
@@ -113,8 +118,11 @@ class Serial {
                 if (!verLine) {
                     throw new Error(`Failed to check obnizOS version. Subsequent flows can be failed.`);
                 }
-                version = semver_1.default.clean(verLine.split("obniz ver: ")[1]);
+                version = semver_1.default.clean(verLine.split("obniz ver: ")[1]) || "";
                 const obnizIDLine = this._searchLine("obniz id:");
+                if (!obnizIDLine) {
+                    throw new Error();
+                }
                 const obnizid = obnizIDLine.split("obniz id: ")[1];
                 return {
                     version,
@@ -186,8 +194,9 @@ class Serial {
      * @param text
      */
     send(text) {
+        var _a;
         try {
-            this.serialport.write(`${text}`);
+            (_a = this.serialport) === null || _a === void 0 ? void 0 : _a.write(`${text}`);
         }
         catch (e) {
             this.stdout("" + e);
@@ -307,7 +316,7 @@ class Serial {
         if (this.progress) {
             this.progress(`Setting Wi-Fi`);
         }
-        let version;
+        let version = "";
         try {
             const info = await this.detectedObnizOSVersion();
             version = info.version;

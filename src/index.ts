@@ -18,8 +18,8 @@ import UserInfo from "./libs/user/info";
 import Login from "./libs/user/login";
 import Logout from "./libs/user/logout";
 
-import OperationList from "./libs/operation/list";
 import OperationInfo from "./libs/operation/info";
+import OperationList from "./libs/operation/list";
 
 const packageverion = require(`../package.json`).version;
 

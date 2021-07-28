@@ -25,6 +25,7 @@ class Device {
         return ret.createDevice;
     }
     static async get(token, id) {
+        var _a, _b;
         const headers = {};
         if (token) {
             headers.authorization = `Bearer ${token}`;
@@ -34,11 +35,7 @@ class Device {
         });
         const sdk = client_1.getSdk(graphQLClient);
         const ret = await sdk.getDeviceById({ deviceId: id });
-        let device = null;
-        for (const edge of ret.devices.edges) {
-            device = edge.node;
-            break;
-        }
+        const device = ((_b = (_a = ret.devices) === null || _a === void 0 ? void 0 : _a.edges.find((e) => true)) === null || _b === void 0 ? void 0 : _b.node) || null;
         return device;
     }
 }

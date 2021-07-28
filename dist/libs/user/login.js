@@ -34,6 +34,10 @@ exports.default = async () => {
     spinner.succeed(`Authenticated.`);
     spinner = ora_1.default(`Getting User Information`).start();
     const user = await user_1.default(token);
+    if (!user) {
+        spinner.fail("Get user information failed");
+        return;
+    }
     Storage.set("token", token);
     spinner.succeed(`Sign in as "${user.email}"`);
 };

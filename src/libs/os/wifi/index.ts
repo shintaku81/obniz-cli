@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import wifi from "node-wifi";
 import ora, { Ora } from "ora";
-import { networkInterfaces } from "os";
+import { NetworkInterfaceInfo, networkInterfaces } from "os";
 import config from "../config";
 
 export default class WiFi {
@@ -69,7 +69,7 @@ export default class WiFi {
           }
         }
       } catch (e) {
-        spinner.fail(`${e.toString()}`);
+        spinner?.fail(`${e.toString()}`);
       }
     }
   }
@@ -255,7 +255,7 @@ export default class WiFi {
       mode: "reset_all",
     };
     const params = new URLSearchParams();
-    Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+    (Object.keys(urlSetting) as Array<keyof typeof urlSetting>).forEach((key) => params.append(key, urlSetting[key]));
     options.body = params;
     return options;
   }
@@ -271,7 +271,7 @@ export default class WiFi {
       method: "POST",
     };
     if (type === "wifi") {
-      const urlSetting = {
+      const urlSetting: any = {
         ssid: "other",
         input_ssid: setting.ssid,
         pw: setting.password,
@@ -297,7 +297,7 @@ export default class WiFi {
       Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
       options.body = params;
     } else if (type === "wifimesh") {
-      const urlSetting = {
+      const urlSetting: any = {
         ssid: "other",
         input_ssid: setting.ssid,
         pw: setting.password,
@@ -341,7 +341,7 @@ export default class WiFi {
         reject(new Error(`Timeout. Cannot find any connectable obniz.`));
       }, timeout);
 
-      wifi.scan((error, networks) => {
+      wifi.scan((error: Error | null, networks: any[]) => {
         if (error) {
           clearTimeout(timer);
           reject(error);
@@ -365,7 +365,7 @@ function currentLocalIP() {
   const nets = networkInterfaces();
 
   for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
+    for (const net of nets[name]!) {
       // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === "IPv4" && !net.internal) {
         if (net.address.startsWith("192.168") || net.address.startsWith("1.2.3.")) {

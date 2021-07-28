@@ -11,7 +11,7 @@ export default class Serial {
   public stdout: any;
   public onerror: any;
   public progress: any;
-  public serialport: SerialPort;
+  public serialport: SerialPort | undefined;
 
   public totalReceived = "";
 
@@ -26,13 +26,13 @@ export default class Serial {
 
   public async open() {
     return new Promise(async (resolve, reject) => {
-      this.serialport = new SerialPort(this.portname, { baudRate });
+      this.serialport = new SerialPort(this.portname, {baudRate});
 
       this.serialport.on("open", () => {
         // open logic
-        this.serialport.set({ rts: false, dtr: false });
-        this.serialport.on("readable", async () => {
-          const received = this.serialport.read().toString("utf-8");
+        this.serialport?.set({rts: false, dtr: false});
+        this.serialport?.on("readable", async () => {
+          const received = this.serialport?.read()?.toString("utf-8") || "";
           this.totalReceived += received;
           this.stdout(received);
           if (this._recvCallback) {
@@ -53,7 +53,7 @@ export default class Serial {
 
   public async close() {
     return new Promise((resolve, reject) => {
-      this.serialport.close(() => {
+      this.serialport?.close(() => {
         resolve();
       });
     });
@@ -68,7 +68,7 @@ export default class Serial {
    */
   public async reset() {
     await new Promise(async (resolve, reject) => {
-      this.serialport.set(
+      this.serialport?.set(
         {
           dtr: false,
         },
@@ -86,7 +86,7 @@ export default class Serial {
     });
     await new Promise(async (resolve, reject) => {
       // リセット時にはクリアする
-      this.serialport.set(
+      this.serialport?.set(
         {
           dtr: true,
         },
@@ -103,7 +103,7 @@ export default class Serial {
 
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
     return await new Promise((resolve, reject) => {
-      let timeoutTimer = setTimeout(() => {
+      let timeoutTimer: null | ReturnType<typeof setTimeout> = setTimeout(() => {
         this._recvCallback = null;
         reject(new Error(`Timeout. waiting for ${key}`));
       }, timeout);
@@ -138,9 +138,12 @@ export default class Serial {
         if (!verLine) {
           throw new Error(`Failed to check obnizOS version. Subsequent flows can be failed.`);
         }
-        version = semver.clean(verLine.split("obniz ver: ")[1]);
+        version = semver.clean(verLine.split("obniz ver: ")[1]) || "";
 
         const obnizIDLine = this._searchLine("obniz id:");
+        if (!obnizIDLine) {
+          throw new Error();
+        }
         const obnizid = obnizIDLine.split("obniz id: ")[1];
         return {
           version,
@@ -210,7 +213,7 @@ export default class Serial {
    */
   public send(text: string) {
     try {
-      this.serialport.write(`${text}`);
+      this.serialport?.write(`${text}`);
     } catch (e) {
       this.stdout("" + e);
     }
@@ -254,7 +257,7 @@ export default class Serial {
             chalk.yellow(
               `Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`,
             ),
-            { keep: true },
+            {keep: true},
           );
         } else if (tryCount === 3) {
           chalk.yellow(
@@ -340,7 +343,7 @@ export default class Serial {
     if (this.progress) {
       this.progress(`Setting Wi-Fi`);
     }
-    let version;
+    let version = "";
     try {
       const info = await this.detectedObnizOSVersion();
       version = info.version;

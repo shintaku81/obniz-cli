@@ -37,8 +37,8 @@ const prepare_1 = __importDefault(require("./libs/os/serial/prepare"));
 const info_1 = __importDefault(require("./libs/user/info"));
 const login_1 = __importDefault(require("./libs/user/login"));
 const logout_1 = __importDefault(require("./libs/user/logout"));
-const list_2 = __importDefault(require("./libs/operation/list"));
 const info_2 = __importDefault(require("./libs/operation/info"));
+const list_2 = __importDefault(require("./libs/operation/list"));
 const packageverion = require(`../package.json`).version;
 // ========== Global Errors =========
 process.on("uncaughtException", (err) => {

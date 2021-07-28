@@ -5,7 +5,7 @@ import OS from "../../libs/obnizio/os";
 import Device from "../obnizio/device";
 import * as Storage from "../storage";
 import Flash from "./_flash";
-import Config from "./config";
+import Config, { validate as validateConfig } from "./config";
 import PreparePort from "./serial/prepare";
 
 import inquirer from "inquirer";
@@ -39,6 +39,9 @@ export default {
     if (!token) {
       throw new Error(`You must singin before create device`);
     }
+
+    // validate first
+    await validateConfig(args);
 
     // SerialPortSetting
     const obj: any = await PreparePort(args);
@@ -141,7 +144,7 @@ export default {
   },
 };
 
-async function askUseRecovery(device) {
+async function askUseRecovery(device:any) {
   const answer = await inquirer.prompt([
     {
       type: "list",

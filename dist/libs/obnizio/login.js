@@ -18,7 +18,7 @@ exports.default = async (progress) => {
         const port = await get_port_1.default();
         const server = await oauth(port, (err, access_token) => {
             server.close();
-            if (err) {
+            if (err || !access_token) {
                 reject(err);
                 return;
             }

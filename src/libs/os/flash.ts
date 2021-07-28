@@ -2,7 +2,7 @@ import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
 import Flash from "./_flash";
-import Config from "./config";
+import Config, { validate as validateConfig } from "./config";
 import PreparePort from "./serial/prepare";
 
 import ora from "ora";
@@ -24,9 +24,12 @@ export default {
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   async execute(args: any) {
+    // validate first
+    await validateConfig(args);
+
     // flashing os
     const obj: any = await PreparePort(args);
-    obj.stdout = (text) => {
+    obj.stdout = (text:string) => {
       process.stdout.write(text);
     };
 

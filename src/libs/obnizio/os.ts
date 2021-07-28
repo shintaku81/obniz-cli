@@ -69,7 +69,7 @@ export default class OS {
     throw new Error(`No obnizOS and Version Found for hardware=${hardware} version=${version}`);
   }
 
-  public static async prepareLocalFile(hardware: string, version: string, progress: any) {
+  public static async prepareLocalFile(hardware: string, version: string, progress: (progress: string) => void) {
     const appPath = filepath(hardware, version, "app");
     const bootloaderPath = filepath(hardware, version, "bootloader");
     const partitionPath = filepath(hardware, version, "partition");
@@ -103,7 +103,7 @@ export default class OS {
   }
 }
 
-async function downloadFile(url, pathtodownload) {
+async function downloadFile(url: string, pathtodownload: string) {
   const dirpath = path.dirname(pathtodownload);
   if (!fs.existsSync(dirpath)) {
     fs.mkdirSync(dirpath);

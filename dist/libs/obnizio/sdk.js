@@ -18,25 +18,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_1 = __importDefault(require("../obnizio/user"));
+exports.getClientSdk = void 0;
+const graphql_request_1 = require("graphql-request");
+const client_1 = require("../generated/client");
 const Storage = __importStar(require("../storage"));
-exports.default = async () => {
-    const token = Storage.get("token");
+const url_1 = require("./url");
+function getClientSdk(token) {
     if (!token) {
-        console.log(`Not Sign In`);
-        return;
+        token = Storage.get("token");
     }
-    console.log(`Contacting to obniz Cloud...`);
-    const user = await user_1.default(token);
-    if (!user) {
-        console.log(`Authentication Failed.`);
-        return;
-    }
-    console.log(`Signin In User`);
-    console.log(` name : ${user.name}`);
-    console.log(` email: ${user.email}`);
-};
+    const graphQLClient = new graphql_request_1.GraphQLClient(url_1.GraphQLURL, {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    });
+    const sdk = client_1.getSdk(graphQLClient);
+    return sdk;
+}
+exports.getClientSdk = getClientSdk;

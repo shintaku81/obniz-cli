@@ -8,8 +8,8 @@ export default (obj: { portname: string; baud: number; stdout: any }) => {
     const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} erase_flash`;
     console.log(cmd);
     const child = child_process.exec(cmd);
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (text) => {
+    child.stdout?.setEncoding("utf8");
+    child.stdout?.on("data", (text) => {
       obj.stdout(text);
       received += text;
       if (received.indexOf("Chip erase completed successfully") >= 0) {
@@ -17,7 +17,7 @@ export default (obj: { portname: string; baud: number; stdout: any }) => {
         success = true;
       }
     });
-    child.stderr.on("data", (text) => {
+    child.stderr?.on("data", (text) => {
       obj.stdout(text);
       received += text;
     });

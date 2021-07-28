@@ -3,7 +3,7 @@ import path from "path";
 
 const filepath = path.join(__dirname, "../..", "storage.json");
 
-function read() {
+function read() : any{
   let obj = {};
   try {
     const txt = fs.readFileSync(filepath, { encoding: "utf8" });
@@ -17,7 +17,7 @@ function write(obj: any) {
   fs.writeFileSync(filepath, JSON.stringify(obj));
 }
 
-export function set(key: string, value: string) {
+export function set(key: string, value: string | null) {
   const obj = read();
   obj[key] = value;
   write(obj);

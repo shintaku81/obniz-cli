@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -7,7 +26,7 @@ const chalk_1 = __importDefault(require("chalk"));
 const defaults_1 = __importDefault(require("../../defaults"));
 const os_1 = __importDefault(require("../../libs/obnizio/os"));
 const _flash_1 = __importDefault(require("./_flash"));
-const config_1 = __importDefault(require("./config"));
+const config_1 = __importStar(require("./config"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
 const ora_1 = __importDefault(require("ora"));
 exports.default = {
@@ -27,6 +46,8 @@ exports.default = {
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
     async execute(args) {
+        // validate first
+        await config_1.validate(args);
         // flashing os
         const obj = await prepare_1.default(args);
         obj.stdout = (text) => {

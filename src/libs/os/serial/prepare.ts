@@ -9,7 +9,7 @@ import inquirer from "inquirer";
 import ora from "ora";
 
 export default async (args: any): Promise<any> => {
-  let portname: string = args.p || args.port;
+  let portname: string | undefined = args.p || args.port;
   if (!portname) {
     console.log(chalk.yellow(`No serial port specified.`));
   }

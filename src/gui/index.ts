@@ -11,10 +11,10 @@ import SerialPortAutoDetect from "../libs/os/serial/auto_detect";
 
 // ========== Definitions =========
 
-const devices = [];
-let version = null;
+const devices: any[] = [];
+let version: string | null = null;
 
-const files = [];
+const files: any[] = [];
 for (let file of files) {
   if (file.indexOf(".elf") >= 0) {
     file = file.replace(".elf", "");
@@ -29,11 +29,11 @@ for (let file of files) {
 
 // ========== vars =========
 
-let portTTYName = null;
-let browser;
-let page;
-let io;
-let port;
+let portTTYName: string | null = null;
+let browser: any;
+let page: any;
+let io: any;
+let port: any;
 
 // ========== Express/Socket.io =========
 
@@ -48,7 +48,7 @@ export async function start() {
   io = socketio(server);
   server.listen(port);
 
-  server.on("error", (err) => {
+  server.on("error", (err:any) => {
     console.error(err);
     process.exit();
   });
@@ -56,8 +56,8 @@ export async function start() {
     await launch();
   });
 
-  io.on("connection", async (socket) => {
-    socket.on("flash", async (data) => {
+  io.on("connection", async (socket: any) => {
+    socket.on("flash", async (data: any) => {
       try {
         const hardware = data.version;
         const license = data.license;
@@ -73,7 +73,7 @@ export async function start() {
         }
         const baud = 1500000;
         const success = await Flash({
-          portname: portTTYName,
+          portname: portTTYName || "",
           debugserial: true,
           hardware,
           version: "1.0.0",
@@ -99,7 +99,7 @@ export async function start() {
       ui_state_to("normal");
     });
 
-    socket.on("exit", async (data) => {
+    socket.on("exit", async (data: any) => {
       process.exit();
     });
 
@@ -157,7 +157,7 @@ async function ui_versions() {
   io.emit("devices", devices);
 }
 
-async function ui_state_to(state) {
+async function ui_state_to(state: any) {
   io.emit("state_to", state);
 }
 
