@@ -202,21 +202,30 @@ export default class Serial {
    * >= 3.5.0
    */
   public async enterMenuMode() {
-    try {
-      this.clearReceived();
-      this.send(`menu`);
-      await this.waitFor("Input number >>", 10 * 1000);
-      return;
-    } catch (e) {}
-
-    await this.reset();
     this.clearReceived();
-    await new Promise((resolve, reject) => {
-      setTimeout(resolve, 2 * 1000);
-    });
-    this.send(`menu`);
-    await this.waitFor("Input number >>", 10 * 1000);
-    return;
+    let i = 0;
+    while (1) {
+      try {
+        this.send(`menu`);
+        await this.waitFor("Input number >>", 3 * 1000);
+        return;
+      } catch (e) {}
+      i++;
+      this.progress(`Entering menu ... (try ${i} times)`);
+      await this.reset();
+      await new Promise((resolve, reject) => {
+        setTimeout(resolve, 2 * 1000);
+      });
+    }
+    //
+    // await this.reset();
+    // this.clearReceived();
+    // await new Promise((resolve, reject) => {
+    //   setTimeout(resolve, 2 * 1000);
+    // });
+    // this.send(`menu`);
+    // await this.waitFor("Input number >>", 10 * 1000);
+    // return;
   }
 
   /**
@@ -263,7 +272,7 @@ export default class Serial {
         break;
       } catch (e) {
         ++tryCount;
-        if (tryCount <= 2) {
+        if (tryCount <= 20) {
           await this.reset(); // force print DeviceKey
           await new Promise((resolve, reject) => {
             setTimeout(resolve, 2 * 1000);
@@ -274,7 +283,7 @@ export default class Serial {
             ),
             { keep: true },
           );
-        } else if (tryCount === 3) {
+        } else if (tryCount === 21) {
           chalk.yellow(
             `Failed Setting devicekey ${tryCount} times. Device seems not launched. Trying ReOpening Serial Port`,
           ),

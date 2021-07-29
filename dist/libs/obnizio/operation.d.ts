@@ -5,14 +5,14 @@ export declare class Operation {
     } & Pick<import("../generated/client").OperationEdge, "facilityName" | "amountExpectedDevices" | "amountOperatedDevices" | "amountReport" | "errorLevelReport"> & {
         node?: ({
             __typename?: "operation" | undefined;
-        } & Pick<import("../generated/client").Operation, "name" | "id" | "facilityId" | "completionLevel" | "needPicEvidence" | "needLocationNote" | "dueDate" | "operationKey" | "createdAt">) | null | undefined;
+        } & Pick<import("../generated/client").Operation, "id" | "createdAt" | "name" | "facilityId" | "completionLevel" | "needPicEvidence" | "needLocationNote" | "dueDate" | "operationKey">) | null | undefined;
     }>[]>;
     static getByOperationName(token: string, name: string): Promise<({
         __typename?: "operationEdge" | undefined;
     } & Pick<import("../generated/client").OperationEdge, "facilityName" | "amountExpectedDevices" | "amountOperatedDevices" | "amountReport" | "errorLevelReport"> & {
         node?: ({
             __typename?: "operation" | undefined;
-        } & Pick<import("../generated/client").Operation, "name" | "id" | "facilityId" | "completionLevel" | "needPicEvidence" | "needLocationNote" | "dueDate" | "operationKey" | "createdAt">) | null | undefined;
+        } & Pick<import("../generated/client").Operation, "id" | "createdAt" | "name" | "facilityId" | "completionLevel" | "needPicEvidence" | "needLocationNote" | "dueDate" | "operationKey">) | null | undefined;
     }) | null | undefined>;
     static checkPermission(token: string): Promise<boolean>;
     static checkCanWriteFromCli(operation: PromiseType<ReturnType<typeof Operation.getByOperationName>>): void;

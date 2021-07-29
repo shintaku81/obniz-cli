@@ -24,8 +24,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
 const semver_1 = __importDefault(require("semver"));
-const operation_setting_1 = require("../../obnizio/operation_setting");
 const operation_result_1 = require("../../obnizio/operation_result");
+const operation_setting_1 = require("../../obnizio/operation_setting");
 const Storage = __importStar(require("../../storage"));
 const serial_1 = __importDefault(require("../serial"));
 const ora_1 = __importDefault(require("ora"));
@@ -97,7 +97,7 @@ exports.default = async (obj) => {
                 // menu mode and json flashing enabled device.
                 await serial.setAllFromMenu(userconf);
                 if (obj.operation) {
-                    let spinner = ora_1.default(`Operation: send operation result to obniz cloud`).start();
+                    const spinner = ora_1.default(`Operation: send operation result to obniz cloud`).start();
                     if (!obj.operation.operation || !obj.operation.operationSetting) {
                         throw new Error("invalid operation state");
                     }

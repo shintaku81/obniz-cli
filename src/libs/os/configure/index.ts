@@ -2,8 +2,8 @@ import chalk from "chalk";
 import semver from "semver";
 import { PromiseType } from "utility-types";
 import { Operation } from "../../obnizio/operation";
-import { OperationSetting } from "../../obnizio/operation_setting";
 import { OperationResult } from "../../obnizio/operation_result";
+import { OperationSetting } from "../../obnizio/operation_setting";
 import * as Storage from "../../storage";
 import Serial from "../serial";
 
@@ -128,9 +128,8 @@ export default async (obj: ConfigParam) => {
         // menu mode and json flashing enabled device.
         await serial.setAllFromMenu(userconf);
 
-
         if (obj.operation) {
-          let spinner = ora(`Operation: send operation result to obniz cloud`).start();
+          const spinner = ora(`Operation: send operation result to obniz cloud`).start();
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
