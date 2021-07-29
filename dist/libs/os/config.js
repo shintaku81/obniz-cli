@@ -29,6 +29,7 @@ const path_1 = __importDefault(require("path"));
 const defaults_1 = __importDefault(require("../../defaults"));
 const device_1 = __importDefault(require("../obnizio/device"));
 const operation_1 = require("../obnizio/operation");
+const operation_setting_1 = require("../obnizio/operation_setting");
 const Storage = __importStar(require("../storage"));
 const configure_1 = __importDefault(require("./configure"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
@@ -73,9 +74,12 @@ exports.deviceConfigValidate = deviceConfigValidate;
 async function networkConfigValidate(args, obj = {}, logging = false) {
     // Network Setting
     const configPath = args.c || args.config || null;
-    const operationName = args.op || args.operation || null;
-    const indicationName = args.ind || args.indication || null;
-    if ((operationName && !indicationName) || (!operationName && indicationName)) {
+    const operationName = args.operation || null;
+    const indicationName = args.indication || null;
+    if (operationName && !indicationName) {
+        throw new Error("If you want to use operation, set both param of operation and indication.");
+    }
+    else if (!operationName && indicationName) {
         throw new Error("If you want to use operation, set both param of operation and indication.");
     }
     else if (configPath && operationName && indicationName) {
@@ -99,13 +103,45 @@ async function networkConfigValidate(args, obj = {}, logging = false) {
         obj.configs.config = json;
     }
     else if (operationName && indicationName) {
-        const token = Storage.get("token");
-        if (!token) {
-            throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+        const spinner = logging ? ora_1.default(`Operation: getting information`).start() : null;
+        try {
+            const token = Storage.get("token");
+            if (!token) {
+                throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+            }
+            if (!(await operation_1.Operation.checkPermission(token))) {
+                throw new Error(`You dont have permission to use operation. Please 'obniz-cli signin' `);
+            }
+            const op = await operation_1.Operation.getByOperationName(token, operationName);
+            if (!op || !op.node) {
+                throw new Error(`Operation not found  '${operationName}'`);
+            }
+            operation_1.Operation.checkCanWriteFromCli(op);
+            const ops = indicationName === "next"
+                ? await operation_setting_1.OperationSetting.getFirstTodoOrWipOne(token, op.node.id || "")
+                : await operation_setting_1.OperationSetting.getByIndication(token, op.node.id || "", indicationName);
+            if (!ops || !ops.node) {
+                if (indicationName === "next") {
+                    throw new Error(`Todo indication not found`);
+                }
+                else {
+                    throw new Error(`Indication not found  '${indicationName}'`);
+                }
+            }
+            if (ops.node.status === 2) {
+                throw new Error(`Indication already finished  '${indicationName}'`);
+            }
+            obj.configs = obj.configs || {};
+            obj.configs.config = JSON.parse(ops.node.networkConfigs);
+            obj.operation = {
+                operation: op,
+                operationSetting: ops,
+            };
+            spinner === null || spinner === void 0 ? void 0 : spinner.succeed(`Operation: Got information of name=${chalk_1.default.green(op.node.name)} indication=${chalk_1.default.green(ops.node.indicationId)}`);
         }
-        await operation_1.Operation.checkPermission(token);
-        const op = await operation_1.Operation.getByOperationName(token, operationName);
-        if (!op) {
+        catch (e) {
+            spinner === null || spinner === void 0 ? void 0 : spinner.fail(`Operation: Failed ${e}`);
+            throw e;
         }
     }
 }
@@ -126,8 +162,10 @@ exports.default = {
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id            obnizID to be configured. You need to signin before use this.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
- -op --operation    operation id of
- -ind --indication
+
+ [operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
   `,
     async execute(args) {
         // check input first
@@ -149,3 +187,4 @@ exports.default = {
         await configure_1.default(obj);
     },
 };
+//# sourceMappingURL=config.js.map

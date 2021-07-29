@@ -24,3 +24,4 @@ exports.default = async () => {
     Storage.set("token", null);
     console.log(`Signed out`);
 };
+//# sourceMappingURL=logout.js.map

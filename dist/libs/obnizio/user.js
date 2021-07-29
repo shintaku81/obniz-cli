@@ -13,3 +13,4 @@ exports.default = async (token) => {
     const ret = await sdk.currentUser();
     return ret.user || null;
 };
+//# sourceMappingURL=user.js.map

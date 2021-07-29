@@ -38,3 +38,4 @@ Versions for hardware=${chalk_1.default.green(hardware)}
         console.log(`  ${v.version}`);
     }
 }
+//# sourceMappingURL=list.js.map

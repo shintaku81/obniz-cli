@@ -13,8 +13,22 @@ export class OperationSetting {
     return ret?.operationSettings?.edges || [];
   }
 
-  public static async getFirstTodoList(token: string, operationId: string) {
+  public static async getByIndication(token: string, operationId: string, indicationId: string) {
     const list = await this.getList(token, operationId);
-    return list.find((ops) => ops?.node?.status === this.status.Todo);
+    return list.find((ops) => ops?.node?.indicationId === indicationId);
+  }
+
+  public static async getFirstTodoOrWipOne(token: string, operationId: string) {
+    const list = await this.getList(token, operationId);
+    return list.find(
+      (ops) => ops?.node?.status === this.status.Todo || ops?.node?.status === this.status.WorkInProgress,
+    );
+  }
+
+  public static async updateStatus(token: string, operationSettingId: string) {
+    const sdk = getClientSdk(token);
+    const ret = await sdk.updateOperationSettingStatus({
+      updateStatusOperationSettingOperationSettingId: operationSettingId,
+    });
   }
 }

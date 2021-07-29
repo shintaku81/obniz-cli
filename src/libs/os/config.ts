@@ -1,16 +1,18 @@
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
+import { DeepPartial } from "utility-types";
 import Defaults from "../../defaults";
 import Device from "../obnizio/device";
 import { Operation } from "../obnizio/operation";
+import { OperationSetting } from "../obnizio/operation_setting";
 import * as Storage from "../storage";
-import Config from "./configure";
+import Config, { ConfigParam } from "./configure";
 import PreparePort from "./serial/prepare";
 
 import ora from "ora";
 
-export async function deviceConfigValidate(args: Readonly<any>, obj: any = {}, logging = false) {
+export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
   const devicekey: any = args.d || args.devicekey;
   let obniz_id: any = null;
   if (devicekey) {
@@ -46,12 +48,14 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: any = {}, l
   }
 }
 
-export async function networkConfigValidate(args: Readonly<any>, obj: any = {}, logging = false) {
+export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
   // Network Setting
   const configPath: string | null = args.c || args.config || null;
-  const operationName: string | null = args.op || args.operation || null;
-  const indicationName: string | null = args.ind || args.indication || null;
-  if ((operationName && !indicationName) || (!operationName && indicationName)) {
+  const operationName: string | null = args.operation || null;
+  const indicationName: string | null = args.indication || null;
+  if (operationName && !indicationName) {
+    throw new Error("If you want to use operation, set both param of operation and indication.");
+  } else if (!operationName && indicationName) {
     throw new Error("If you want to use operation, set both param of operation and indication.");
   } else if (configPath && operationName && indicationName) {
     throw new Error("You cannot use configPath and operation same time.");
@@ -71,19 +75,56 @@ export async function networkConfigValidate(args: Readonly<any>, obj: any = {}, 
     obj.configs = obj.configs || {};
     obj.configs.config = json;
   } else if (operationName && indicationName) {
-    const token = Storage.get("token");
-    if (!token) {
-      throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
-    }
-    await Operation.checkPermission(token);
-    const op = await Operation.getByOperationName(token, operationName);
-    if(!op){
+    const spinner = logging ? ora(`Operation: getting information`).start() : null;
+    try {
+      const token = Storage.get("token");
+      if (!token) {
+        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+      }
+      if (!(await Operation.checkPermission(token))) {
+        throw new Error(`You dont have permission to use operation. Please 'obniz-cli signin' `);
+      }
+      const op = await Operation.getByOperationName(token, operationName);
+      if (!op || !op.node) {
+        throw new Error(`Operation not found  '${operationName}'`);
+      }
 
+      Operation.checkCanWriteFromCli(op);
+      const ops =
+        indicationName === "next"
+          ? await OperationSetting.getFirstTodoOrWipOne(token, op.node.id || "")
+          : await OperationSetting.getByIndication(token, op.node.id || "", indicationName);
+
+      if (!ops || !ops.node) {
+        if (indicationName === "next") {
+          throw new Error(`Todo indication not found`);
+        } else {
+          throw new Error(`Indication not found  '${indicationName}'`);
+        }
+      }
+      if (ops.node.status === 2) {
+        throw new Error(`Indication already finished  '${indicationName}'`);
+      }
+
+      obj.configs = obj.configs || {};
+      obj.configs.config = JSON.parse(ops.node.networkConfigs);
+      obj.operation = {
+        operation: op,
+        operationSetting: ops,
+      };
+      spinner?.succeed(
+        `Operation: Got information of name=${chalk.green(op.node.name)} indication=${chalk.green(
+          ops.node.indicationId,
+        )}`,
+      );
+    } catch (e) {
+      spinner?.fail(`Operation: Failed ${e}`);
+      throw e;
     }
   }
 }
 
-export async function validate(args: Readonly<any>, obj: any = {}, logging = false) {
+export async function validate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
   await deviceConfigValidate(args, obj, logging);
   await networkConfigValidate(args, obj, logging);
 }
@@ -99,8 +140,10 @@ export default {
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id            obnizID to be configured. You need to signin before use this.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
- -op --operation    operation id of
- -ind --indication
+
+ [operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
   `,
   async execute(args: any) {
     // check input first

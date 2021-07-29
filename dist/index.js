@@ -147,3 +147,4 @@ arg_1.default(routes)
     console.log(chalk_1.default.red(`${e}`));
     process.exit(1);
 });
+//# sourceMappingURL=index.js.map

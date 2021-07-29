@@ -22,7 +22,11 @@ export default {
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
-  `,
+
+[operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
+      `,
   async execute(args: any) {
     // validate first
     await validateConfig(args);

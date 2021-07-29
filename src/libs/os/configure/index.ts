@@ -1,10 +1,59 @@
 import chalk from "chalk";
 import semver from "semver";
+import { PromiseType } from "utility-types";
+import { Operation } from "../../obnizio/operation";
+import { OperationSetting } from "../../obnizio/operation_setting";
+import { OperationResult } from "../../obnizio/operation_result";
+import * as Storage from "../../storage";
 import Serial from "../serial";
 
 import ora, { Ora } from "ora";
 
-export default async (obj: { portname: string; debugserial: any; stdout: any; configs: any; via: string }) => {
+export interface ConfigParam {
+  portname: string;
+  debugserial?: boolean;
+  stdout: (text: string) => void;
+  configs: { devicekey: string; config: NetworkConfig | NetworkConfigBefore3_5_0 };
+  via: string;
+  operation?: {
+    operation?: PromiseType<ReturnType<typeof Operation.getByOperationName>>;
+    operationSetting?: PromiseType<ReturnType<typeof OperationSetting.getByIndication>>;
+  };
+}
+
+export type NetworkType = "wirelesslan" | "wifimesh" | "wiredlan" | "cellularmodule";
+
+export interface NetworkConfig {
+  net: NetworkType;
+  wifi?: any;
+  wifimesh?: any;
+  ether?: any;
+  cellular?: any;
+  passkey?: string;
+  wifi_channel?: string;
+}
+
+export interface NetworkConfigBefore3_5_0 {
+  networks: Array<{
+    type: "wifi" | "ethernet" | "cellular";
+    settings: {
+      ssid?: string;
+      password?: string;
+      meshid?: string;
+
+      hidden?: boolean;
+      dhcp?: boolean;
+      static_ip?: string;
+      subnetmask?: string;
+      dns?: string;
+      proxy?: boolean;
+      proxy_address?: string;
+      proxy_port?: number;
+    };
+  }>;
+}
+
+export default async (obj: ConfigParam) => {
   // Return if no configs required
   if (!obj.configs) {
     return;
@@ -12,14 +61,14 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
 
   const serial = new Serial({
     portname: obj.portname,
-    stdout: (text:string) => {
+    stdout: (text: string) => {
       if (obj.debugserial) {
         console.log(text);
       }
       received += text;
       obj.stdout(text);
     },
-    onerror: (err:string) => {
+    onerror: (err: string) => {
       received += err;
       console.log(serial.totalReceived);
       throw new Error(`${err}`);
@@ -27,6 +76,7 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
     progress: (text: string, option: any = {}) => {
       if (obj.debugserial) {
         console.log(text);
+
         return;
       }
       if (option.keep) {
@@ -52,7 +102,6 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
     // config network
     if (obj.configs.config) {
       // JSON provided by user
-      const userconf = obj.configs.config;
 
       // detect Target obnizOS
       const info = await serial.detectedObnizOSVersion();
@@ -61,17 +110,48 @@ export default async (obj: { portname: string; debugserial: any; stdout: any; co
       );
 
       if (semver.satisfies(info.version, ">=3.5.0")) {
-        // menu mode and json flashing enabled device.
-        if (userconf.networks) {
-          throw new Error(`You can't use older version of network configration json file.`);
+        if ("networks" in obj.configs.config) {
+          throw new Error(`You can't use older version of network configuration json file.`);
         }
+
+        if (obj.operation) {
+          if (!obj.operation.operation || !obj.operation.operationSetting) {
+            throw new Error("invalid operation state");
+          }
+          const token = Storage.get("token");
+          if (!token) {
+            throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+          }
+          await OperationSetting.updateStatus(token, obj.operation.operationSetting.node?.id || "");
+        }
+        const userconf = obj.configs.config as NetworkConfig;
+        // menu mode and json flashing enabled device.
         await serial.setAllFromMenu(userconf);
+
+
+        if (obj.operation) {
+          let spinner = ora(`Operation: send operation result to obniz cloud`).start();
+          if (!obj.operation.operation || !obj.operation.operationSetting) {
+            throw new Error("invalid operation state");
+          }
+          const token = Storage.get("token");
+          if (!token) {
+            throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+          }
+          await OperationResult.createWriteSuccess(token, obj.operation.operationSetting.node?.id || "", info.obnizid);
+          spinner.succeed(`Operation: send operation succeeded`);
+        }
       } else {
-        // virtual UI.
-        const networks = userconf.networks;
-        if (!networks) {
+        if (!("networks" in obj.configs.config)) {
           throw new Error(`please provide "networks". see more detail at example json file`);
         }
+        if (obj.operation) {
+          throw new Error(`Cannot use operation on obnizOS ver < 3.5.0`);
+        }
+
+        const userconf = obj.configs.config as NetworkConfigBefore3_5_0;
+        // virtual UI.
+        const networks = userconf.networks;
         if (!Array.isArray(networks)) {
           throw new Error(`"networks" must be an array`);
         }

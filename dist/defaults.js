@@ -4,3 +4,4 @@ exports.default = {
     HARDWARE: "esp32w",
     BAUD: 1500000,
 };
+//# sourceMappingURL=defaults.js.map

@@ -41,3 +41,4 @@ exports.default = async () => {
     Storage.set("token", token);
     spinner.succeed(`Sign in as "${user.email}"`);
 };
+//# sourceMappingURL=login.js.map

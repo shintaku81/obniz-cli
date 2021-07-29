@@ -1,0 +1,5 @@
+mutation updateOperationSettingStatus($updateStatusOperationSettingOperationSettingId: ID!) {
+    updateStatusOperationSetting(operationSettingId: $updateStatusOperationSettingOperationSettingId) {
+        updated
+    }
+}

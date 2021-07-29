@@ -5,10 +5,11 @@
     "lib": ["es2018", "dom"],
     "outDir": "./dist",
     "strict": true,
-    "declaration" : false,
+    "declaration" : true,
     "esModuleInterop": true,
-    "sourceMap": false,
-    "resolveJsonModule": true
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": [
     "./src/**/*.ts"

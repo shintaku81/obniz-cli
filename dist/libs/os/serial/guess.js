@@ -45,3 +45,4 @@ async function findUsbSerials() {
     }
     return availablePorts;
 }
+//# sourceMappingURL=guess.js.map

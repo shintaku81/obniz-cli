@@ -22,5 +22,20 @@ class Operation {
             return false;
         }
     }
+    static checkCanWriteFromCli(operation) {
+        if (!operation || !operation.node) {
+            throw new Error("operation not found");
+        }
+        if (operation.node.needLocationNote) {
+            throw new Error("Cannot use location note from obniz-cli");
+        }
+        if (operation.node.needPicEvidence) {
+            throw new Error("Cannot use evidence picture from obniz-cli");
+        }
+        if (operation.node.completionLevel !== 0) {
+            throw new Error("obniz-cli only support operation criteria of completion for 'App and network settings are being written'. ");
+        }
+    }
 }
 exports.Operation = Operation;
+//# sourceMappingURL=operation.js.map

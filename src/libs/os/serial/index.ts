@@ -26,11 +26,11 @@ export default class Serial {
 
   public async open() {
     return new Promise(async (resolve, reject) => {
-      this.serialport = new SerialPort(this.portname, {baudRate});
+      this.serialport = new SerialPort(this.portname, { baudRate });
 
       this.serialport.on("open", () => {
         // open logic
-        this.serialport?.set({rts: false, dtr: false});
+        this.serialport?.set({ rts: false, dtr: false });
         this.serialport?.on("readable", async () => {
           const received = this.serialport?.read()?.toString("utf-8") || "";
           this.totalReceived += received;
@@ -202,9 +202,21 @@ export default class Serial {
    * >= 3.5.0
    */
   public async enterMenuMode() {
+    try {
+      this.clearReceived();
+      this.send(`menu`);
+      await this.waitFor("Input number >>", 10 * 1000);
+      return;
+    } catch (e) {}
+
+    await this.reset();
     this.clearReceived();
+    await new Promise((resolve, reject) => {
+      setTimeout(resolve, 2 * 1000);
+    });
     this.send(`menu`);
     await this.waitFor("Input number >>", 10 * 1000);
+    return;
   }
 
   /**
@@ -231,7 +243,10 @@ export default class Serial {
     let tryCount = 0;
     while (true) {
       if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
-        if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
+        if (
+          this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0 ||
+          this.totalReceived.indexOf(`obniz id:  ${obnizid}`) >= 0
+        ) {
           if (this.progress) {
             this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`));
           }
@@ -257,7 +272,7 @@ export default class Serial {
             chalk.yellow(
               `Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`,
             ),
-            {keep: true},
+            { keep: true },
           );
         } else if (tryCount === 3) {
           chalk.yellow(
@@ -273,10 +288,14 @@ export default class Serial {
     this.send(`${devicekey}\n`);
     this.clearReceived();
     try {
-      await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
+      await Promise.race([
+        this.waitFor(`obniz id: ${obnizid}`, 10 * 1000),
+        this.waitFor(`obniz id:  ${obnizid}`, 10 * 1000),
+      ]);
     } catch (e) {
       throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`);
     }
+    await this.reset();
   }
 
   /**

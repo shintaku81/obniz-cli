@@ -29,3 +29,4 @@ function get(key) {
     return read()[key];
 }
 exports.get = get;
+//# sourceMappingURL=storage.js.map

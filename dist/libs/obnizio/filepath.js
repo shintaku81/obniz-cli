@@ -13,3 +13,4 @@ exports.default = (hw, version, type) => {
     };
     return path_1.default.join(__dirname, relative, `temp`, `obnizos__${hw}__${version}${map[type]}`);
 };
+//# sourceMappingURL=filepath.js.map

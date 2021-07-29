@@ -37,3 +37,4 @@ function getClientSdk(token) {
     return sdk;
 }
 exports.getClientSdk = getClientSdk;
+//# sourceMappingURL=sdk.js.map

@@ -185,9 +185,21 @@ class Serial {
      * >= 3.5.0
      */
     async enterMenuMode() {
+        try {
+            this.clearReceived();
+            this.send(`menu`);
+            await this.waitFor("Input number >>", 10 * 1000);
+            return;
+        }
+        catch (e) { }
+        await this.reset();
         this.clearReceived();
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, 2 * 1000);
+        });
         this.send(`menu`);
         await this.waitFor("Input number >>", 10 * 1000);
+        return;
     }
     /**
      * Sending a text
@@ -214,7 +226,8 @@ class Serial {
         let tryCount = 0;
         while (true) {
             if (this.totalReceived.indexOf(`obniz id: `) >= 0) {
-                if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0) {
+                if (this.totalReceived.indexOf(`obniz id: ${obnizid}`) >= 0 ||
+                    this.totalReceived.indexOf(`obniz id:  ${obnizid}`) >= 0) {
                     if (this.progress) {
                         this.progress(chalk_1.default.yellow(`This device is already configured as obnizID ${obnizid}`));
                     }
@@ -251,11 +264,15 @@ class Serial {
         this.send(`${devicekey}\n`);
         this.clearReceived();
         try {
-            await this.waitFor(`obniz id: ${obnizid}`, 10 * 1000);
+            await Promise.race([
+                this.waitFor(`obniz id: ${obnizid}`, 10 * 1000),
+                this.waitFor(`obniz id:  ${obnizid}`, 10 * 1000),
+            ]);
         }
         catch (e) {
             throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`);
         }
+        await this.reset();
     }
     /**
      * Setting Network Type.
@@ -434,3 +451,4 @@ class Serial {
     }
 }
 exports.default = Serial;
+//# sourceMappingURL=index.js.map

@@ -40,3 +40,4 @@ exports.default = async () => {
     console.log(` name : ${user.name}`);
     console.log(` email: ${user.email}`);
 };
+//# sourceMappingURL=info.js.map

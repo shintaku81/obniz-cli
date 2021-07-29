@@ -48,6 +48,10 @@ exports.default = {
  -r --region      device config region
     --description device config description
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+
+[operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
   `,
     async execute(args) {
         // If device related configration exist
@@ -196,3 +200,4 @@ async function askSerialToken(device) {
         throw e;
     }
 }
+//# sourceMappingURL=flashcreate.js.map

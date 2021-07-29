@@ -38,3 +38,4 @@ exports.default = async (routes) => {
         await route.execute(args);
     }
 };
+//# sourceMappingURL=arg.js.map

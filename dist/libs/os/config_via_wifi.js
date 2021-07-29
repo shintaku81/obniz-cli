@@ -51,3 +51,4 @@ exports.default = {
         await wifi.setNetwork(configs, duplicate);
     },
 };
+//# sourceMappingURL=config_via_wifi.js.map

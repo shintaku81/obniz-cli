@@ -40,3 +40,4 @@ class Device {
     }
 }
 exports.default = Device;
+//# sourceMappingURL=device.js.map

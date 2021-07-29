@@ -89,3 +89,4 @@ function throwIfFailed(text) {
     console.log(text);
     throw err;
 }
+//# sourceMappingURL=_flash.js.map

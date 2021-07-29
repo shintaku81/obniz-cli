@@ -34,3 +34,4 @@ exports.default = (obj) => {
         });
     });
 };
+//# sourceMappingURL=erase.js.map
