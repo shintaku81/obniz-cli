@@ -41,7 +41,7 @@ export default function flash(obj: {
       spinner.succeed(`Flashing obnizOS: Flashed`);
       resolve();
     };
-    const onFailed = (err:any) => {
+    const onFailed = (err: any) => {
       spinner.fail(`Flashing obnizOS: Fail`);
       reject(err);
     };

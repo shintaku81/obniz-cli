@@ -10,6 +10,7 @@ import Serial from "../serial";
 import ora, { Ora } from "ora";
 
 export interface ConfigParam {
+  token: string;
   portname: string;
   debugserial?: boolean;
   stdout: (text: string) => void;
@@ -118,7 +119,7 @@ export default async (obj: ConfigParam) => {
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = Storage.get("token");
+          const token = obj.token;
           if (!token) {
             throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
           }
@@ -129,16 +130,14 @@ export default async (obj: ConfigParam) => {
         await serial.setAllFromMenu(userconf);
 
         if (obj.operation) {
-          const spinner = ora(`Operation: send operation result to obniz cloud`).start();
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = Storage.get("token");
+          const token = obj.token;
           if (!token) {
             throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
           }
           await OperationResult.createWriteSuccess(token, obj.operation.operationSetting.node?.id || "", info.obnizid);
-          spinner.succeed(`Operation: send operation succeeded`);
         }
       } else {
         if (!("networks" in obj.configs.config)) {

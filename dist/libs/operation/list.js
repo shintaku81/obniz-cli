@@ -23,9 +23,10 @@ const operation_1 = require("../obnizio/operation");
 const Storage = __importStar(require("../storage"));
 exports.default = {
     help: `Show your operation list
+      --token       Token of api key which use instead of user signin.
   `,
     async execute(args) {
-        const token = Storage.get("token");
+        const token = args.token || Storage.get("token");
         if (!token) {
             console.log(`Not Sign In`);
             return;

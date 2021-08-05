@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
+/// <reference types="./node-wifi" />
 const node_wifi_1 = __importDefault(require("node-wifi"));
 const ora_1 = __importDefault(require("ora"));
 const os_1 = require("os");

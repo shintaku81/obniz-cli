@@ -23,6 +23,9 @@ export declare function getClientSdk(token?: string): {
     updateOperationSettingStatus(variables: import("../generated/client").Exact<{
         updateStatusOperationSettingOperationSettingId: string;
     }>): Promise<import("../generated/client").UpdateOperationSettingStatusMutation>;
+    getTokenPermission(variables?: import("../generated/client").Exact<{
+        [key: string]: never;
+    }> | undefined): Promise<import("../generated/client").GetTokenPermissionQuery>;
     currentUser(variables?: import("../generated/client").Exact<{
         [key: string]: never;
     }> | undefined): Promise<import("../generated/client").CurrentUserQuery>;

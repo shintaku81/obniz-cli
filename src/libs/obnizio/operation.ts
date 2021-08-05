@@ -15,8 +15,10 @@ export class Operation {
 
   public static async checkPermission(token: string) {
     try {
-      await this.getList(token);
-      return true;
+      const sdk = getClientSdk(token);
+      const ret = await sdk.getTokenPermission();
+      const permission = ret.token?.facility || "none";
+      return permission === "full";
     } catch (e) {
       return false;
     }

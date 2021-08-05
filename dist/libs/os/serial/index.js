@@ -195,21 +195,15 @@ class Serial {
             }
             catch (e) { }
             i++;
-            this.progress(`Entering menu ... (try ${i} times)`);
+            if (i > 6) {
+                throw new Error(`Failed to entering menu`);
+            }
+            this.progress(chalk_1.default.yellow(`Entering menu ... (try ${i} times)`), { keep: true });
             await this.reset();
             await new Promise((resolve, reject) => {
-                setTimeout(resolve, 2 * 1000);
+                setTimeout(resolve, 3 * 1000);
             });
         }
-        //
-        // await this.reset();
-        // this.clearReceived();
-        // await new Promise((resolve, reject) => {
-        //   setTimeout(resolve, 2 * 1000);
-        // });
-        // this.send(`menu`);
-        // await this.waitFor("Input number >>", 10 * 1000);
-        // return;
     }
     /**
      * Sending a text
@@ -254,14 +248,14 @@ class Serial {
             }
             catch (e) {
                 ++tryCount;
-                if (tryCount <= 20) {
+                if (tryCount <= 5) {
                     await this.reset(); // force print DeviceKey
                     await new Promise((resolve, reject) => {
                         setTimeout(resolve, 2 * 1000);
                     });
                     this.progress(chalk_1.default.yellow(`Failed Setting devicekey ${tryCount} times. Device seems not launched. Reset the connected device to wake up as Normal Mode`), { keep: true });
                 }
-                else if (tryCount === 21) {
+                else if (tryCount === 6) {
                     chalk_1.default.yellow(`Failed Setting devicekey ${tryCount} times. Device seems not launched. Trying ReOpening Serial Port`),
                         await this._tryCloseOpenSerial();
                 }

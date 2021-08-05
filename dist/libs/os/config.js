@@ -49,9 +49,12 @@ async function deviceConfigValidate(args, obj = {}, logging = false) {
             if (obj.configs && obj.configs.devicekey) {
                 throw new Error(`devicekey and id are double specified.`);
             }
-            const token = Storage.get("token");
+            const token = args.token;
             if (!token) {
                 throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+            }
+            if (!(await device_1.default.checkReadPermission(token))) {
+                throw new Error(`Your token is not permitted to be read the device`);
             }
             const device = await device_1.default.get(token, obniz_id);
             if (!device) {
@@ -105,7 +108,7 @@ async function networkConfigValidate(args, obj = {}, logging = false) {
     else if (operationName && indicationName) {
         const spinner = logging ? ora_1.default(`Operation: getting information`).start() : null;
         try {
-            const token = Storage.get("token");
+            const token = args.token;
             if (!token) {
                 throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
             }
@@ -162,6 +165,7 @@ exports.default = {
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id            obnizID to be configured. You need to signin before use this.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+    --token         Token of api key which use instead of user signin.
 
  [operation]
     --operation     operation name for setting.
@@ -177,6 +181,7 @@ exports.default = {
             // process.stdout.write(text);
             received += text;
         };
+        obj.token = args.token || Storage.get("token");
         // set params to obj
         await validate(args, obj, true);
         if (!obj.configs) {

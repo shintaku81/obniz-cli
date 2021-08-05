@@ -48,7 +48,7 @@ export async function start() {
   io = socketio(server);
   server.listen(port);
 
-  server.on("error", (err:any) => {
+  server.on("error", (err: any) => {
     console.error(err);
     process.exit();
   });

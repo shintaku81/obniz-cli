@@ -25,11 +25,12 @@ const Storage = __importStar(require("../storage"));
 exports.default = {
     help: `Show the operation info
    -o --operation   operationId to be show
+      --token       Token of api key which use instead of user signin.
   \`,
   `,
     async execute(args) {
         var _a;
-        const token = Storage.get("token");
+        const token = args.token || Storage.get("token");
         if (!token) {
             console.log(`Not Sign In`);
             return;

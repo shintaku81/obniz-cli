@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const graphql_request_1 = require("graphql-request");
 const client_1 = require("../generated/client");
+const sdk_1 = require("./sdk");
 const url_1 = require("./url");
 class Device {
     static async create(token, opt = {}) {
@@ -23,6 +24,30 @@ class Device {
         const sdk = client_1.getSdk(graphQLClient);
         const ret = await sdk.createDevice({ createDeviceDevice: input });
         return ret.createDevice;
+    }
+    static async checkReadPermission(token) {
+        var _a;
+        try {
+            const sdk = sdk_1.getClientSdk(token);
+            const ret = await sdk.getTokenPermission();
+            const permission = ((_a = ret.token) === null || _a === void 0 ? void 0 : _a.device) || "none";
+            return permission === "read" || permission === "full";
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    static async checkCreatePermission(token) {
+        var _a;
+        try {
+            const sdk = sdk_1.getClientSdk(token);
+            const ret = await sdk.getTokenPermission();
+            const permission = ((_a = ret.token) === null || _a === void 0 ? void 0 : _a.device) || "none";
+            return permission === "full";
+        }
+        catch (e) {
+            return false;
+        }
     }
     static async get(token, id) {
         var _a, _b;

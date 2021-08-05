@@ -13,10 +13,11 @@ import * as Storage from "../storage";
 export default {
   help: `Show the operation info
    -o --operation   operationId to be show
+      --token       Token of api key which use instead of user signin.
   \`,
   `,
   async execute(args: any) {
-    const token = Storage.get("token");
+    const token = args.token || Storage.get("token");
     if (!token) {
       console.log(`Not Sign In`);
       return;

@@ -2,6 +2,7 @@ import { PromiseType } from "utility-types";
 import { Operation } from "../../obnizio/operation";
 import { OperationSetting } from "../../obnizio/operation_setting";
 export interface ConfigParam {
+    token: string;
     portname: string;
     debugserial?: boolean;
     stdout: (text: string) => void;

@@ -14,9 +14,12 @@ class Operation {
         return list.find((e) => { var _a; return ((_a = e === null || e === void 0 ? void 0 : e.node) === null || _a === void 0 ? void 0 : _a.name) === name; });
     }
     static async checkPermission(token) {
+        var _a;
         try {
-            await this.getList(token);
-            return true;
+            const sdk = sdk_1.getClientSdk(token);
+            const ret = await sdk.getTokenPermission();
+            const permission = ((_a = ret.token) === null || _a === void 0 ? void 0 : _a.facility) || "none";
+            return permission === "full";
         }
         catch (e) {
             return false;

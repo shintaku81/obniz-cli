@@ -3,7 +3,7 @@ import path from "path";
 
 const filepath = path.join(__dirname, "../..", "storage.json");
 
-function read() : any{
+function read(): any {
   let obj = {};
   try {
     const txt = fs.readFileSync(filepath, { encoding: "utf8" });

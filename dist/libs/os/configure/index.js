@@ -1,23 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -26,7 +7,6 @@ const chalk_1 = __importDefault(require("chalk"));
 const semver_1 = __importDefault(require("semver"));
 const operation_result_1 = require("../../obnizio/operation_result");
 const operation_setting_1 = require("../../obnizio/operation_setting");
-const Storage = __importStar(require("../../storage"));
 const serial_1 = __importDefault(require("../serial"));
 const ora_1 = __importDefault(require("ora"));
 exports.default = async (obj) => {
@@ -87,7 +67,7 @@ exports.default = async (obj) => {
                     if (!obj.operation.operation || !obj.operation.operationSetting) {
                         throw new Error("invalid operation state");
                     }
-                    const token = Storage.get("token");
+                    const token = obj.token;
                     if (!token) {
                         throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
                     }
@@ -97,16 +77,14 @@ exports.default = async (obj) => {
                 // menu mode and json flashing enabled device.
                 await serial.setAllFromMenu(userconf);
                 if (obj.operation) {
-                    const spinner = ora_1.default(`Operation: send operation result to obniz cloud`).start();
                     if (!obj.operation.operation || !obj.operation.operationSetting) {
                         throw new Error("invalid operation state");
                     }
-                    const token = Storage.get("token");
+                    const token = obj.token;
                     if (!token) {
                         throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
                     }
                     await operation_result_1.OperationResult.createWriteSuccess(token, ((_b = obj.operation.operationSetting.node) === null || _b === void 0 ? void 0 : _b.id) || "", info.obnizid);
-                    spinner.succeed(`Operation: send operation succeeded`);
                 }
             }
             else {

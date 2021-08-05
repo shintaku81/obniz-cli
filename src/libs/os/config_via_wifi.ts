@@ -7,7 +7,7 @@ import WiFi from "./wifi";
 export default {
   help: `Configure ObnizOS network via Wi-Fi from devices.
 
- [configrations]
+ [configurations]
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   async execute(args: any) {
@@ -30,7 +30,7 @@ export default {
       configs = json;
     }
     if (!configs) {
-      // no configration provided
+      // no configuration provided
       console.log(chalk.red(`No configration found. exit.`));
       return;
     }
@@ -42,7 +42,7 @@ export default {
       stdout: (text: string) => {
         process.stdout.write(text);
       },
-      onerror: (err:any) => {
+      onerror: (err: any) => {
         throw new Error(`${err}`);
       },
     });

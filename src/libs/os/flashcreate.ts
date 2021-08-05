@@ -26,6 +26,7 @@ export default {
  -r --region      device config region
     --description device config description
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+    --token     Token of api key which use instead of user signin.
 
 [operation]
     --operation     operation name for setting.
@@ -39,7 +40,7 @@ export default {
     }
 
     // login check
-    const token = Storage.get("token");
+    const token = args.token || Storage.get("token");
     if (!token) {
       throw new Error(`You must singin before create device`);
     }
@@ -148,7 +149,7 @@ export default {
   },
 };
 
-async function askUseRecovery(device:any) {
+async function askUseRecovery(device: any) {
   const answer = await inquirer.prompt([
     {
       type: "list",

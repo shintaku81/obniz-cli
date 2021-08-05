@@ -18,10 +18,11 @@ export default {
  -h --hardware  hardware to be flashed. default to ${Defaults.HARDWARE}
  -v --version   obnizOS version to be flashed. default to latest one.
 
-[configrations]
+[configurations]
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+    --token     Token of api key which use instead of user signin.
 
 [operation]
     --operation     operation name for setting.
@@ -33,7 +34,7 @@ export default {
 
     // flashing os
     const obj: any = await PreparePort(args);
-    obj.stdout = (text:string) => {
+    obj.stdout = (text: string) => {
       process.stdout.write(text);
     };
 

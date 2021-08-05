@@ -1,5 +1,6 @@
 import { GraphQLClient } from "graphql-request";
 import { DeviceCreateInput, getSdk, MutationCreateDeviceArgs } from "../generated/client";
+import { getClientSdk } from "./sdk";
 import { GraphQLURL } from "./url";
 
 export default class Device {
@@ -25,6 +26,28 @@ export default class Device {
 
     const ret = await sdk.createDevice({ createDeviceDevice: input });
     return ret.createDevice!;
+  }
+
+  public static async checkReadPermission(token: string) {
+    try {
+      const sdk = getClientSdk(token);
+      const ret = await sdk.getTokenPermission();
+      const permission = ret.token?.device || "none";
+      return permission === "read" || permission === "full";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  public static async checkCreatePermission(token: string) {
+    try {
+      const sdk = getClientSdk(token);
+      const ret = await sdk.getTokenPermission();
+      const permission = ret.token?.device || "none";
+      return permission === "full";
+    } catch (e) {
+      return false;
+    }
   }
 
   public static async get(token: string, id: string) {

@@ -27,9 +27,12 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
       if (obj.configs && obj.configs.devicekey) {
         throw new Error(`devicekey and id are double specified.`);
       }
-      const token = Storage.get("token");
+      const token = args.token;
       if (!token) {
         throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+      }
+      if (!(await Device.checkReadPermission(token))) {
+        throw new Error(`Your token is not permitted to be read the device`);
       }
       const device = await Device.get(token, obniz_id);
       if (!device) {
@@ -77,7 +80,7 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
   } else if (operationName && indicationName) {
     const spinner = logging ? ora(`Operation: getting information`).start() : null;
     try {
-      const token = Storage.get("token");
+      const token = args.token;
       if (!token) {
         throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
       }
@@ -136,10 +139,11 @@ export default {
  -p --port        serial port path to flash.If not specified, the port list will be displayed.
  -b --baud        flashing baud rate. default to ${Defaults.BAUD}
 
- [configrations]
+ [configurations]
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id            obnizID to be configured. You need to signin before use this.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+    --token         Token of api key which use instead of user signin.
 
  [operation]
     --operation     operation name for setting.
@@ -156,6 +160,7 @@ export default {
       // process.stdout.write(text);
       received += text;
     };
+    obj.token = args.token || Storage.get("token");
 
     // set params to obj
     await validate(args, obj, true);

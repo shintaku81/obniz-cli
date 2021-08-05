@@ -1,0 +1,10 @@
+query getTokenPermission {
+    token{
+        device
+        device_control
+        event
+        facility
+        type
+        user
+    }
+}
