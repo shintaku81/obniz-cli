@@ -1076,11 +1076,15 @@ export declare const GetTokenPermissionDocument: import("graphql").DocumentNode;
 export declare const CurrentUserDocument: import("graphql").DocumentNode;
 export declare type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 export declare function getSdk(client: GraphQLClient, withWrapper?: SdkFunctionWrapper): {
-    createDevice(variables: CreateDeviceMutationVariables): Promise<CreateDeviceMutation>;
+    createDevice(variables: Exact<{
+        createDeviceDevice: DeviceCreateInput;
+    }>): Promise<CreateDeviceMutation>;
     getDeviceById(variables?: Exact<{
         deviceId?: string | null | undefined;
     }> | undefined): Promise<GetDeviceByIdQuery>;
-    createOperationResult(variables: CreateOperationResultMutationVariables): Promise<CreateOperationResultMutation>;
+    createOperationResult(variables: Exact<{
+        createOperationResultOperationResult: CreateOperationResultInput;
+    }>): Promise<CreateOperationResultMutation>;
     getOperation(variables?: Exact<{
         operationsId?: number | null | undefined;
     }> | undefined): Promise<GetOperationQuery>;
@@ -1090,8 +1094,12 @@ export declare function getSdk(client: GraphQLClient, withWrapper?: SdkFunctionW
     getOperations(variables?: Exact<{
         [key: string]: never;
     }> | undefined): Promise<GetOperationsQuery>;
-    removeOperationResult(variables: RemoveOperationResultMutationVariables): Promise<RemoveOperationResultMutation>;
-    updateOperationSettingStatus(variables: UpdateOperationSettingStatusMutationVariables): Promise<UpdateOperationSettingStatusMutation>;
+    removeOperationResult(variables: Exact<{
+        removeOperationResultOperationSettingId: string;
+    }>): Promise<RemoveOperationResultMutation>;
+    updateOperationSettingStatus(variables: Exact<{
+        updateStatusOperationSettingOperationSettingId: string;
+    }>): Promise<UpdateOperationSettingStatusMutation>;
     getTokenPermission(variables?: Exact<{
         [key: string]: never;
     }> | undefined): Promise<GetTokenPermissionQuery>;

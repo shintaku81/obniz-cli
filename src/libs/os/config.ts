@@ -29,7 +29,7 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
       }
       const token = args.token;
       if (!token) {
-        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+        throw new Error(`You need to signin or set --token param`);
       }
       if (!(await Device.checkReadPermission(token))) {
         throw new Error(`Your token is not permitted to be read the device`);
@@ -82,10 +82,12 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
     try {
       const token = args.token;
       if (!token) {
-        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+        throw new Error(`You need to signin or set --token param`);
       }
       if (!(await Operation.checkPermission(token))) {
-        throw new Error(`You dont have permission to use operation. Please 'obniz-cli signin' `);
+        throw new Error(
+          `You dont have permission to use operation. Please run 'obniz-cli signin' or set --token param`,
+        );
       }
       const op = await Operation.getByOperationName(token, operationName);
       if (!op || !op.node) {
@@ -141,7 +143,7 @@ export default {
 
  [configurations]
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
- -i --id            obnizID to be configured. You need to signin before use this.
+ -i --id            obnizID to be configured. You need to signin before use this or set --token param.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
     --token         Token of api key which use instead of user signin.
 

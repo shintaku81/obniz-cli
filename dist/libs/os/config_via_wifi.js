@@ -10,7 +10,7 @@ const wifi_1 = __importDefault(require("./wifi"));
 exports.default = {
     help: `Configure ObnizOS network via Wi-Fi from devices.
 
- [configrations]
+ [configurations]
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
     async execute(args) {
@@ -34,7 +34,7 @@ exports.default = {
             configs = json;
         }
         if (!configs) {
-            // no configration provided
+            // no configuration provided
             console.log(chalk_1.default.red(`No configration found. exit.`));
             return;
         }

@@ -1,28 +1,15 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validate = exports.networkConfigValidate = exports.deviceConfigValidate = void 0;
 const chalk_1 = __importDefault(require("chalk"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -51,7 +38,7 @@ async function deviceConfigValidate(args, obj = {}, logging = false) {
             }
             const token = args.token;
             if (!token) {
-                throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+                throw new Error(`You need to signin or set --token param`);
             }
             if (!(await device_1.default.checkReadPermission(token))) {
                 throw new Error(`Your token is not permitted to be read the device`);
@@ -110,10 +97,10 @@ async function networkConfigValidate(args, obj = {}, logging = false) {
         try {
             const token = args.token;
             if (!token) {
-                throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+                throw new Error(`You need to signin or set --token param`);
             }
             if (!(await operation_1.Operation.checkPermission(token))) {
-                throw new Error(`You dont have permission to use operation. Please 'obniz-cli signin' `);
+                throw new Error(`You dont have permission to use operation. Please run 'obniz-cli signin' or set --token param`);
             }
             const op = await operation_1.Operation.getByOperationName(token, operationName);
             if (!op || !op.node) {
@@ -161,9 +148,9 @@ exports.default = {
  -p --port        serial port path to flash.If not specified, the port list will be displayed.
  -b --baud        flashing baud rate. default to ${defaults_1.default.BAUD}
 
- [configrations]
+ [configurations]
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
- -i --id            obnizID to be configured. You need to signin before use this.
+ -i --id            obnizID to be configured. You need to signin before use this or set --token param.
  -c --config        configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
     --token         Token of api key which use instead of user signin.
 
