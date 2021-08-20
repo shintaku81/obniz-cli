@@ -66,6 +66,12 @@ Flash obnizOS and configure it
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+     --token     Token of api key which use instead of user signin.
+
+[operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
+
  ```
 
 
@@ -99,7 +105,9 @@ npm i obniz-cli -g
 
 ##  signin
 
-First of all, singin to your account
+To use the obnizCloud features, you need to sign in or have the Token parameter for each command.
+If you want to sign in, you can sign in with
+
 
 ```shell
 obniz-cli signin
@@ -112,6 +120,18 @@ You can check currently signin user by using.
 ```shel
 obniz-cli user:info
 ```
+
+
+## About token
+
+By passing the API Key Token as a parameter to each command, you can use it without signing in.
+The API Key can be issued from the obniz Cloud developer console → Development → API Key.
+
+```shel
+obniz-cli os:flash-create --token=token_Bowk7ovyFXcOapGgcwxJTIx23P6WfdX1
+```
+
+
 
 ## About Serial Port
 
@@ -152,7 +172,10 @@ obniz-cli os:flash-create -p AUTO --debugserial
 
 ## os:flash-create
 
-You can create one obnizID with the account you are signed in, write it, and complete the process of writing the device key.
+You can create one obnizID, write it, and complete the writing of the device key.
+The account to create the obnizID will be the account you are signed in to, or the account specified in the Token parameter.
+
+
 
 First, decide which obnizOS you want to use. If it is not specified, `obnizOS for esp32` will be selected automatically. You can check which hardware is available by using the following command.
 
@@ -202,6 +225,30 @@ You can also configure network settings such as Wi-Fi, etc. Please check what yo
 obniz-cli os:flash-create --help
 ```
 
+##  Implementation of operations (business plan)
+
+
+Once you have created the facility and the operation, you will be able to run the operation in obniz-cli.
+If you pass the API Key in the token option, you don't need to log in to the obnizCloud, so you can securely request the configuration work.
+
+
+Specify the operation name in the operation option and the instruction ID in the indication option.
+
+
+```shel
+obniz-cli os:flash-create --operation obnizBuilding --indication ob-0 --token token_Bowk7ovyFXcOpGgcwxJTIasdf6WfdX1GOB
+```
+
+If you want to write to the device sequentially, you can use next as the indication option.
+If next is specified, the system will automatically select the indication IDs that have not yet been completed.
+
+
+```shel
+obniz-cli os:flash-create --operation obnizBuilding --indication next --token token_Bowk7ovyFXcOpGgcwxJTIasdf6WfdX1GOB
+```
+
+
+
 
 ### Binding Token (for partners only)
 
@@ -231,6 +278,7 @@ obniz-cli os:flash-create --description "For testing" -p /dev/tty.USBSERIAL
 ```
 
 You can see generated device on your shell and obnizCloud.
+
 
 
 ## os:flash
