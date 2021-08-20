@@ -1,6 +1,6 @@
 {
   "name": "obniz-cli",
-  "version": "0.9.0-alpha.3",
+  "version": "0.9.0",
   "description": "",
   "main": "dist/index.js",
   "keywords": [
