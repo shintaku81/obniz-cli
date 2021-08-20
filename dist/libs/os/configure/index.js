@@ -69,7 +69,7 @@ exports.default = async (obj) => {
                     }
                     const token = obj.token;
                     if (!token) {
-                        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+                        throw new Error(`You need to signin or set --token param.`);
                     }
                     await operation_setting_1.OperationSetting.updateStatus(token, ((_a = obj.operation.operationSetting.node) === null || _a === void 0 ? void 0 : _a.id) || "");
                 }
@@ -82,7 +82,7 @@ exports.default = async (obj) => {
                     }
                     const token = obj.token;
                     if (!token) {
-                        throw new Error(`You need to signin first to use obniz Cloud from obniz-cli.`);
+                        throw new Error(`You need to signin or set --token param.`);
                     }
                     await operation_result_1.OperationResult.createWriteSuccess(token, ((_b = obj.operation.operationSetting.node) === null || _b === void 0 ? void 0 : _b.id) || "", info.obnizid);
                 }

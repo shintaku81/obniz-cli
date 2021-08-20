@@ -27,7 +27,7 @@ exports.default = {
         const operations = await operation_1.Operation.getList(token);
         operations.map((op) => {
             var _a;
-            console.log(`${(_a = op === null || op === void 0 ? void 0 : op.node) === null || _a === void 0 ? void 0 : _a.name} (${op === null || op === void 0 ? void 0 : op.facilityName})`);
+            console.log(` - ${(_a = op === null || op === void 0 ? void 0 : op.node) === null || _a === void 0 ? void 0 : _a.name} (${op === null || op === void 0 ? void 0 : op.facilityName})`);
         });
     },
 };

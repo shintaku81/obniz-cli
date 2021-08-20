@@ -46,7 +46,7 @@ export default {
     };
 
     operationSettings.map((op) => {
-      console.log(`${op?.node?.indicationId} (${status[(op?.node?.status as any) as keyof typeof status]})`);
+      console.log(` - ${op?.node?.indicationId} (${status[(op?.node?.status as any) as keyof typeof status]})`);
     });
   },
 };

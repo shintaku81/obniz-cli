@@ -43,7 +43,7 @@ exports.default = {
         };
         operationSettings.map((op) => {
             var _a, _b;
-            console.log(`${(_a = op === null || op === void 0 ? void 0 : op.node) === null || _a === void 0 ? void 0 : _a.indicationId} (${status[(_b = op === null || op === void 0 ? void 0 : op.node) === null || _b === void 0 ? void 0 : _b.status]})`);
+            console.log(` - ${(_a = op === null || op === void 0 ? void 0 : op.node) === null || _a === void 0 ? void 0 : _a.indicationId} (${status[(_b = op === null || op === void 0 ? void 0 : op.node) === null || _b === void 0 ? void 0 : _b.status]})`);
         });
     },
 };

@@ -30,7 +30,7 @@ export default {
     const operations = await Operation.getList(token);
 
     operations.map((op) => {
-      console.log(`${op?.node?.name} (${op?.facilityName})`);
+      console.log(` - ${op?.node?.name} (${op?.facilityName})`);
     });
   },
 };
