@@ -42,7 +42,7 @@ exports.default = {
     --operation     operation name for setting.
     --indication    indication name for setting.
   `,
-    async execute(args) {
+    async execute(args, proceed) {
         // If device related configration exist
         // It is not allowed. because device will be created from me.
         if (args.d || args.devicekey || args.i || args.id) {
@@ -53,30 +53,45 @@ exports.default = {
         if (!token) {
             throw new Error(`You must singin before create device`);
         }
+        if (proceed) {
+            proceed(1);
+        }
         // validate first
         await config_1.validate(args);
+        if (proceed) {
+            proceed(2);
+        }
         // SerialPortSetting
         const obj = await prepare_1.default(args);
         obj.stdout = (text) => {
             // process.stdout.write(text);
         };
-        // recovery data.
-        const recoveryDeviceString = Storage.get("recovery-device");
+        if (proceed) {
+            proceed(3);
+        }
         let device;
-        if (recoveryDeviceString) {
-            const readedDevice = JSON.parse(recoveryDeviceString);
-            const use = await askUseRecovery(readedDevice);
-            if (use) {
-                device = readedDevice;
-            }
-            else {
-                Storage.set("recovery-device", null);
+        if (args.obniz_id) {
+            // recovery without asking when existing obniz id specified
+            device = await device_1.default.get(token, args.obniz_id);
+        }
+        else {
+            // recovery data.
+            const recoveryDeviceString = Storage.get("recovery-device");
+            if (recoveryDeviceString) {
+                const readedDevice = JSON.parse(recoveryDeviceString);
+                const use = await askUseRecovery(readedDevice);
+                if (use) {
+                    device = readedDevice;
+                }
+                else {
+                    Storage.set("recovery-device", null);
+                }
             }
         }
         let qrData = null;
         // IF manufacturer
         if (args.bindtoken) {
-            qrData = await askSerialToken(device);
+            qrData = await askSerialToken(device, args.serial_token);
         }
         // No more asking
         let hardware;
@@ -97,7 +112,13 @@ exports.default = {
             spinner.succeed(`obnizOS: decided hardware=${chalk_1.default.green(hardware)} version=${chalk_1.default.green(version)}`);
         }
         obj.version = version;
+        if (proceed) {
+            proceed(4);
+        }
         await _flash_1.default(obj);
+        if (proceed) {
+            proceed(5);
+        }
         if (device) {
             spinner = ora_1.default("obnizCloud:").start();
             spinner.succeed(`obnizCloud: using recovery device obnizID=${chalk_1.default.green(device.id)} description=${chalk_1.default.green(device.description)} region=${chalk_1.default.green(device.region)}`);
@@ -131,7 +152,7 @@ exports.default = {
             args.p = undefined;
             args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
             args.devicekey = device.devicekey;
-            await config_1.default.execute(args);
+            await config_1.default.execute(args, proceed);
             Storage.set("recovery-device", null);
         }
         catch (e) {
@@ -161,14 +182,20 @@ async function askUseRecovery(device) {
     ]);
     return answer.yesno === "yes";
 }
-async function askSerialToken(device) {
-    const answer = await inquirer_1.default.prompt([
-        {
-            type: "input",
-            name: "serialtoken",
-            message: `Scan QR Code. Waiting...`,
-        },
-    ]);
+async function askSerialToken(device, serial_token) {
+    let answer;
+    if (serial_token) {
+        answer = { serialtoken: serial_token };
+    }
+    else {
+        answer = await inquirer_1.default.prompt([
+            {
+                type: "input",
+                name: "serialtoken",
+                message: `Scan QR Code. Waiting...`,
+            },
+        ]);
+    }
     const spinner = ora_1.default("Serial: Binding...").start();
     try {
         const url = new URL(answer.serialtoken);

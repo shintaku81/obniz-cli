@@ -158,7 +158,7 @@ exports.default = {
     --operation     operation name for setting.
     --indication    indication name for setting.
   `,
-    async execute(args) {
+    async execute(args, proceed) {
         // check input first
         await validate(args);
         // Serial Port Setting
@@ -171,12 +171,18 @@ exports.default = {
         obj.token = args.token || Storage.get("token");
         // set params to obj
         await validate(args, obj, true);
+        if (proceed) {
+            proceed(6);
+        }
         if (!obj.configs) {
             // no configuration provided
             console.log(`No configuration found. exit.`);
             return;
         }
         await configure_1.default(obj);
+        if (proceed) {
+            proceed(7);
+        }
     },
 };
 //# sourceMappingURL=config.js.map

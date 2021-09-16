@@ -15,7 +15,7 @@
     "precommit": "lint-staged && npm run build",
     "clean": "rimraf ./dist",
     "local": "npx ts-node src/index.ts",
-    "start": "node dist/index.js",
+    "start": "ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron dist/index.js",
     "codegen": "graphql-codegen"
   },
   "bin": {
@@ -30,6 +30,8 @@
   },
   "private": false,
   "devDependencies": {
+    "electron": "^14.0.0",
+    "electron-rebuild": "^3.2.3",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-jasmine": "^2.10.1",

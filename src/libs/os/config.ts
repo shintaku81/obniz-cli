@@ -151,7 +151,7 @@ export default {
     --operation     operation name for setting.
     --indication    indication name for setting.
   `,
-  async execute(args: any) {
+  async execute(args: any, proceed?: (i: number) => void) {
     // check input first
     await validate(args);
 
@@ -166,6 +166,9 @@ export default {
 
     // set params to obj
     await validate(args, obj, true);
+    if (proceed) {
+      proceed(6);
+    }
 
     if (!obj.configs) {
       // no configuration provided
@@ -174,5 +177,8 @@ export default {
     }
 
     await Config(obj);
+    if (proceed) {
+      proceed(7);
+    }
   },
 };
