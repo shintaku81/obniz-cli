@@ -9,12 +9,13 @@ import Config from "../libs/os/config";
 import Erase from "../libs/os/erase";
 import Flash from "../libs/os/flash";
 import Create from "../libs/os/flashcreate";
-import PreparePort from "../libs/os/serial/prepare";
-import Login from "../libs/user/login";
-import Logout from "../libs/user/logout";
+import guessPort from "../libs/os/serial/guess";
 
 import OS from "../libs/obnizio/os";
+import PreparePort from "../libs/os/serial/prepare";
 import * as Storage from "../libs/storage";
+import Login from "../libs/user/login";
+import Logout from "../libs/user/logout";
 
 const rendererHost = "http://localhost:9998";
 
@@ -56,7 +57,7 @@ app.on("ready", () => {
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
   mainWindow!.loadURL(`${rendererHost}/index.html`);
   // ChromiumのDevツールを開く
-  mainWindow!.webContents.openDevTools();
+  // mainWindow!.webContents.openDevTools();
 
   mainWindow!.on("closed", () => {
     mainWindow = null;
@@ -85,7 +86,7 @@ app.on("ready", () => {
           Storage.set("token", api_key);
           mainWindow!.loadURL(`${rendererHost}/main.html`);
         } else {
-          mainWindow!.webContents.send("obniz:login_failed");
+          mainWindow!.webContents.send("error:invalidToken");
         }
       })
       .catch((e) => {
@@ -104,6 +105,7 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("obniz:flash", async (event: any, arg: any) => {
+    // Ver 1.0では使わないはず
     forwardOutput(true);
     await Flash.execute({
       portname: arg.device,
@@ -174,6 +176,7 @@ app.on("ready", () => {
       mainWindow!.webContents.send("error:occurred");
     });
     forwardOutput(false);
+    mainWindow!.webContents.send("obniz:finished");
   });
 
   ipcMain.handle("obniz:config", async (event: any, arg: any) => {
@@ -205,6 +208,7 @@ app.on("ready", () => {
       mainWindow!.webContents.send("error:occurred", {});
     });
     forwardOutput(false);
+    mainWindow!.webContents.send("obniz:finished");
   });
 
   ipcMain.on("obniz:userinfo", async (event: any, arg: any) => {
@@ -233,9 +237,29 @@ app.on("ready", () => {
     event.returnValue = versions;
   });
 
-  ipcMain.on("devices:list", async (event: any, arg: any) => {
+  async function monitorSerialPorts() {
+    let portsInfo = await guessPort();
+    let ports: SerialPort.PortInfo[] | null = null;
+    while (true) {
+      portsInfo = await guessPort();
+
+      if (JSON.stringify(portsInfo.ports) !== JSON.stringify(ports)) {
+        ports = portsInfo.ports;
+        mainWindow!.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+      }
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      ports = portsInfo.ports;
+    }
+  }
+
+  ipcMain.handle("devices:list", async (event: any, arg: any) => {
     const ports: SerialPort.PortInfo[] = await SerialPort.list();
-    event.returnValue = ports;
+    const selected: string | null = null;
+
+    monitorSerialPorts();
   });
 
   ipcMain.on("json:open", async (event: any, arg: any) => {

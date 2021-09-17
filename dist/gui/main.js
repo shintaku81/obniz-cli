@@ -19,10 +19,11 @@ const config_1 = __importDefault(require("../libs/os/config"));
 const erase_1 = __importDefault(require("../libs/os/erase"));
 const flash_1 = __importDefault(require("../libs/os/flash"));
 const flashcreate_1 = __importDefault(require("../libs/os/flashcreate"));
-const login_1 = __importDefault(require("../libs/user/login"));
-const logout_1 = __importDefault(require("../libs/user/logout"));
+const guess_1 = __importDefault(require("../libs/os/serial/guess"));
 const os_1 = __importDefault(require("../libs/obnizio/os"));
 const Storage = __importStar(require("../libs/storage"));
+const login_1 = __importDefault(require("../libs/user/login"));
+const logout_1 = __importDefault(require("../libs/user/logout"));
 const rendererHost = "http://localhost:9998";
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
@@ -60,7 +61,7 @@ electron_1.app.on("ready", () => {
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     mainWindow.loadURL(`${rendererHost}/index.html`);
     // ChromiumのDevツールを開く
-    mainWindow.webContents.openDevTools();
+    // mainWindow!.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -86,7 +87,7 @@ electron_1.app.on("ready", () => {
                 mainWindow.loadURL(`${rendererHost}/main.html`);
             }
             else {
-                mainWindow.webContents.send("obniz:login_failed");
+                mainWindow.webContents.send("error:invalidToken");
             }
         })
             .catch((e) => {
@@ -103,6 +104,7 @@ electron_1.app.on("ready", () => {
         mainWindow.loadURL(`${rendererHost}/index.html`);
     });
     electron_1.ipcMain.handle("obniz:flash", async (event, arg) => {
+        // Ver 1.0では使わないはず
         forwardOutput(true);
         await flash_1.default.execute({
             portname: arg.device,
@@ -168,6 +170,7 @@ electron_1.app.on("ready", () => {
             mainWindow.webContents.send("error:occurred");
         });
         forwardOutput(false);
+        mainWindow.webContents.send("obniz:finished");
     });
     electron_1.ipcMain.handle("obniz:config", async (event, arg) => {
         const token = Storage.get("token");
@@ -197,6 +200,7 @@ electron_1.app.on("ready", () => {
             mainWindow.webContents.send("error:occurred", {});
         });
         forwardOutput(false);
+        mainWindow.webContents.send("obniz:finished");
     });
     electron_1.ipcMain.on("obniz:userinfo", async (event, arg) => {
         try {
@@ -223,9 +227,25 @@ electron_1.app.on("ready", () => {
         const versions = await os_1.default.list(arg.hardware);
         event.returnValue = versions;
     });
-    electron_1.ipcMain.on("devices:list", async (event, arg) => {
+    async function monitorSerialPorts() {
+        let portsInfo = await guess_1.default();
+        let ports = null;
+        while (true) {
+            portsInfo = await guess_1.default();
+            if (JSON.stringify(portsInfo.ports) !== JSON.stringify(ports)) {
+                ports = portsInfo.ports;
+                mainWindow.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+            }
+            await new Promise((resolve) => {
+                setTimeout(resolve, 100);
+            });
+            ports = portsInfo.ports;
+        }
+    }
+    electron_1.ipcMain.handle("devices:list", async (event, arg) => {
         const ports = await serialport_1.default.list();
-        event.returnValue = ports;
+        const selected = null;
+        monitorSerialPorts();
     });
     electron_1.ipcMain.on("json:open", async (event, arg) => {
         electron_1.dialog

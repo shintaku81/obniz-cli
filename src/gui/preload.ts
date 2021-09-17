@@ -1,17 +1,21 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electron", {
+  systemVersion: () => "1.0.0",
   systemClose: async (arg: any) => await ipcRenderer.invoke("system:close", arg),
   systemMaximize: async (arg: any) => await ipcRenderer.invoke("system:maximize", arg),
   systemMinimize: async (arg: any) => await ipcRenderer.invoke("system:minimize", arg),
 
   api_login: async (api_key: string) => await ipcRenderer.invoke("obniz:api_login", { key: api_key }),
   login: async () => await ipcRenderer.invoke("obniz:login", {}),
+
+  loginError: async (func: () => void) => ipcRenderer.on("error:invalidToken", (event, args) => func()),
   logout: async () => await ipcRenderer.invoke("obniz:logout", {}),
 
   userinfo: () => ipcRenderer.sendSync("obniz:userinfo", {}),
 
-  devicePorts: () => ipcRenderer.sendSync("devices:list", { devicePort: "execute" }),
+  devicePorts: () => ipcRenderer.invoke("devices:list", {}),
+  deviceUpdated: async (func: (args: any) => void) => ipcRenderer.on("devices:update", (event, arg) => func(arg)),
   hardwares: () => ipcRenderer.sendSync("obniz:hardwares", {}),
   versions: (hardware: string) => ipcRenderer.sendSync("obniz:versions", { hardware }),
 
@@ -28,6 +32,7 @@ contextBridge.exposeInMainWorld("electron", {
   config: async (arg: any) => await ipcRenderer.invoke("obniz:config", arg),
 
   proceed: async (func: (args: number) => void) => ipcRenderer.on("write:proceed", (event, arg) => func(arg)),
+  finished: async (func: () => void) => ipcRenderer.on("obniz:finished", (event, arg) => func()),
 
   stderr: (func: (args: string | Uint8Array) => void) => ipcRenderer.on("console:stderr", (event, args) => func(args)),
 

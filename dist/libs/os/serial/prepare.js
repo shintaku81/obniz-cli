@@ -36,7 +36,7 @@ exports.default = async (args) => {
     }
     // not specified or not found
     if (!portname) {
-        const guessed_portname = await guess_1.default();
+        const guessed_portname = (await guess_1.default()).portname;
         if (autoChoose) {
             portname = guessed_portname;
         }

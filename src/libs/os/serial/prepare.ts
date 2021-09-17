@@ -38,7 +38,7 @@ export default async (args: any): Promise<any> => {
 
   // not specified or not found
   if (!portname) {
-    const guessed_portname = await SerialGuess();
+    const guessed_portname = (await SerialGuess()).portname;
     if (autoChoose) {
       portname = guessed_portname;
     }
