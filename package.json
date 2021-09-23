@@ -8,7 +8,11 @@
   ],
   "repository": "obniz/obniz-cli",
   "scripts": {
-    "packager": "./node_modules/.bin/electron-packager dist/gui obniz_cli --platform=darwin --arch=x64 --onefile --overwrite",
+    "pack:mac": "./node_modules/.bin/electron-packager . obnizWriter --platform=darwin --arch=x64 --onefile --overwrite --icon=public/obnizwriter.icns",
+    "pack:win64": "./node_modules/.bin/electron-packager . obnizWriter --platform=win32 --arch=x64 --onefile --overwrite --icon=public/obnizwriter.ico",
+    "pack:win32": "./node_modules/.bin/electron-packager . obnizWriter --platform=win32 --arch=ia32 --onefile --overwrite --icon=public/obnizwriter.ico",
+    "pack:linux": "./node_modules/.bin/electron-packager . obnizWrtier --platform=linux --arch=x64 --onefile --overwrite --icon=public/obnizwriter.ico",
+    "packager": "npm run pack:mac && npm run pack:win64 && npm run pack:linux && npm run pack:linux",
     "build": "npm run clean && npm run lint && tsc",
     "tsc": "tsc",
     "lint": "npm run lint-ts",
