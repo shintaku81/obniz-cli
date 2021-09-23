@@ -81,6 +81,7 @@
     "puppeteer-core": "^3.0.4",
     "semver": "^7.3.2",
     "serialport": "^9.0.0",
+    "shell-env": "^4.0.1",
     "socket.io": "^2.3.0",
     "utility-types": "^3.10.0"
   }

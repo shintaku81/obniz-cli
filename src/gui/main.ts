@@ -17,6 +17,10 @@ import * as Storage from "../libs/storage";
 import Login from "../libs/user/login";
 import Logout from "../libs/user/logout";
 
+if (process.platform === "darwin") {
+  process.env.PATH += ":/usr/local/bin";
+}
+
 const rendererHost = "http://localhost:9998";
 
 const originalStderrWrite = process.stderr.write.bind(process.stderr);

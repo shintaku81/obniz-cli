@@ -24,6 +24,9 @@ const os_1 = __importDefault(require("../libs/obnizio/os"));
 const Storage = __importStar(require("../libs/storage"));
 const login_1 = __importDefault(require("../libs/user/login"));
 const logout_1 = __importDefault(require("../libs/user/logout"));
+if (process.platform === "darwin") {
+    process.env.PATH += ":/usr/local/bin";
+}
 const rendererHost = "http://localhost:9998";
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
