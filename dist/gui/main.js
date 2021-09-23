@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -6,11 +9,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
+const express_1 = __importDefault(require("express"));
+const get_port_1 = __importDefault(require("get-port"));
+const http_1 = __importDefault(require("http"));
 const path = __importStar(require("path"));
 const serialport_1 = __importDefault(require("serialport"));
 const sdk_1 = require("../libs/obnizio/sdk");
@@ -24,7 +27,6 @@ const os_1 = __importDefault(require("../libs/obnizio/os"));
 const Storage = __importStar(require("../libs/storage"));
 const login_1 = __importDefault(require("../libs/user/login"));
 const logout_1 = __importDefault(require("../libs/user/logout"));
-const rendererHost = "http://localhost:9998";
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 const api_key = null;
@@ -45,8 +47,28 @@ function forwardOutput(enable) {
         process.stdout.write = originalStdoutWrite;
     }
 }
+async function setupServer() {
+    const expressApp = express_1.default();
+    const port = await get_port_1.default();
+    expressApp.set("port", port);
+    const staticPath = path.join(__dirname, "../../public");
+    expressApp.use(express_1.default.static(staticPath));
+    const server = http_1.default.createServer(expressApp);
+    await new Promise((resolve, reject) => {
+        server.on("error", (e) => {
+            reject(e);
+        });
+        server.on("listening", () => {
+            console.log(`listening on http://localhost:${port} ${staticPath}`);
+            resolve();
+        });
+        server.listen(port);
+    });
+    return { port };
+}
 let mainWindow = null;
-electron_1.app.on("ready", () => {
+electron_1.app.on("ready", async () => {
+    const { port } = await setupServer();
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
         height: 600,
@@ -58,6 +80,7 @@ electron_1.app.on("ready", () => {
             preload: path.join(__dirname, "preload.js"),
         },
     });
+    const rendererHost = `http://localhost:${port}`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     mainWindow.loadURL(`${rendererHost}/index.html`);
     // ChromiumのDevツールを開く

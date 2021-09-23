@@ -1,4 +1,8 @@
+import child_process from "child_process";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import express from "express";
+import getPort from "get-port";
+import http from "http";
 import * as path from "path";
 
 import SerialPort from "serialport";
@@ -16,8 +20,6 @@ import PreparePort from "../libs/os/serial/prepare";
 import * as Storage from "../libs/storage";
 import Login from "../libs/user/login";
 import Logout from "../libs/user/logout";
-
-const rendererHost = "http://localhost:9998";
 
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
@@ -41,8 +43,32 @@ function forwardOutput(enable: boolean): void {
   }
 }
 
+async function setupServer() {
+  const expressApp = express();
+  const port = await getPort();
+
+  expressApp.set("port", port);
+  const staticPath = path.join(__dirname, "../../public");
+  expressApp.use(express.static(staticPath));
+
+  const server = http.createServer(expressApp);
+
+  await new Promise((resolve, reject) => {
+    server.on("error", (e: any) => {
+      reject(e);
+    });
+    server.on("listening", () => {
+      console.log(`listening on http://localhost:${port} ${staticPath}`);
+      resolve();
+    });
+    server.listen(port);
+  });
+  return { port };
+}
+
 let mainWindow: Electron.BrowserWindow | null = null;
-app.on("ready", () => {
+app.on("ready", async () => {
+  const { port } = await setupServer();
   mainWindow = new BrowserWindow({
     width: 980,
     height: 600,
@@ -54,6 +80,8 @@ app.on("ready", () => {
       preload: path.join(__dirname, "preload.js"),
     },
   });
+
+  const rendererHost = `http://localhost:${port}`;
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
   mainWindow!.loadURL(`${rendererHost}/index.html`);
   // ChromiumのDevツールを開く
