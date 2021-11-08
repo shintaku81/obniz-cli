@@ -36,7 +36,7 @@ async function deviceConfigValidate(args, obj = {}, logging = false) {
             if (obj.configs && obj.configs.devicekey) {
                 throw new Error(`devicekey and id are double specified.`);
             }
-            const token = args.token;
+            const token = args.token || Storage.get("token");
             if (!token) {
                 throw new Error(`You need to signin or set --token param`);
             }
@@ -95,7 +95,7 @@ async function networkConfigValidate(args, obj = {}, logging = false) {
     else if (operationName && indicationName) {
         const spinner = logging ? ora_1.default(`Operation: getting information`).start() : null;
         try {
-            const token = args.token;
+            const token = args.token || Storage.get("token");
             if (!token) {
                 throw new Error(`You need to signin or set --token param`);
             }
