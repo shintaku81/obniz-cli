@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import wtf from "wtfnode";
 
 import chalk from "chalk";
 
@@ -66,6 +67,9 @@ const routes = {
         process.stdout.write(text);
       };
       await Erase(obj);
+
+
+      wtf.dump();
     },
   },
   "os:list": List,
