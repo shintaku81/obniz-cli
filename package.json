@@ -52,7 +52,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@9wick/esptool.js": "^0.9.1",
+    "@9wick/esptool.js": "^0.9.3",
     "@graphql-codegen/cli": "^1.13.5",
     "@graphql-codegen/typescript": "^1.13.5",
     "@graphql-codegen/typescript-graphql-request": "^1.13.5",

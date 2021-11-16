@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const wtfnode_1 = __importDefault(require("wtfnode"));
 const chalk_1 = __importDefault(require("chalk"));
 const arg_1 = __importDefault(require("./arg"));
 const gui = __importStar(require("./gui"));
@@ -81,7 +80,6 @@ const routes = {
                 process.stdout.write(text);
             };
             await erase_1.default(obj);
-            wtfnode_1.default.dump();
         },
     },
     "os:list": list_1.default,
@@ -144,7 +142,9 @@ COMMANDS
     },
 };
 arg_1.default(routes)
-    .then(() => { })
+    .then(() => {
+    // wtf.dump();
+})
     .catch((e) => {
     console.log(chalk_1.default.red(`${e}`));
     process.exit(1);

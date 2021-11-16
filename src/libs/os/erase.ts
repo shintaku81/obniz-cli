@@ -32,5 +32,5 @@ export default async (obj: { portname: string; baud: number; stdout: any }) => {
   console.log("Start erase");
   await espTool.eraseFlash();
   console.log("Chip erase completed successfully");
-  await port.close();
+  await espTool.disconnect();
 };

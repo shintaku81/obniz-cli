@@ -27,6 +27,6 @@ exports.default = async (obj) => {
     console.log("Start erase");
     await espTool.eraseFlash();
     console.log("Chip erase completed successfully");
-    await port.close();
+    await espTool.disconnect();
 };
 //# sourceMappingURL=erase.js.map

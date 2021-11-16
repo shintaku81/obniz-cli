@@ -1,10 +1,13 @@
+import { EspLoader } from "@9wick/esptool.js";
+import { EsptoolSerial } from "@9wick/esptool.js/build/node/serial";
+import { sleep } from "@9wick/esptool.js/build/util";
 import chalk from "chalk";
 import child_process from "child_process";
+import { promises as fs } from "fs";
+import ora from "ora";
 import OS from "../obnizio/os";
 
-import ora from "ora";
-
-export default function flash(obj: {
+export default async function flash(obj: {
   portname: string;
   hardware: string;
   version: string;
@@ -12,92 +15,80 @@ export default function flash(obj: {
   debugserial: any;
   stdout: any;
 }) {
-  return new Promise(async (resolve, reject) => {
-    let status = "connecting";
+  const spinner = ora(
+    `Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`,
+  ).start();
+  if (obj.debugserial) {
+    spinner.stop();
+  }
 
-    const spinner = ora(
-      `Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`,
-    ).start();
-    if (obj.debugserial) {
-      spinner.stop();
-    }
-
+  try {
     // prepare files
     const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress: string) => {
       spinner.text = `Flashing obnizOS: ${progress}`;
     });
 
-    let received = "";
-
-    const cmd =
-      `esptool.py --chip esp32 --port "${obj.portname}" --baud ${obj.baud} --before default_reset --after hard_reset` +
-      ` write_flash` +
-      ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-      ` 0x1000 "${files.bootloader_path}"` +
-      ` 0x10000 "${files.app_path}"` +
-      ` 0x8000 "${files.partition_path}"`;
-
-    const onSuccess = () => {
-      spinner.succeed(`Flashing obnizOS: Flashed`);
-      resolve();
-    };
-    const onFailed = (err: any) => {
-      spinner.fail(`Flashing obnizOS: Fail`);
-      reject(err);
-    };
-
     spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`;
 
-    const child = child_process.exec(cmd);
-    child.stdout?.setEncoding("utf8");
-    child.stdout?.on("data", (text) => {
-      if (obj.debugserial) {
-        console.log(text);
-        obj.stdout(text);
-      }
-      received += text;
+    const port = new EsptoolSerial(obj.portname, {
+      baudRate: 115200,
+      autoOpen: false,
+    });
+    await port.open();
 
-      if (status === "connecting" && received.indexOf(`Chip is`) >= 0) {
-        status = "flashing";
-        spinner.text = `Flashing obnizOS: Connected. Flashing...`;
-      }
+    const espTool = new EspLoader(port, {
+      logger: {
+        log(message?: unknown, ...optionalParams) {},
+        debug(message?: unknown, ...optionalParams) {},
+        error(message?: unknown, ...optionalParams) {},
+      },
     });
-    child.stderr?.on("data", (text) => {
-      if (obj.debugserial) {
-        obj.stdout(text);
-      }
-      received += `${chalk.red(text)}`;
-    });
-    child.on("error", (er) => {
-      onFailed(er);
-    });
-    child.on("exit", (code) => {
-      try {
-        throwIfFailed(received);
-      } catch (e) {
-        onFailed(e);
-        return;
-      }
-      if (code !== 0) {
-        reject(new Error(`Failed Flashing.`));
-        return;
-      }
-      onSuccess();
-    });
-  });
-}
 
-function throwIfFailed(text: string) {
-  if (text.indexOf("Leaving...") >= 0) {
-    // success
-    return;
+    await espTool.connect();
+
+    const chipName = await espTool.chipName();
+    const macAddr = await espTool.macAddr();
+    // console.log("chipName", chipName);
+    // console.log("macAddr", macAddr);
+    await espTool.loadStub();
+    await espTool.setBaudRate(115200, obj.baud);
+
+    const [bootloaderBin, partitionBin, appBin] = await Promise.all([
+      fs.readFile(files.bootloader_path),
+      fs.readFile(files.partition_path),
+      fs.readFile(files.app_path),
+    ]);
+
+    const partitions = [
+      {
+        name: "bootloader",
+        data: bootloaderBin,
+        offset: 0x1000,
+      },
+      {
+        name: "partition",
+        data: partitionBin,
+        offset: 0x8000,
+      },
+      {
+        name: "app",
+        data: appBin,
+        offset: 0x10000,
+      },
+    ];
+
+    for (let i = 0; i < partitions.length; i++) {
+      await espTool.flashData(partitions[i].data, partitions[i].offset, (idx, cnt) => {
+        spinner.text = `Flashing obnizOS: writing ${partitions[i].name} ${Math.floor((idx / cnt) * 100)}%...`;
+      });
+      await sleep(100);
+    }
+    // console.log("successfully written device partitions");
+    // console.log("flashing succeeded");
+    await espTool.disconnect();
+    spinner.succeed(`Flashing obnizOS: Flashed`);
+  } catch (e) {
+    spinner.fail(`Flashing obnizOS: Fail`);
+    throw e;
   }
-  let err;
-  if (text.indexOf("Timed out waiting for packet header") >= 0) {
-    err = new Error(`No Bootload mode ESP32 found. Check connection or Boot Mode.`);
-  } else {
-    err = new Error(`Failed Flashing.`);
-  }
-  console.log(text);
-  throw err;
 }

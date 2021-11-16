@@ -67,9 +67,6 @@ const routes = {
         process.stdout.write(text);
       };
       await Erase(obj);
-
-
-      wtf.dump();
     },
   },
   "os:list": List,
@@ -132,7 +129,9 @@ COMMANDS
 };
 
 Args(routes)
-  .then(() => {})
+  .then(() => {
+    // wtf.dump();
+  })
   .catch((e) => {
     console.log(chalk.red(`${e}`));
     process.exit(1);
