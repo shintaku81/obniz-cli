@@ -1,19 +1,25 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="css/index.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" />
-    <link rel="stylesheet" href="./css/primary.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+          integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css"/>
+    <link rel="stylesheet" href="./css/primary.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.6/ejs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+            crossorigin="anonymous"></script>
     <script src="./assets/javascript/index.js"></script>
     <script src="./assets/javascript/version.js"></script>
 
@@ -21,14 +27,15 @@
     
 
     <script src="./assets/javascript/userinfo.js"></script>
-  </head>
-  <body>
-    <div class="fixed-top titlebar-flex">
-      <nav class="titlebar bg-titlebar">
+</head>
+<body>
+<div class="fixed-top titlebar-flex">
+    <nav class="titlebar bg-titlebar">
         <a class="navbar-brand">obniz Writer</a>
 
         <span class="dropdown">
-          <a id="version" class="text-white" href="#" role="button" id="versionDropdownMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+          <a id="version" class="text-white" href="#" role="button" id="versionDropdownMenu" data-bs-toggle="dropdown"
+             data-bs-display="static" aria-expanded="false">
             Ver. x.x.x
           </a>
           <ul class="dropdown-menu" aria-labelledby="versionDropdownMenu">
@@ -43,38 +50,41 @@
                 </li>
               </ul>
             </div>
-            <li><a class="dropdown-item text-primary" href="https://obniz.com/" target="_blank">Update</a></li>
+            <li>
+              <a class="dropdown-item text-primary" href="https://obniz.com/" target="_blank">Update</a>
+            </li>
               </ul>
 
         </span>
-      </nav>
-      <div class="dropdown">
+    </nav>
+    <div class="dropdown">
         
         
-        <a class="system user-menu" href="#" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+        <a class="system user-menu" href="#" role="button" id="dropdownMenuButton"
+           data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
         </a>
         <ul class="dropdown-menu dropdown-menu-center" aria-labelledby="dropdownMenuButton">
-          <div id="userinfo" class="user-account">
-            <ul>
-              <li>User:</li>
-              <li>
+            <div id="userinfo" class="user-account">
                 <ul>
-                  <li>admin2@example.com</li>
-                  <li><a href="#">update account</a></li>
+                    <li>User:</li>
+                    <li>
+                        <ul>
+                            <li>admin2@example.com</li>
+<!--                            <li><a href="#">update account</a></li>-->
+                        </ul>
+                    </li>
                 </ul>
-              </li>
-            </ul>
-          </div>
-          <li><a id="signout" class="dropdown-item text-primary" href="#">Signout</a></li>
+            </div>
+            <li><a id="signout" class="dropdown-item text-primary" href="#">Signout</a></li>
         </ul>
-      </div>
-      <span id="minimize" class="system system-minimize"></span>
-      <span id="maximize" class="system system-maximize"></span>
-      <span id="quit" class="system system-close"></span>
     </div>
+    <span id="minimize" class="system system-minimize"></span>
+    <span id="maximize" class="system system-maximize"></span>
+    <span id="quit" class="system system-close"></span>
+</div>
 
-<script src="assets/javascript/device.js"></script>
-<script src="assets/javascript/settings.js"></script>
+<script src="./assets/javascript/device.js"></script>
+<script src="./assets/javascript/settings.js"></script>
 
 <script language="javascript">
   function obniz_erase() {
@@ -200,10 +210,11 @@
   </div>
 </div>
 
-<script src="assets/javascript/progress.js"></script>
+<script src="./assets/javascript/progress.js"></script>
 
-
-  <div class="inner-card bg-terminal" id="terminal"></div>
+  <div style="display: flex;justify-content: center; margin: 20px 0 50px;" >
+    <div class="bg-terminal" style=" padding: 10px 20px;"  id="terminal"></div>
+  </div>
 </div>
 
           <div id="settings_tab" class="tab-pane active">
@@ -410,7 +421,7 @@
       <div class="modal-body text-center">
         <p>Read the code on the QR sticker.<br>
         Writing will start automatically after the QR code is read.<br>
-        <img src="assets/images/pict-scan.gif" width="80%"></p>
+        <img src="./assets/images/pict-scan.gif" width="80%"></p>
         <div>
           <input id="qrcode" type="text" class="col col-8"></input>
         </div>
@@ -446,7 +457,7 @@
 </div>
 
 
-<script src="assets/javascript/console.js"></script>
+<script src="./assets/javascript/console.js"></script>
 </body>
 </html>
 
