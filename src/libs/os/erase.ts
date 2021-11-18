@@ -27,8 +27,11 @@ export default async (obj: { portname: string; baud: number; stdout: any }) => {
   console.log("chipName", chipName);
   console.log("macAddr", macAddr);
   await espTool.loadStub();
-  await espTool.setBaudRate(115200, obj.baud);
-
+  if (obj.baud) {
+    const baud = typeof obj.baud === "number" ? obj.baud : parseInt(obj.baud);
+    console.log(obj, baud);
+    await espTool.setBaudRate(115200, baud);
+  }
   console.log("Start erase");
   await espTool.eraseFlash();
   console.log("Chip erase completed successfully");

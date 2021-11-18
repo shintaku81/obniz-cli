@@ -39,7 +39,9 @@ async function flash(obj) {
         // console.log("chipName", chipName);
         // console.log("macAddr", macAddr);
         await espTool.loadStub();
-        await espTool.setBaudRate(115200, obj.baud);
+        if (obj.baud) {
+            await espTool.setBaudRate(115200, obj.baud);
+        }
         const [bootloaderBin, partitionBin, appBin] = await Promise.all([
             fs_1.promises.readFile(files.bootloader_path),
             fs_1.promises.readFile(files.partition_path),

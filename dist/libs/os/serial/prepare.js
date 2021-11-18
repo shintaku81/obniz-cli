@@ -51,7 +51,7 @@ exports.default = async (args) => {
     }
     const debugserial = args.debugserial;
     const spinner = ora_1.default("Serial Port:").start();
-    spinner.succeed(`Serial Port: decided ${chalk_1.default.green(portname)} baundrate ${baud}`);
+    spinner.succeed(`Serial Port: decided ${chalk_1.default.green(portname)} baudrate ${baud}`);
     return {
         portname,
         baud,

@@ -8,19 +8,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" />
-    <link rel="stylesheet" href="/css/primary.css" />
+    <link rel="stylesheet" href="./css/primary.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.6/ejs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-    <script src="/assets/javascript/index.js"></script>
-    <script src="/assets/javascript/version.js"></script>
+    <script src="./assets/javascript/index.js"></script>
+    <script src="./assets/javascript/version.js"></script>
 
     
     
 
-    <script src="/assets/javascript/userinfo.js"></script>
+    <script src="./assets/javascript/userinfo.js"></script>
   </head>
   <body>
     <div class="fixed-top titlebar-flex">
@@ -99,7 +99,11 @@
           <div class="form-label">
             <p class="w-30">
             <label for="baudrate">Baudrate:</label>
-            <input type="text" id="baudrate" class="input-wid10" value="115200">
+              <select type="text" id="baudrate" class="input-wid10">
+                <option value="115200" >115200bps</option>
+                <option value="921600" >921600bps</option>
+                <option value="1500000" selected>1500000bps</option>
+              </select>
             </p>
           </div>
         </div>
@@ -136,7 +140,7 @@
 
     </div>
     <div class="w-20">
-      <button id="write_btn" type="button" class="btn btn-primary btn-mid w-80" data-bs-toggle="modal" data-bs-target="#writeModal">Write</button>
+      <button id="write_btn" type="button" class="btn btn-primary btn-mid w-80" >Write</button>
       <button id="back_to_setting" type="button" class="btn btn-secondary btn-mid w-80">Back to Settings</button>
     </div>
   </div>
@@ -243,8 +247,13 @@
             </p>
 
             <p>
-            <input id="pregenerated_device" type="radio" name="target_device" value="pregenerated">
-            <label for="pregenerated_device">Write a pre-generated device</label>
+              <input id="pregenerated_device" type="radio" name="target_device" value="pregenerated">
+              <label for="pregenerated_device">Write a pre-generated device</label>
+            </p>
+
+            <p>
+              <input id="os_only" type="radio" name="target_device" value="os_only">
+              <label for="os_only">Write obnizOS only</label>
             </p>
 
           </form>

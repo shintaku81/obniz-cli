@@ -57,7 +57,7 @@ export default async (args: any): Promise<any> => {
   const debugserial: any = args.debugserial;
 
   const spinner = ora("Serial Port:").start();
-  spinner.succeed(`Serial Port: decided ${chalk.green(portname)} baundrate ${baud}`);
+  spinner.succeed(`Serial Port: decided ${chalk.green(portname)} baudrate ${baud}`);
 
   return {
     portname,

@@ -68,7 +68,6 @@ async function setupServer() {
 
 let mainWindow: Electron.BrowserWindow | null = null;
 app.on("ready", async () => {
-  const { port } = await setupServer();
   mainWindow = new BrowserWindow({
     width: 980,
     height: 600,
@@ -81,11 +80,15 @@ app.on("ready", async () => {
     },
   });
 
+  const { port } = await setupServer();
   const rendererHost = `http://localhost:${port}`;
+  // const rendererHost = `http://localhost:3000/cli`;
+  const indexPageUrl = `${rendererHost}/index.html`;
+  const mainPageUrl = `${rendererHost}/main.html`;
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-  mainWindow!.loadURL(`${rendererHost}/index.html`);
+  await mainWindow!.loadURL(indexPageUrl);
   // ChromiumのDevツールを開く
-  // mainWindow!.webContents.openDevTools();
+  mainWindow!.webContents.openDevTools();
 
   mainWindow!.on("closed", () => {
     mainWindow = null;
@@ -112,7 +115,7 @@ app.on("ready", async () => {
       .then((res) => {
         if (res!.token!.device !== "none") {
           Storage.set("token", api_key);
-          mainWindow!.loadURL(`${rendererHost}/main.html`);
+          mainWindow!.loadURL(mainPageUrl);
         } else {
           mainWindow!.webContents.send("error:invalidToken");
         }
@@ -125,27 +128,28 @@ app.on("ready", async () => {
   ipcMain.handle("obniz:login", async (event: any, arg: any) => {
     await Login();
     // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-    mainWindow!.loadURL(`${rendererHost}/main.html`);
+    mainWindow!.loadURL(mainPageUrl);
   });
   ipcMain.handle("obniz:logout", async (event: any, arg: any) => {
     await Logout();
-    mainWindow!.loadURL(`${rendererHost}/index.html`);
+    mainWindow!.loadURL(indexPageUrl);
   });
 
   ipcMain.handle("obniz:flash", async (event: any, arg: any) => {
-    // Ver 1.0では使わないはず
     forwardOutput(true);
     await Flash.execute({
-      portname: arg.device,
+      port: arg.device,
       baud: parseInt(arg.baudrate),
       version: arg.os_ver,
       stdout: process.stdout.write,
       hardware: arg.hardware,
       debugserial: false,
     }).catch((e) => {
-      throw e;
+      console.log(e);
+      mainWindow!.webContents.send("error:occurred");
     });
     forwardOutput(false);
+    mainWindow!.webContents.send("obniz:finished");
   });
 
   ipcMain.handle("obniz:erase", async (event: any, arg: any) => {

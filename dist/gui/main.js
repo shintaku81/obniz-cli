@@ -1,25 +1,13 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
     return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
@@ -80,7 +68,6 @@ async function setupServer() {
 }
 let mainWindow = null;
 electron_1.app.on("ready", async () => {
-    const { port } = await setupServer();
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
         height: 600,
@@ -92,11 +79,15 @@ electron_1.app.on("ready", async () => {
             preload: path.join(__dirname, "preload.js"),
         },
     });
+    const { port } = await setupServer();
     const rendererHost = `http://localhost:${port}`;
+    // const rendererHost = `http://localhost:3000/cli`;
+    const indexPageUrl = `${rendererHost}/index.html`;
+    const mainPageUrl = `${rendererHost}/main.html`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-    mainWindow.loadURL(`${rendererHost}/index.html`);
+    await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
-    // mainWindow!.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -119,7 +110,7 @@ electron_1.app.on("ready", async () => {
             .then((res) => {
             if (res.token.device !== "none") {
                 Storage.set("token", api_key);
-                mainWindow.loadURL(`${rendererHost}/main.html`);
+                mainWindow.loadURL(mainPageUrl);
             }
             else {
                 mainWindow.webContents.send("error:invalidToken");
@@ -132,26 +123,27 @@ electron_1.app.on("ready", async () => {
     electron_1.ipcMain.handle("obniz:login", async (event, arg) => {
         await login_1.default();
         // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-        mainWindow.loadURL(`${rendererHost}/main.html`);
+        mainWindow.loadURL(mainPageUrl);
     });
     electron_1.ipcMain.handle("obniz:logout", async (event, arg) => {
         await logout_1.default();
-        mainWindow.loadURL(`${rendererHost}/index.html`);
+        mainWindow.loadURL(indexPageUrl);
     });
     electron_1.ipcMain.handle("obniz:flash", async (event, arg) => {
-        // Ver 1.0では使わないはず
         forwardOutput(true);
         await flash_1.default.execute({
-            portname: arg.device,
+            port: arg.device,
             baud: parseInt(arg.baudrate),
             version: arg.os_ver,
             stdout: process.stdout.write,
             hardware: arg.hardware,
             debugserial: false,
         }).catch((e) => {
-            throw e;
+            console.log(e);
+            mainWindow.webContents.send("error:occurred");
         });
         forwardOutput(false);
+        mainWindow.webContents.send("obniz:finished");
     });
     electron_1.ipcMain.handle("obniz:erase", async (event, arg) => {
         erase_1.default({

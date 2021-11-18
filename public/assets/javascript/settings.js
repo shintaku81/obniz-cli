@@ -15,8 +15,7 @@ $(() => {
       $('#write_switcher.switch-container').removeClass('disabled');
       $('#write_switcher.switch-container input').removeAttr('disabled');
       $('#write_switcher.switch-container select').removeAttr('disabled');
-    }
-    else {
+    } else {
       $('#write_switcher.switch-container').addClass('disabled');
       $('#write_switcher.switch-container input').attr('disabled', true);
       $('#write_switcher.switch-container select').attr('disabled', true);
@@ -30,8 +29,7 @@ $(() => {
       $('#config_switcher.switch-container').removeClass('disabled');
       $('#config_switcher.switch-container input').removeAttr('disabled');
       $('#config_switcher.switch-container select').removeAttr('disabled');
-    }
-    else {
+    } else {
       $('#config_switcher.switch-container').addClass('disabled');
       $('#config_switcher.switch-container input').attr('disabled', true);
       $('#config_switcher.switch-container select').attr('disabled', true);
@@ -41,7 +39,7 @@ $(() => {
 
   $('#write_options').on('change', () => {
     const setting = $('#write_options input[name="target_device"]:checked').val();
-    switch(setting) {
+    switch (setting) {
       case "new":
         $('#targetDeviceTab #existingDevice').removeClass("active");
         $('#targetDeviceTab #newDevice').addClass("active");
@@ -55,6 +53,8 @@ $(() => {
         break;
 
       case "os_only":
+        $('#targetDeviceTab #newDevice').removeClass("active");
+        $('#targetDeviceTab #existingDevice').removeClass("active");
         $('#specific_settings').attr("hidden", true);
         break;
     }
@@ -62,7 +62,7 @@ $(() => {
 
   $('#automatic_options').on('change', () => {
     const setting = $('#automatic_options input[name="setting_type"]:checked').val();
-    switch(setting) {
+    switch (setting) {
       case "same":
         $('#automatic_settings #individual').removeClass("active");
         $('#automatic_settings #same').addClass("active");
@@ -88,7 +88,7 @@ $(() => {
 
       settings.target_device = $('#write_options input[name="target_device"]:checked').val();
 
-      switch(settings.target_device) {
+      switch (settings.target_device) {
         case 'new':
           settings.qrcode = $("#qrcode").val();
           break;
@@ -96,12 +96,15 @@ $(() => {
         case 'pregenerated':
           settings.obniz_id = $("#obniz_id").val();
           break;
+
+        case 'os_only':
+          break;
       }
     }
 
     settings.automatic_type = $('#automatic_options input[name="setting_type"]:checked').val();
 
-    switch(settings.automatic_type) {
+    switch (settings.automatic_type) {
       case 'same':
         settings.opname = $("#op_name").val();
         settings.indication_id = $("#indication_id").val();
@@ -109,7 +112,7 @@ $(() => {
       case 'individual':
         settings.description = $("#description").val();
         settings.config_json = $("#filename").html();
-      break;
+        break;
     }
     console.log(settings);
     return settings;
@@ -119,18 +122,20 @@ $(() => {
     $('#writeModal').modal('hide');
     $('#main_tab #settings_tab').removeClass("active");
     $('#main_tab #terminal_tab').addClass("active");
-    
+
     $('.bs-wizard-step').removeClass("complete");
     $('.bs-wizard-step').removeClass("active");
     $('.bs-wizard-step').addClass("disabled");
 
     window.onresize();
-    settings = getSummary();
+    let settings = getSummary();
 
-    if (settings.whether_write) {
+
+    if (settings.target_device === "os_only") {
+      window.electron.flash(settings);
+    } else if (settings.whether_write) {
       window.electron.create(settings);
-    }
-    else if(settings.whether_config){
+    } else if (settings.whether_config) {
       //ToDo: Config
       window.electron.config(settings);
     }
@@ -172,19 +177,23 @@ $(() => {
     const setting = $('#write_options input[name="target_device"]:checked').val();
     if ($('#new_device').is(':checked', true) && $('#using_qr').is(':checked', true)) {
       $('#writeModal').modal('show');
+      console.log("#writeModal show");
       $('#qrcode').focus();
-    }
-    else {
+    } else {
       writeStart();
     }
   });
 
+  $('#writeModal').on("show.bs.modal", () => {
+
+    console.log("#writeModal show event");
+  })
   $('#write_start').on('click', writeStart);
 
   $('#config_json').on('click', (event) => {
     event.preventDefault();
     const filename = window.electron.opendialog();
-    if(filename) {
+    if (filename) {
       $('#filename').html(filename);
     }
   });
