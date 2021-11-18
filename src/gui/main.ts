@@ -105,7 +105,7 @@ app.on("ready", async () => {
   });
 
   ipcMain.handle("link:open", async (event: any, arg: any) => {
-    shell.openExternal(arg.url);
+    await shell.openExternal(arg.url);
   });
 
   ipcMain.handle("obniz:api_login", async (event: any, arg: any) => {
@@ -128,11 +128,11 @@ app.on("ready", async () => {
   ipcMain.handle("obniz:login", async (event: any, arg: any) => {
     await Login();
     // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-    mainWindow!.loadURL(mainPageUrl);
+    await mainWindow!.loadURL(mainPageUrl);
   });
   ipcMain.handle("obniz:logout", async (event: any, arg: any) => {
     await Logout();
-    mainWindow!.loadURL(indexPageUrl);
+    await mainWindow!.loadURL(indexPageUrl);
   });
 
   ipcMain.handle("obniz:flash", async (event: any, arg: any) => {
@@ -144,6 +144,7 @@ app.on("ready", async () => {
       stdout: process.stdout.write,
       hardware: arg.hardware,
       debugserial: false,
+      skiprecovery: true,
     }).catch((e) => {
       console.log(e);
       mainWindow!.webContents.send("error:occurred");
@@ -164,7 +165,8 @@ app.on("ready", async () => {
         mainWindow!.webContents.send("obniz:erased", success);
       })
       .catch((e) => {
-        throw e;
+        mainWindow!.webContents.send("obniz:erased", e.message);
+        // throw e;
       });
   });
 
@@ -177,6 +179,7 @@ app.on("ready", async () => {
       baud: arg.baudrate,
       hardware: arg.hardware,
       version: arg.os_ver,
+      skiprecovery: true,
     };
     if (arg.description) {
       params.description = arg.description;
@@ -287,11 +290,25 @@ app.on("ready", async () => {
     }
   }
 
+  let isDeviceListLoopStarted = false;
   ipcMain.handle("devices:list", async (event: any, arg: any) => {
+    if (isDeviceListLoopStarted) {
+      return;
+    }
+    isDeviceListLoopStarted = true;
+
     const ports: SerialPort.PortInfo[] = await SerialPort.list();
     const selected: string | null = null;
 
-    monitorSerialPorts();
+    const hop = async () => {
+      try {
+        await monitorSerialPorts();
+      } catch (e) {
+        setTimeout(hop, 1000);
+      }
+    };
+
+    hop().catch(() => {});
   });
 
   ipcMain.on("json:open", async (event: any, arg: any) => {
@@ -311,4 +328,8 @@ app.on("ready", async () => {
         }
       });
   });
+});
+
+process.on("exit", () => {
+  console.log("exit");
 });

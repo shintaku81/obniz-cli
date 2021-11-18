@@ -74,7 +74,7 @@ exports.default = {
             // recovery without asking when existing obniz id specified
             device = await device_1.default.get(token, args.obniz_id);
         }
-        else {
+        else if (!args.skiprecovery) {
             // recovery data.
             const recoveryDeviceString = Storage.get("recovery-device");
             if (recoveryDeviceString) {

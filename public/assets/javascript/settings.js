@@ -111,7 +111,10 @@ $(() => {
         break;
       case 'individual':
         settings.description = $("#description").val();
-        settings.config_json = $("#filename").html();
+        let filename = $("#filename").html();
+        if(filename !== "No File Chosen"){
+          settings.config_json = filename;
+        }
         break;
     }
     console.log(settings);

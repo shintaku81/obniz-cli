@@ -389,6 +389,13 @@
               <button type="button" class="btn btn-thirdly text-decoration-underline" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
+          <div id="eraseError" class="tab-pane">
+            <p>Oops! Some error has occurred.<br></p>
+            <p id="eraseErrorMessage"></p>
+            <div>
+              <button type="button" class="btn btn-thirdly text-decoration-underline" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -402,14 +409,21 @@
 
     window.electron.erase(
       {device: $('#device').val(), baudrate: $('#baudrate').val()}
-    ).then((success) => {
+    ).then((error) => {
       $('#eraseProgress').removeClass("active");
-      $('#erased').addClass("active");
+      if(error){
+        $("#eraseErrorMessage").text(error);
+        $('#eraseError').addClass("active");
+      }else{
+        $('#erased').addClass("active");
+
+      }
     });
   }
 
   $('#eraseModal').on('hidden.bs.modal', function () {
     $('#erased').removeClass("active");
+    $('#eraseError').removeClass("active");
     $('#eraseConfirm').addClass("active");
   })
 </script>

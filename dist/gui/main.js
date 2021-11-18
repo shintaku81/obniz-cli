@@ -87,7 +87,7 @@ electron_1.app.on("ready", async () => {
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
-    // mainWindow!.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -101,7 +101,7 @@ electron_1.app.on("ready", async () => {
         mainWindow.minimize();
     });
     electron_1.ipcMain.handle("link:open", async (event, arg) => {
-        electron_1.shell.openExternal(arg.url);
+        await electron_1.shell.openExternal(arg.url);
     });
     electron_1.ipcMain.handle("obniz:api_login", async (event, arg) => {
         const sdk = sdk_1.getClientSdk(arg.key);
@@ -123,11 +123,11 @@ electron_1.app.on("ready", async () => {
     electron_1.ipcMain.handle("obniz:login", async (event, arg) => {
         await login_1.default();
         // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-        mainWindow.loadURL(mainPageUrl);
+        await mainWindow.loadURL(mainPageUrl);
     });
     electron_1.ipcMain.handle("obniz:logout", async (event, arg) => {
         await logout_1.default();
-        mainWindow.loadURL(indexPageUrl);
+        await mainWindow.loadURL(indexPageUrl);
     });
     electron_1.ipcMain.handle("obniz:flash", async (event, arg) => {
         forwardOutput(true);
@@ -138,6 +138,7 @@ electron_1.app.on("ready", async () => {
             stdout: process.stdout.write,
             hardware: arg.hardware,
             debugserial: false,
+            skiprecovery: true,
         }).catch((e) => {
             console.log(e);
             mainWindow.webContents.send("error:occurred");
@@ -157,7 +158,8 @@ electron_1.app.on("ready", async () => {
             mainWindow.webContents.send("obniz:erased", success);
         })
             .catch((e) => {
-            throw e;
+            mainWindow.webContents.send("obniz:erased", e.message);
+            // throw e;
         });
     });
     electron_1.ipcMain.handle("obniz:create", async (event, arg) => {
@@ -169,6 +171,7 @@ electron_1.app.on("ready", async () => {
             baud: arg.baudrate,
             hardware: arg.hardware,
             version: arg.os_ver,
+            skiprecovery: true,
         };
         if (arg.description) {
             params.description = arg.description;
@@ -269,10 +272,23 @@ electron_1.app.on("ready", async () => {
             ports = portsInfo.ports;
         }
     }
+    let isDeviceListLoopStarted = false;
     electron_1.ipcMain.handle("devices:list", async (event, arg) => {
+        if (isDeviceListLoopStarted) {
+            return;
+        }
+        isDeviceListLoopStarted = true;
         const ports = await serialport_1.default.list();
         const selected = null;
-        monitorSerialPorts();
+        const hop = async () => {
+            try {
+                await monitorSerialPorts();
+            }
+            catch (e) {
+                setTimeout(hop, 1000);
+            }
+        };
+        hop().catch(() => { });
     });
     electron_1.ipcMain.on("json:open", async (event, arg) => {
         electron_1.dialog
@@ -292,5 +308,8 @@ electron_1.app.on("ready", async () => {
             }
         });
     });
+});
+process.on("exit", () => {
+    console.log("exit");
 });
 //# sourceMappingURL=main.js.map
