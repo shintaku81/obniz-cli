@@ -87,7 +87,7 @@ electron_1.app.on("ready", async () => {
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
-    mainWindow.webContents.openDevTools();
+    // mainWindow!.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
