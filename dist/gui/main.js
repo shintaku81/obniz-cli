@@ -1,7 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -9,11 +6,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-const express_1 = __importDefault(require("express"));
-const get_port_1 = __importDefault(require("get-port"));
-const http_1 = __importDefault(require("http"));
 const path = __importStar(require("path"));
 const serialport_1 = __importDefault(require("serialport"));
 const sdk_1 = require("../libs/obnizio/sdk");
@@ -27,6 +24,10 @@ const os_1 = __importDefault(require("../libs/obnizio/os"));
 const Storage = __importStar(require("../libs/storage"));
 const login_1 = __importDefault(require("../libs/user/login"));
 const logout_1 = __importDefault(require("../libs/user/logout"));
+if (process.platform === "darwin") {
+    process.env.PATH += ":/usr/local/bin";
+}
+const rendererHost = "http://localhost:9998";
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 const api_key = null;
@@ -47,27 +48,8 @@ function forwardOutput(enable) {
         process.stdout.write = originalStdoutWrite;
     }
 }
-async function setupServer() {
-    const expressApp = express_1.default();
-    const port = await get_port_1.default();
-    expressApp.set("port", port);
-    const staticPath = path.join(__dirname, "../../public");
-    expressApp.use(express_1.default.static(staticPath));
-    const server = http_1.default.createServer(expressApp);
-    await new Promise((resolve, reject) => {
-        server.on("error", (e) => {
-            reject(e);
-        });
-        server.on("listening", () => {
-            console.log(`listening on http://localhost:${port} ${staticPath}`);
-            resolve();
-        });
-        server.listen(port);
-    });
-    return { port };
-}
 let mainWindow = null;
-electron_1.app.on("ready", async () => {
+electron_1.app.on("ready", () => {
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
         height: 600,
@@ -79,13 +61,8 @@ electron_1.app.on("ready", async () => {
             preload: path.join(__dirname, "preload.js"),
         },
     });
-    const { port } = await setupServer();
-    const rendererHost = `http://localhost:${port}`;
-    // const rendererHost = `http://localhost:3000/cli`;
-    const indexPageUrl = `${rendererHost}/index.html`;
-    const mainPageUrl = `${rendererHost}/main.html`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-    await mainWindow.loadURL(indexPageUrl);
+    mainWindow.loadURL(`${rendererHost}/index.html`);
     // ChromiumのDevツールを開く
     // mainWindow!.webContents.openDevTools();
     mainWindow.on("closed", () => {
@@ -101,7 +78,7 @@ electron_1.app.on("ready", async () => {
         mainWindow.minimize();
     });
     electron_1.ipcMain.handle("link:open", async (event, arg) => {
-        await electron_1.shell.openExternal(arg.url);
+        electron_1.shell.openExternal(arg.url);
     });
     electron_1.ipcMain.handle("obniz:api_login", async (event, arg) => {
         const sdk = sdk_1.getClientSdk(arg.key);
@@ -110,7 +87,7 @@ electron_1.app.on("ready", async () => {
             .then((res) => {
             if (res.token.device !== "none") {
                 Storage.set("token", api_key);
-                mainWindow.loadURL(mainPageUrl);
+                mainWindow.loadURL(`${rendererHost}/main.html`);
             }
             else {
                 mainWindow.webContents.send("error:invalidToken");
@@ -123,28 +100,26 @@ electron_1.app.on("ready", async () => {
     electron_1.ipcMain.handle("obniz:login", async (event, arg) => {
         await login_1.default();
         // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-        await mainWindow.loadURL(mainPageUrl);
+        mainWindow.loadURL(`${rendererHost}/main.html`);
     });
     electron_1.ipcMain.handle("obniz:logout", async (event, arg) => {
         await logout_1.default();
-        await mainWindow.loadURL(indexPageUrl);
+        mainWindow.loadURL(`${rendererHost}/index.html`);
     });
     electron_1.ipcMain.handle("obniz:flash", async (event, arg) => {
+        // Ver 1.0では使わないはず
         forwardOutput(true);
         await flash_1.default.execute({
-            port: arg.device,
+            portname: arg.device,
             baud: parseInt(arg.baudrate),
             version: arg.os_ver,
             stdout: process.stdout.write,
             hardware: arg.hardware,
             debugserial: false,
-            skiprecovery: true,
         }).catch((e) => {
-            console.log(e);
-            mainWindow.webContents.send("error:occurred");
+            throw e;
         });
         forwardOutput(false);
-        mainWindow.webContents.send("obniz:finished");
     });
     electron_1.ipcMain.handle("obniz:erase", async (event, arg) => {
         erase_1.default({
@@ -158,8 +133,7 @@ electron_1.app.on("ready", async () => {
             mainWindow.webContents.send("obniz:erased", success);
         })
             .catch((e) => {
-            mainWindow.webContents.send("obniz:erased", e.message);
-            // throw e;
+            throw e;
         });
     });
     electron_1.ipcMain.handle("obniz:create", async (event, arg) => {
@@ -171,7 +145,6 @@ electron_1.app.on("ready", async () => {
             baud: arg.baudrate,
             hardware: arg.hardware,
             version: arg.os_ver,
-            skiprecovery: true,
         };
         if (arg.description) {
             params.description = arg.description;
@@ -272,23 +245,10 @@ electron_1.app.on("ready", async () => {
             ports = portsInfo.ports;
         }
     }
-    let isDeviceListLoopStarted = false;
     electron_1.ipcMain.handle("devices:list", async (event, arg) => {
-        if (isDeviceListLoopStarted) {
-            return;
-        }
-        isDeviceListLoopStarted = true;
         const ports = await serialport_1.default.list();
         const selected = null;
-        const hop = async () => {
-            try {
-                await monitorSerialPorts();
-            }
-            catch (e) {
-                setTimeout(hop, 1000);
-            }
-        };
-        hop().catch(() => { });
+        monitorSerialPorts();
     });
     electron_1.ipcMain.on("json:open", async (event, arg) => {
         electron_1.dialog
@@ -308,8 +268,5 @@ electron_1.app.on("ready", async () => {
             }
         });
     });
-});
-process.on("exit", () => {
-    console.log("exit");
 });
 //# sourceMappingURL=main.js.map
