@@ -28,7 +28,7 @@
     "appId": "com.obniz.app.writer",
     "productName": "obnizWriter",
     "buildDependenciesFromSource": true,
-    "npmRebuild": false,
+    "npmRebuild": true,
     "directories": {
       "buildResources": "dist",
       "output": "app"

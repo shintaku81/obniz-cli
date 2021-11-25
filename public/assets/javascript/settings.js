@@ -180,17 +180,16 @@ $(() => {
     const setting = $('#write_options input[name="target_device"]:checked').val();
     if ($('#new_device').is(':checked', true) && $('#using_qr').is(':checked', true)) {
       $('#writeModal').modal('show');
-      console.log("#writeModal show");
-      $('#qrcode').focus();
+      $('#qrcode').val("");
+
     } else {
       writeStart();
     }
   });
 
-  $('#writeModal').on("show.bs.modal", () => {
-
-    console.log("#writeModal show event");
-  })
+  $('#writeModal').on('shown.bs.modal', () => {
+    $('#qrcode').focus();
+  });
   $('#write_start').on('click', writeStart);
 
   $('#config_json').on('click', (event) => {
