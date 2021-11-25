@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
+const packageJson = require("../../package.json");
 electron_1.contextBridge.exposeInMainWorld("electron", {
-    systemVersion: () => "1.0.0",
+    systemVersion: () => packageJson.version,
     systemClose: async (arg) => await electron_1.ipcRenderer.invoke("system:close", arg),
     systemMaximize: async (arg) => await electron_1.ipcRenderer.invoke("system:maximize", arg),
     systemMinimize: async (arg) => await electron_1.ipcRenderer.invoke("system:minimize", arg),

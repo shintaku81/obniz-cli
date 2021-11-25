@@ -1,7 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
+const packageJson = require("../../package.json");
 
 contextBridge.exposeInMainWorld("electron", {
-  systemVersion: () => "1.0.0",
+  systemVersion: () => packageJson.version,
   systemClose: async (arg: any) => await ipcRenderer.invoke("system:close", arg),
   systemMaximize: async (arg: any) => await ipcRenderer.invoke("system:maximize", arg),
   systemMinimize: async (arg: any) => await ipcRenderer.invoke("system:minimize", arg),

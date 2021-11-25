@@ -1,6 +1,6 @@
 {
   "name": "obniz-cli",
-  "version": "0.9.1-alpha.0",
+  "version": "0.9.0",
   "description": "",
   "main": "dist/gui/main.js",
   "keywords": [
@@ -8,11 +8,9 @@
   ],
   "repository": "obniz/obniz-cli",
   "scripts": {
-    "pack:mac": "./node_modules/.bin/electron-packager . obnizWriter --platform=darwin --arch=x64 --onefile --overwrite --icon=public/obnizwriter.icns --out=app",
-    "pack:win64": "./node_modules/.bin/electron-packager . obnizWriter --platform=win32 --arch=x64 --onefile --overwrite --icon=public/obnizwriter.ico --out=app",
-    "pack:win32": "./node_modules/.bin/electron-packager . obnizWriter --platform=win32 --arch=ia32 --onefile --overwrite --icon=public/obnizwriter.ico --out=app",
-    "pack:linux": "./node_modules/.bin/electron-packager . obnizWrtier --platform=linux --arch=x64 --onefile --overwrite --icon=public/obnizwriter.ico --out=app",
-    "packager": "npm run build && npm run pack:mac && npm run pack:win64 && npm run pack:linux && npm run pack:linux",
+    "pack:mac": "npx electron-builder --mac --x64",
+    "pack:win64": "npx electron-builder --win --x64",
+    "packager": "npm run build && npm run pack:mac && npm run pack:win64",
     "build": "npm run clean && npm run lint && tsc",
     "tsc": "tsc",
     "lint": "npm run lint-ts",
@@ -26,8 +24,39 @@
   "bin": {
     "obniz-cli": "./dist/index.js"
   },
+  "build": {
+    "appId": "com.obniz.app.writer",
+    "productName": "obnizWriter",
+    "buildDependenciesFromSource": true,
+    "npmRebuild": false,
+    "directories": {
+      "buildResources": "dist",
+      "output": "app"
+    },
+    "files": [
+      "dist/**/*",
+      "public/**/*",
+      "graphql/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "public/obnizwriter.icns"
+    },
+    "win": {
+      "icon": "public/obnizwriter.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerHeaderIcon": "public/obnizwriter.ico"
+    }
+  },
   "preferGlobal": true,
-  "author": "yukisato <yuki@yuki-sato.com>",
+  "author": "obniz inc",
   "homepage": "https://obniz.com/",
   "license": "MIT",
   "bugs": {
@@ -36,8 +65,8 @@
   "private": false,
   "devDependencies": {
     "electron": "^14.0.0",
-    "electron-packager": "^15.4.0",
-    "electron-rebuild": "^3.2.3",
+    "electron-builder": "^22.14.5",
+    "electron-rebuild": "^3.2.5",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-jasmine": "^2.10.1",
@@ -52,7 +81,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@9wick/esptool.js": "^0.9.3",
+    "@9wick/esptool.js": "^0.9.5",
     "@graphql-codegen/cli": "^1.13.5",
     "@graphql-codegen/typescript": "^1.13.5",
     "@graphql-codegen/typescript-graphql-request": "^1.13.5",
@@ -67,6 +96,8 @@
     "@types/socket.io": "^2.1.13",
     "@types/wtfnode": "^0.7.0",
     "chalk": "^4.0.0",
+    "electron-log": "^4.4.1",
+    "electron-updater": "^4.6.1",
     "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "get-port": "^5.1.1",

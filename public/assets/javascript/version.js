@@ -7,12 +7,11 @@ $(() => {
                 <li>
                   <ul>
                     <li>Current: Ver. <%= currentVersion %></li>
-                    <li>Latest: Ver. <%= latestVersion %></li>
                   </ul>
                 </li>
               </ul>
     `;
 
   $('#versioninfo').html(ejs.render(html, {currentVersion, latestVersion}));
-  $('#version').html(ejs.render(`Ver. <%= latestVersion %>`, { latestVersion }));
+  $('#version').html(ejs.render(`Ver. <%= currentVersion %>`, { currentVersion }));
 });

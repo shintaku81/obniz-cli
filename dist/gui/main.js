@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -6,11 +9,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
+const express_1 = __importDefault(require("express"));
+const get_port_1 = __importDefault(require("get-port"));
+const http_1 = __importDefault(require("http"));
 const path = __importStar(require("path"));
 const serialport_1 = __importDefault(require("serialport"));
 const sdk_1 = require("../libs/obnizio/sdk");
@@ -24,10 +27,8 @@ const os_1 = __importDefault(require("../libs/obnizio/os"));
 const Storage = __importStar(require("../libs/storage"));
 const login_1 = __importDefault(require("../libs/user/login"));
 const logout_1 = __importDefault(require("../libs/user/logout"));
-if (process.platform === "darwin") {
-    process.env.PATH += ":/usr/local/bin";
-}
-const rendererHost = "http://localhost:9998";
+const electron_log_1 = __importDefault(require("electron-log"));
+const electron_updater_1 = require("electron-updater");
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 const api_key = null;
@@ -48,8 +49,27 @@ function forwardOutput(enable) {
         process.stdout.write = originalStdoutWrite;
     }
 }
+async function setupServer() {
+    const expressApp = express_1.default();
+    const port = await get_port_1.default();
+    expressApp.set("port", port);
+    const staticPath = path.join(__dirname, "../../public");
+    expressApp.use(express_1.default.static(staticPath));
+    const server = http_1.default.createServer(expressApp);
+    await new Promise((resolve, reject) => {
+        server.on("error", (e) => {
+            reject(e);
+        });
+        server.on("listening", () => {
+            console.log(`listening on http://localhost:${port} ${staticPath}`);
+            resolve();
+        });
+        server.listen(port);
+    });
+    return { port };
+}
 let mainWindow = null;
-electron_1.app.on("ready", () => {
+electron_1.app.on("ready", async () => {
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
         height: 600,
@@ -61,8 +81,16 @@ electron_1.app.on("ready", () => {
             preload: path.join(__dirname, "preload.js"),
         },
     });
+    if (!mainWindow) {
+        return;
+    }
+    const { port } = await setupServer();
+    const rendererHost = `http://localhost:${port}`;
+    // const rendererHost = `http://localhost:3000/cli`;
+    const indexPageUrl = `${rendererHost}/index.html`;
+    const mainPageUrl = `${rendererHost}/main.html`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-    mainWindow.loadURL(`${rendererHost}/index.html`);
+    await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
     // mainWindow!.webContents.openDevTools();
     mainWindow.on("closed", () => {
@@ -78,7 +106,7 @@ electron_1.app.on("ready", () => {
         mainWindow.minimize();
     });
     electron_1.ipcMain.handle("link:open", async (event, arg) => {
-        electron_1.shell.openExternal(arg.url);
+        await electron_1.shell.openExternal(arg.url);
     });
     electron_1.ipcMain.handle("obniz:api_login", async (event, arg) => {
         const sdk = sdk_1.getClientSdk(arg.key);
@@ -87,7 +115,7 @@ electron_1.app.on("ready", () => {
             .then((res) => {
             if (res.token.device !== "none") {
                 Storage.set("token", api_key);
-                mainWindow.loadURL(`${rendererHost}/main.html`);
+                mainWindow.loadURL(mainPageUrl);
             }
             else {
                 mainWindow.webContents.send("error:invalidToken");
@@ -100,26 +128,28 @@ electron_1.app.on("ready", () => {
     electron_1.ipcMain.handle("obniz:login", async (event, arg) => {
         await login_1.default();
         // mainWindow!.loadURL(`${rendererHost}/settings.html`);
-        mainWindow.loadURL(`${rendererHost}/main.html`);
+        await mainWindow.loadURL(mainPageUrl);
     });
     electron_1.ipcMain.handle("obniz:logout", async (event, arg) => {
         await logout_1.default();
-        mainWindow.loadURL(`${rendererHost}/index.html`);
+        await mainWindow.loadURL(indexPageUrl);
     });
     electron_1.ipcMain.handle("obniz:flash", async (event, arg) => {
-        // Ver 1.0では使わないはず
         forwardOutput(true);
         await flash_1.default.execute({
-            portname: arg.device,
+            port: arg.device,
             baud: parseInt(arg.baudrate),
             version: arg.os_ver,
             stdout: process.stdout.write,
             hardware: arg.hardware,
             debugserial: false,
+            skiprecovery: true,
         }).catch((e) => {
-            throw e;
+            console.log(e);
+            mainWindow.webContents.send("error:occurred");
         });
         forwardOutput(false);
+        mainWindow.webContents.send("obniz:finished");
     });
     electron_1.ipcMain.handle("obniz:erase", async (event, arg) => {
         erase_1.default({
@@ -133,7 +163,8 @@ electron_1.app.on("ready", () => {
             mainWindow.webContents.send("obniz:erased", success);
         })
             .catch((e) => {
-            throw e;
+            mainWindow.webContents.send("obniz:erased", e.message);
+            // throw e;
         });
     });
     electron_1.ipcMain.handle("obniz:create", async (event, arg) => {
@@ -145,6 +176,7 @@ electron_1.app.on("ready", () => {
             baud: arg.baudrate,
             hardware: arg.hardware,
             version: arg.os_ver,
+            skiprecovery: true,
         };
         if (arg.description) {
             params.description = arg.description;
@@ -245,10 +277,23 @@ electron_1.app.on("ready", () => {
             ports = portsInfo.ports;
         }
     }
+    let isDeviceListLoopStarted = false;
     electron_1.ipcMain.handle("devices:list", async (event, arg) => {
+        if (isDeviceListLoopStarted) {
+            return;
+        }
+        isDeviceListLoopStarted = true;
         const ports = await serialport_1.default.list();
         const selected = null;
-        monitorSerialPorts();
+        const hop = async () => {
+            try {
+                await monitorSerialPorts();
+            }
+            catch (e) {
+                setTimeout(hop, 1000);
+            }
+        };
+        hop().catch(() => { });
     });
     electron_1.ipcMain.on("json:open", async (event, arg) => {
         electron_1.dialog
@@ -268,5 +313,44 @@ electron_1.app.on("ready", () => {
             }
         });
     });
+    // -------------------------------------------
+    // 自動アップデート関連のイベント処理
+    // -------------------------------------------
+    // アップデートをチェック開始
+    electron_updater_1.autoUpdater.on("checking-for-update", () => {
+        electron_log_1.default.info(process.pid, "checking-for-update...");
+    });
+    // アップデートが見つかった
+    electron_updater_1.autoUpdater.on("update-available", (ev, info) => {
+        electron_log_1.default.info(process.pid, "Update available.");
+    });
+    // アップデートがなかった（最新版だった）
+    electron_updater_1.autoUpdater.on("update-not-available", (ev, info) => {
+        electron_log_1.default.info(process.pid, "Update not available.");
+    });
+    // アップデートのダウンロードが完了
+    electron_updater_1.autoUpdater.on("update-downloaded", (info) => {
+        const dialogOpts = {
+            type: "info",
+            buttons: ["Update and restart", "Later"],
+            message: "Update",
+            detail: "New version is available. Would you like to reboot and apply the update?",
+        };
+        // ダイアログを表示しすぐに再起動するか確認
+        electron_1.dialog.showMessageBox(mainWindow, dialogOpts).then((returnValue) => {
+            if (returnValue.response === 0) {
+                electron_updater_1.autoUpdater.quitAndInstall();
+            }
+        });
+    });
+    // エラーが発生
+    electron_updater_1.autoUpdater.on("error", (err) => {
+        electron_log_1.default.error(process.pid, err);
+    });
+    // アップデートをチェック
+    await electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+});
+process.on("exit", () => {
+    console.log("exit");
 });
 //# sourceMappingURL=main.js.map

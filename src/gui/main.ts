@@ -21,6 +21,9 @@ import * as Storage from "../libs/storage";
 import Login from "../libs/user/login";
 import Logout from "../libs/user/logout";
 
+import log from "electron-log";
+import { autoUpdater } from "electron-updater";
+
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 
@@ -59,7 +62,7 @@ async function setupServer() {
     });
     server.on("listening", () => {
       console.log(`listening on http://localhost:${port} ${staticPath}`);
-      resolve();
+      resolve(null);
     });
     server.listen(port);
   });
@@ -79,6 +82,9 @@ app.on("ready", async () => {
       preload: path.join(__dirname, "preload.js"),
     },
   });
+  if (!mainWindow) {
+    return;
+  }
 
   const { port } = await setupServer();
   const rendererHost = `http://localhost:${port}`;
@@ -86,11 +92,11 @@ app.on("ready", async () => {
   const indexPageUrl = `${rendererHost}/index.html`;
   const mainPageUrl = `${rendererHost}/main.html`;
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-  await mainWindow!.loadURL(indexPageUrl);
+  await mainWindow.loadURL(indexPageUrl);
   // ChromiumのDevツールを開く
   // mainWindow!.webContents.openDevTools();
 
-  mainWindow!.on("closed", () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 
@@ -328,6 +334,45 @@ app.on("ready", async () => {
         }
       });
   });
+
+  // -------------------------------------------
+  // 自動アップデート関連のイベント処理
+  // -------------------------------------------
+  // アップデートをチェック開始
+  autoUpdater.on("checking-for-update", () => {
+    log.info(process.pid, "checking-for-update...");
+  });
+  // アップデートが見つかった
+  autoUpdater.on("update-available", (ev, info) => {
+    log.info(process.pid, "Update available.");
+  });
+  // アップデートがなかった（最新版だった）
+  autoUpdater.on("update-not-available", (ev, info) => {
+    log.info(process.pid, "Update not available.");
+  });
+  // アップデートのダウンロードが完了
+  autoUpdater.on("update-downloaded", (info) => {
+    const dialogOpts = {
+      type: "info",
+      buttons: ["Update and restart", "Later"],
+      message: "Update",
+      detail: "New version is available. Would you like to reboot and apply the update?",
+    };
+
+    // ダイアログを表示しすぐに再起動するか確認
+    dialog.showMessageBox(mainWindow!, dialogOpts).then((returnValue) => {
+      if (returnValue.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+  });
+  // エラーが発生
+  autoUpdater.on("error", (err) => {
+    log.error(process.pid, err);
+  });
+
+  // アップデートをチェック
+  await autoUpdater.checkForUpdatesAndNotify();
 });
 
 process.on("exit", () => {
