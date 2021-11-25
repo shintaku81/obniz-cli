@@ -15,7 +15,6 @@ const express_1 = __importDefault(require("express"));
 const get_port_1 = __importDefault(require("get-port"));
 const http_1 = __importDefault(require("http"));
 const path = __importStar(require("path"));
-const serialport_1 = __importDefault(require("serialport"));
 const sdk_1 = require("../libs/obnizio/sdk");
 const user_1 = __importDefault(require("../libs/obnizio/user"));
 const config_1 = __importDefault(require("../libs/os/config"));
@@ -62,7 +61,7 @@ async function setupServer() {
         });
         server.on("listening", () => {
             console.log(`listening on http://localhost:${port} ${staticPath}`);
-            resolve();
+            resolve(null);
         });
         server.listen(port);
     });
@@ -92,7 +91,7 @@ electron_1.app.on("ready", async () => {
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
-    // mainWindow!.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -269,7 +268,12 @@ electron_1.app.on("ready", async () => {
             portsInfo = await guess_1.default();
             if (JSON.stringify(portsInfo.ports) !== JSON.stringify(ports)) {
                 ports = portsInfo.ports;
-                mainWindow.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+                try {
+                    mainWindow.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+                }
+                catch (e) {
+                    // nothing
+                }
             }
             await new Promise((resolve) => {
                 setTimeout(resolve, 100);
@@ -280,11 +284,14 @@ electron_1.app.on("ready", async () => {
     let isDeviceListLoopStarted = false;
     electron_1.ipcMain.handle("devices:list", async (event, arg) => {
         if (isDeviceListLoopStarted) {
+            const portsInfo = await guess_1.default();
+            try {
+                mainWindow.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+            }
+            catch (e) { }
             return;
         }
         isDeviceListLoopStarted = true;
-        const ports = await serialport_1.default.list();
-        const selected = null;
         const hop = async () => {
             try {
                 await monitorSerialPorts();

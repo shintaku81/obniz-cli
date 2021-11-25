@@ -94,7 +94,7 @@ app.on("ready", async () => {
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
   await mainWindow.loadURL(indexPageUrl);
   // ChromiumのDevツールを開く
-  // mainWindow!.webContents.openDevTools();
+  mainWindow!.webContents.openDevTools();
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -286,7 +286,11 @@ app.on("ready", async () => {
 
       if (JSON.stringify(portsInfo.ports) !== JSON.stringify(ports)) {
         ports = portsInfo.ports;
-        mainWindow!.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+        try {
+          mainWindow!.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+        } catch (e) {
+          // nothing
+        }
       }
 
       await new Promise((resolve) => {
@@ -299,12 +303,13 @@ app.on("ready", async () => {
   let isDeviceListLoopStarted = false;
   ipcMain.handle("devices:list", async (event: any, arg: any) => {
     if (isDeviceListLoopStarted) {
+      const portsInfo = await guessPort();
+      try {
+        mainWindow!.webContents.send("devices:update", { ports: portsInfo.ports, selected: portsInfo.portname });
+      } catch (e) {}
       return;
     }
     isDeviceListLoopStarted = true;
-
-    const ports: SerialPort.PortInfo[] = await SerialPort.list();
-    const selected: string | null = null;
 
     const hop = async () => {
       try {
