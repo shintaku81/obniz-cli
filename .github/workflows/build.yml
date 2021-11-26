@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: 16
 
+      - name: cache clean
+        run: npm cache clean
 
       - name: Install Dependencies
         run: npm ci
