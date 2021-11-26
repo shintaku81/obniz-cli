@@ -22,7 +22,8 @@
     "clean": "rimraf ./dist && rimraf ./app ",
     "local": "npx ts-node src/index.ts",
     "start": "ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron dist/index.js",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen",
+    "postinstall": "electron-builder install-app-deps"
   },
   "bin": {
     "obniz-cli": "./dist/index.js"
