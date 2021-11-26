@@ -32,7 +32,7 @@
     "appId": "com.obniz.app.writer",
     "productName": "obnizWriter",
     "buildDependenciesFromSource": true,
-    "npmRebuild": true,
+    "npmRebuild": false,
     "afterSign": "dist/gui/notarize.js",
     "dmg": {
       "sign": false
