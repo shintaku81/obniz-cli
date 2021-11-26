@@ -28,7 +28,7 @@
     "appId": "com.obniz.app.writer",
     "productName": "obnizWriter",
     "buildDependenciesFromSource": true,
-    "npmRebuild": true,
+    "npmRebuild": false,
     "directories": {
       "buildResources": "dist",
       "output": "app"
@@ -39,15 +39,14 @@
       "graphql/**/*",
       "package.json"
     ],
+    "asar": false,
     "mac": {
       "target": "dmg",
       "icon": "public/obnizwriter.icns"
     },
     "win": {
       "icon": "public/obnizwriter.ico",
-      "target": [
-        "nsis"
-      ]
+      "target": "nsis"
     },
     "nsis": {
       "oneClick": false,

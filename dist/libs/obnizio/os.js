@@ -121,7 +121,7 @@ async function downloadFile(url, pathtodownload) {
             reject(err);
         });
         fileStream.on("finish", () => {
-            resolve();
+            resolve(null);
         });
     });
 }
