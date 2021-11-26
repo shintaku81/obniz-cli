@@ -19,3 +19,4 @@ storage.json
 /schema.graphql
 
 .env
+.cache
