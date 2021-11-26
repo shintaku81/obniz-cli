@@ -15,18 +15,20 @@ async function flash(obj) {
     if (obj.debugserial) {
         spinner.stop();
     }
+    let port = null;
+    let espTool = null;
     try {
         // prepare files
         const files = await os_1.default.prepareLocalFile(obj.hardware, obj.version, (progress) => {
             spinner.text = `Flashing obnizOS: ${progress}`;
         });
         spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk_1.default.green(obj.portname)}`;
-        const port = new serial_1.EsptoolSerial(obj.portname, {
+        port = new serial_1.EsptoolSerial(obj.portname, {
             baudRate: 115200,
             autoOpen: false,
         });
         await port.open();
-        const espTool = new esptool_js_1.EspLoader(port, {
+        espTool = new esptool_js_1.EspLoader(port, {
             logger: {
                 log(message, ...optionalParams) { },
                 debug(message, ...optionalParams) { },
@@ -72,12 +74,24 @@ async function flash(obj) {
         }
         // console.log("successfully written device partitions");
         // console.log("flashing succeeded");
-        await espTool.disconnect();
         spinner.succeed(`Flashing obnizOS: Flashed`);
     }
     catch (e) {
         spinner.fail(`Flashing obnizOS: Fail`);
         throw e;
+    }
+    finally {
+        try {
+            if (espTool) {
+                await espTool.disconnect();
+            }
+            if (port) {
+                port.close();
+            }
+        }
+        catch (e) {
+            // nothing
+        }
     }
 }
 exports.default = flash;

@@ -1,0 +1,133 @@
+<div id="settings_tab" class="tab-pane active">
+  <div class="flex-row-container">
+    <div class="w-80">
+      <h2>Create / Update Device</h2>
+    </div>
+    <div class="w-20">
+      <button type="button" class="btn btn-thirdly btn-mid w-80" data-bs-toggle="modal" data-bs-target="#eraseModal">Erase</button>
+    </div>
+  </div>
+
+  <hr class="w-95">
+
+  <div class="flex-row-container">
+    <div class="w-80">
+      <input type="checkbox" id="whether_write" checked>
+      <label for="whether_write">Write obnizOS</label>
+      <div id="write_switcher" class="switch-container">
+        <div class="form-label">
+          <p class="w-100">
+          <label for="hardware">Choose Hardware</label>
+          <select type="text" id="hardware" class="w-60">
+          </select>
+          </p>
+        </div>
+        <div class="form-label">
+          <p class="w-100">
+          <label for="os_ver">Choose OS ver.</label>
+          <select type="text" id="os_ver" class="w-60">
+          </select>
+          </p>
+        </div>
+
+
+        <div class="radio-container">
+          <form id="write_options">
+            <p>
+            <input id="new_device" type="radio" name="target_device" value="new" checked>
+            <label for="new_device">Create New Device</label>
+            </p>
+
+            <p>
+              <input id="pregenerated_device" type="radio" name="target_device" value="pregenerated">
+              <label for="pregenerated_device">Write a pre-generated device</label>
+            </p>
+
+            <p>
+              <input id="os_only" type="radio" name="target_device" value="os_only">
+              <label for="os_only">Write obnizOS only</label>
+            </p>
+
+          </form>
+        </div>
+
+
+        <div id="targetDeviceTab" class="tab-content tab-content-indent">
+          <div id="newDevice" class="tab-pane active">
+
+            <div class="mx-8">
+              <p>
+              <input id="using_qr" type="checkbox" name="using_radio" checked>
+              <label for="using_qr">Link to QR code</label>
+              </p>
+            </div>
+          </div>
+          <div id="existingDevice" class="tab-pane">
+            <div class="form-label">
+              <p class="w-100">
+              <label for="obniz_id">obniz ID</label>
+              <input type="text" id="obniz_id" class="w-60" placeholder="1234-5678">
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="specific_settings">
+        <input type="checkbox" id="whether_configure" checked>
+        <label for="whether_configure">Write Config</label>
+        <div id="config_switcher" class="switch-container">
+
+            <div class="radio-container">
+              <form id="automatic_options">
+                <p>
+                <input id="auto_operation" type="radio" name="setting_type" value="same" checked>
+                <label for="auto_operation">Using Operation</label>
+                </p>
+                <p>
+                <input id="auto_indivisual" type="radio" name="setting_type" value="individual">
+                <label for="auto_indivisual">Set individually</label>
+                </p>
+              </form>
+            </div>
+
+            <div id="automatic_settings" class="tab-content">
+              <div id="same" class="tab-pane active">
+                <div class="form-label">
+                  <p class="w-100">
+                  <label for="op_name">Operation name</label>
+                  <input type="text" id="op_name" class="w-60">
+                  </p>
+                </div>
+                <div class="form-label">
+                  <p class="w-100">
+                  <label for="indication_id">Indication ID</label>
+                  <input type="text" id="indication_id" class="w-60">
+                  </p>
+                </div>
+              </div>
+
+              <div id="individual" class="tab-pane">
+                <div class="form-label">
+                  <p class="w-100">
+                  <label for="description">Description</label>
+                  <input type="text" id="description" class="w-60">
+                  </p>
+                </div>
+                <div class="form-label">
+                  <p class="w-100">
+                  <label for="config_json">Configuration JSON</label>
+                  <button id="config_json" class="col-2">Choose File</button>
+                  <span id="filename">No File Chosen</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-20">
+      <button id="write_btn" type="button" class="btn btn-primary btn-mid w-80">Write</button>
+    </div>
+  </div>
+</div>

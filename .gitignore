@@ -17,3 +17,5 @@ log
 storage.json
 /.graphqlconfig
 /schema.graphql
+
+.env

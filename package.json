@@ -11,12 +11,15 @@
     "pack:mac": "npx electron-builder --mac --x64",
     "pack:win64": "npx electron-builder --win --x64",
     "packager": "npm run build && npm run pack:mac && npm run pack:win64",
-    "build": "npm run clean && npm run lint && tsc",
+    "build": "npm run clean && npm run lint && tsc && npm run build:renderer",
+    "build:renderer": "rimraf ./public && gulp sass && gulp ejs && gulp assets",
+    "build-css": "gulp sass",
+    "watch": "gulp",
     "tsc": "tsc",
     "lint": "npm run lint-ts",
     "lint-ts": "tslint --fix -c tslint.json 'src/**/*.ts' ",
     "precommit": "lint-staged && npm run build",
-    "clean": "rimraf ./dist && rimraf ./app",
+    "clean": "rimraf ./dist && rimraf ./app ",
     "local": "npx ts-node src/index.ts",
     "start": "ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron dist/index.js",
     "codegen": "graphql-codegen"
@@ -29,6 +32,10 @@
     "productName": "obnizWriter",
     "buildDependenciesFromSource": true,
     "npmRebuild": false,
+    "afterSign": "dist/gui/notarize.js",
+    "dmg": {
+      "sign": false
+    },
     "directories": {
       "buildResources": "dist",
       "output": "app"
@@ -42,16 +49,20 @@
     "asar": false,
     "mac": {
       "target": "dmg",
-      "icon": "public/obnizwriter.icns"
+      "icon": "renderer/obnizwriter.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist"
     },
     "win": {
-      "icon": "public/obnizwriter.ico",
+      "icon": "renderer/obnizwriter.ico",
       "target": "nsis"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerHeaderIcon": "public/obnizwriter.ico"
+      "installerHeaderIcon": "renderer/obnizwriter.ico"
     }
   },
   "preferGlobal": true,
@@ -63,6 +74,7 @@
   },
   "private": false,
   "devDependencies": {
+    "browser-sync": "^2.27.5",
     "electron": "^14.0.0",
     "electron-builder": "^22.14.5",
     "electron-rebuild": "^3.2.5",
@@ -70,10 +82,17 @@
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-jasmine": "^2.10.1",
     "eslint-plugin-prettier": "^2.7.0",
+    "fibers": "^5.0.0",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-ejs": "^5.1.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^5.0.0",
     "npm-run-all": "^4.1.5",
     "pkg": "^4.4.0",
     "prettier": "^1.14.3",
     "rimraf": "^3.0.0",
+    "sass": "^1.38.1",
     "ts-node": "^8.8.2",
     "tslint": "^5.20.1",
     "tslint-plugin-prettier": "^2.1.0",
@@ -95,7 +114,9 @@
     "@types/socket.io": "^2.1.13",
     "@types/wtfnode": "^0.7.0",
     "chalk": "^4.0.0",
+    "dotenv": "^8.6.0",
     "electron-log": "^4.4.1",
+    "electron-notarize": "^1.1.1",
     "electron-updater": "^4.6.1",
     "elliptic": "^6.5.2",
     "express": "^4.17.1",
@@ -117,5 +138,11 @@
     "socket.io": "^2.3.0",
     "utility-types": "^3.10.0",
     "wtfnode": "^0.9.1"
-  }
+  },
+  "browserslist": [
+    "last 2 versions",
+    "ie >= 11",
+    "iOS >= 9.0",
+    "Android >= 4.2"
+  ]
 }
