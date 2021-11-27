@@ -1,6 +1,6 @@
 {
   "name": "obniz-cli",
-  "version": "0.9.1-test.7",
+  "version": "0.9.1-test.8",
   "description": "",
   "main": "dist/gui/main.js",
   "keywords": [
@@ -58,7 +58,10 @@
     },
     "win": {
       "icon": "renderer/obnizwriter.ico",
-      "target": ["zip","nsis"]
+      "target": [
+        "zip",
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": false,
