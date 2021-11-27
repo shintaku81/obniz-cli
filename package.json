@@ -58,7 +58,7 @@
     },
     "win": {
       "icon": "renderer/obnizwriter.ico",
-      "target": "nsis"
+      "target": ["zip","nsis"]
     },
     "nsis": {
       "oneClick": false,
