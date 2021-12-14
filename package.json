@@ -1,6 +1,6 @@
 {
   "name": "obniz-cli",
-  "version": "0.9.1-test.8",
+  "version": "0.9.1",
   "description": "",
   "main": "dist/gui/main.js",
   "keywords": [
