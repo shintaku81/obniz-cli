@@ -172,7 +172,7 @@ export default {
 
     if (!obj.configs) {
       // no configuration provided
-      console.log(`No configuration found. exit.`);
+      console.log(`No configuration found. Finished.`);
       return;
     }
 

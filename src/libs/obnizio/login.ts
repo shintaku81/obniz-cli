@@ -70,7 +70,7 @@ function oauth(port: number, callback: (error: Error | null, token: string | nul
         callback(null, token);
       } catch (e) {
         res.status(500).send(`Authentication Failed.`);
-        callback(e, null);
+        callback(e as any, null);
         return;
       }
       res.send(`Authentication Success. Close this page and back to your shell.`);

@@ -1,5 +1,7 @@
 import child_process from "child_process";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { AppUpdater } from "electron-updater/out/AppUpdater";
+import { BaseUpdater } from "electron-updater/out/BaseUpdater";
 import express from "express";
 import getPort from "get-port";
 import http from "http";
@@ -22,7 +24,7 @@ import Login from "../libs/user/login";
 import Logout from "../libs/user/logout";
 
 import log from "electron-log";
-import { autoUpdater } from "electron-updater";
+import { AppImageUpdater, MacUpdater, NsisUpdater } from "electron-updater";
 
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
@@ -343,6 +345,22 @@ app.on("ready", async () => {
   // -------------------------------------------
   // 自動アップデート関連のイベント処理
   // -------------------------------------------
+
+  const options = {
+    provider: "s3",
+    bucket: "obniz-writer",
+    region: "ap-northeast-1",
+    acl: "public-read",
+    storageClass: "STANDARD",
+  } as const;
+  let autoUpdater: AppUpdater | null = null;
+  if (process.platform === "win32") {
+    autoUpdater = new NsisUpdater({ ...options, path: "/win32/" });
+  } else if (process.platform === "darwin") {
+    autoUpdater = new MacUpdater({ ...options, path: "/mac/" });
+  } else {
+    autoUpdater = new AppImageUpdater({ ...options, path: "/linux/" });
+  }
   // アップデートをチェック開始
   autoUpdater.on("checking-for-update", () => {
     log.info(process.pid, "checking-for-update...");
@@ -367,7 +385,7 @@ app.on("ready", async () => {
     // ダイアログを表示しすぐに再起動するか確認
     dialog.showMessageBox(mainWindow!, dialogOpts).then((returnValue) => {
       if (returnValue.response === 0) {
-        autoUpdater.quitAndInstall();
+        autoUpdater!.quitAndInstall();
       }
     });
   });
