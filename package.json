@@ -84,7 +84,6 @@
   "devDependencies": {
     "browser-sync": "^2.27.5",
     "electron": "^14.0.0",
-    "electron-builder": "^22.14.5",
     "electron-packager": "^15.4.0",
     "electron-rebuild": "^3.2.5",
     "eslint": "^5.16.0",
@@ -108,6 +107,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "electron-builder": "^22.14.5",
     "@9wick/esptool.js": "^0.9.5",
     "@graphql-codegen/cli": "^1.13.5",
     "@graphql-codegen/typescript": "^1.13.5",
