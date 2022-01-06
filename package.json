@@ -26,7 +26,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "bin": {
-    "obniz-cli": "./dist/index.js"
+    "obniz-cli": "start.sh"
   },
   "build": {
     "appId": "com.obniz.app.writer",
