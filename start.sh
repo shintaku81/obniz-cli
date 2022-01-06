@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-npm run start @:2
+ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron dist/index.js $@
