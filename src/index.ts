@@ -1,4 +1,4 @@
-if (typeof process.env.ELECTRON_RUN_AS_NODE === "undefined") {
+if (typeof process.env.type === "undefined") {
   require("./cli");
 } else {
   require("./gui/index");
