@@ -2,7 +2,7 @@
   "name": "obniz-cli",
   "version": "0.9.2-beta.12",
   "description": "",
-  "main": "dist/gui/main.js",
+  "main": "dist/index.js",
   "keywords": [
     "obniz"
   ],
@@ -21,9 +21,10 @@
     "precommit": "lint-staged && npm run build",
     "clean": "rimraf ./dist && rimraf ./app ",
     "local": "npx ts-node src/index.ts",
-    "start": "ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron dist/index.js",
+    "start": "node ./dist/index.js",
+    "electron": "electron ./dist/gui/main.js",
     "codegen": "graphql-codegen",
-    "postinstall": "electron-builder install-app-deps"
+    "install-for-electron": "electron-builder install-app-deps"
   },
   "bin": {
     "obniz-cli": "start.sh"

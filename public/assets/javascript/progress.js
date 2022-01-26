@@ -1,5 +1,4 @@
 /* global $ */
-
 $(() => {
   const proceed = progres_number => {
     switch (progres_number) {

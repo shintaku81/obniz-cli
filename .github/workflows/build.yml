@@ -25,6 +25,10 @@ jobs:
         run: npm ci
 
 
+      - name: Install Electron Dependencies
+        run: npm run install-for-electron
+
+
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         env:

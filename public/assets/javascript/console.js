@@ -1,5 +1,4 @@
 /* global $,Terminal */
-
 $(() => {
   const term = new Terminal({
     theme: {

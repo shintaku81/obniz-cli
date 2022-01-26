@@ -1,5 +1,4 @@
 /* global $ */
-
 $(() => {
   $('#quit').on('click', () => {
     window.electron.systemClose({ message: 'exit' });

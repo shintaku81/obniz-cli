@@ -1,4 +1,4 @@
-/* global $*/
+/* global $,ejs */
 
 $(() => {
   const checkBothSwitcherDisabled = () => {
@@ -114,6 +114,7 @@ $(() => {
       '#automatic_options input[name="setting_type"]:checked'
     ).val();
 
+    let filename;
     switch (settings.automatic_type) {
       case 'same':
         settings.opname = $('#op_name').val();
@@ -121,7 +122,7 @@ $(() => {
         break;
       case 'individual':
         settings.description = $('#description').val();
-        let filename = $('#filename').html();
+        filename = $('#filename').html();
         if (filename !== 'No File Chosen') {
           settings.config_json = filename;
         }
@@ -193,9 +194,9 @@ $(() => {
   };
 
   $('[id=write_btn]').on('click', () => {
-    const setting = $(
-      '#write_options input[name="target_device"]:checked'
-    ).val();
+    // const setting = $(
+    //   '#write_options input[name="target_device"]:checked'
+    // ).val();
     if (
       $('#new_device').is(':checked', true) &&
       $('#using_qr').is(':checked', true)

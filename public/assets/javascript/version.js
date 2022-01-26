@@ -1,5 +1,7 @@
+/* global $, ejs */
+
 $(() => {
-  const latestVersion = "1.0.0";
+  const latestVersion = '1.0.0';
   const currentVersion = window.electron.systemVersion();
   const html = `
               <ul>
@@ -12,6 +14,8 @@ $(() => {
               </ul>
     `;
 
-  $('#versioninfo').html(ejs.render(html, {currentVersion, latestVersion}));
-  $('#version').html(ejs.render(`Ver. <%= currentVersion %>`, { currentVersion }));
+  $('#versioninfo').html(ejs.render(html, { currentVersion, latestVersion }));
+  $('#version').html(
+    ejs.render(`Ver. <%= currentVersion %>`, { currentVersion })
+  );
 });
