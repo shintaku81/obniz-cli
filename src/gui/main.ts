@@ -94,9 +94,11 @@ app.on("ready", async () => {
   const indexPageUrl = `${rendererHost}/index.html`;
   const mainPageUrl = `${rendererHost}/main.html`;
   // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-  await mainWindow.loadURL(indexPageUrl);
+
   // ChromiumのDevツールを開く
-  // mainWindow!.webContents.openDevTools();
+  if (process.env.DEV_TOOL === "open") {
+    mainWindow!.webContents.openDevTools();
+  }
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -396,6 +398,20 @@ app.on("ready", async () => {
 
   // アップデートをチェック
   await autoUpdater.checkForUpdatesAndNotify();
+
+  try {
+    const token = Storage.get("token");
+    if (token) {
+      const user = await User(token);
+      if (user) {
+        await mainWindow!.loadURL(mainPageUrl);
+      }
+    } else {
+      await mainWindow.loadURL(indexPageUrl);
+    }
+  } catch (e) {
+    await mainWindow.loadURL(indexPageUrl);
+  }
 });
 
 process.on("exit", () => {

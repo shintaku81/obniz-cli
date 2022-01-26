@@ -176,7 +176,7 @@ exports.default = {
         }
         if (!obj.configs) {
             // no configuration provided
-            console.log(`No configuration found. exit.`);
+            console.log(`No configuration found. Finished.`);
             return;
         }
         await configure_1.default(obj);

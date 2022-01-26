@@ -89,9 +89,8 @@ electron_1.app.on("ready", async () => {
     const indexPageUrl = `${rendererHost}/index.html`;
     const mainPageUrl = `${rendererHost}/main.html`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
-    await mainWindow.loadURL(indexPageUrl);
     // ChromiumのDevツールを開く
-    // mainWindow!.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -323,20 +322,37 @@ electron_1.app.on("ready", async () => {
     // -------------------------------------------
     // 自動アップデート関連のイベント処理
     // -------------------------------------------
+    const options = {
+        provider: "s3",
+        bucket: "obniz-writer",
+        region: "ap-northeast-1",
+        acl: "public-read",
+        storageClass: "STANDARD",
+    };
+    let autoUpdater = null;
+    if (process.platform === "win32") {
+        autoUpdater = new electron_updater_1.NsisUpdater(Object.assign(Object.assign({}, options), { path: "/win32/" }));
+    }
+    else if (process.platform === "darwin") {
+        autoUpdater = new electron_updater_1.MacUpdater(Object.assign(Object.assign({}, options), { path: "/mac/" }));
+    }
+    else {
+        autoUpdater = new electron_updater_1.AppImageUpdater(Object.assign(Object.assign({}, options), { path: "/linux/" }));
+    }
     // アップデートをチェック開始
-    electron_updater_1.autoUpdater.on("checking-for-update", () => {
+    autoUpdater.on("checking-for-update", () => {
         electron_log_1.default.info(process.pid, "checking-for-update...");
     });
     // アップデートが見つかった
-    electron_updater_1.autoUpdater.on("update-available", (ev, info) => {
+    autoUpdater.on("update-available", (ev, info) => {
         electron_log_1.default.info(process.pid, "Update available.");
     });
     // アップデートがなかった（最新版だった）
-    electron_updater_1.autoUpdater.on("update-not-available", (ev, info) => {
+    autoUpdater.on("update-not-available", (ev, info) => {
         electron_log_1.default.info(process.pid, "Update not available.");
     });
     // アップデートのダウンロードが完了
-    electron_updater_1.autoUpdater.on("update-downloaded", (info) => {
+    autoUpdater.on("update-downloaded", (info) => {
         const dialogOpts = {
             type: "info",
             buttons: ["Update and restart", "Later"],
@@ -346,16 +362,31 @@ electron_1.app.on("ready", async () => {
         // ダイアログを表示しすぐに再起動するか確認
         electron_1.dialog.showMessageBox(mainWindow, dialogOpts).then((returnValue) => {
             if (returnValue.response === 0) {
-                electron_updater_1.autoUpdater.quitAndInstall();
+                autoUpdater.quitAndInstall();
             }
         });
     });
     // エラーが発生
-    electron_updater_1.autoUpdater.on("error", (err) => {
+    autoUpdater.on("error", (err) => {
         electron_log_1.default.error(process.pid, err);
     });
     // アップデートをチェック
-    await electron_updater_1.autoUpdater.checkForUpdatesAndNotify();
+    await autoUpdater.checkForUpdatesAndNotify();
+    try {
+        const token = Storage.get("token");
+        if (token) {
+            const user = await user_1.default(token);
+            if (user) {
+                await mainWindow.loadURL(mainPageUrl);
+            }
+        }
+        else {
+            await mainWindow.loadURL(indexPageUrl);
+        }
+    }
+    catch (e) {
+        await mainWindow.loadURL(indexPageUrl);
+    }
 });
 process.on("exit", () => {
     console.log("exit");
