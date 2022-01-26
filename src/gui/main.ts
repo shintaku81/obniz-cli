@@ -344,6 +344,28 @@ app.on("ready", async () => {
       });
   });
 
+  await setupAutoUpdater();
+
+  try {
+    const token = Storage.get("token");
+    if (token) {
+      const user = await User(token);
+      if (user) {
+        await mainWindow!.loadURL(mainPageUrl);
+      }
+    } else {
+      await mainWindow.loadURL(indexPageUrl);
+    }
+  } catch (e) {
+    await mainWindow.loadURL(indexPageUrl);
+  }
+});
+
+process.on("exit", () => {
+  console.log("exit");
+});
+
+const setupAutoUpdater = async () => {
   // -------------------------------------------
   // 自動アップデート関連のイベント処理
   // -------------------------------------------
@@ -398,22 +420,4 @@ app.on("ready", async () => {
 
   // アップデートをチェック
   await autoUpdater.checkForUpdatesAndNotify();
-
-  try {
-    const token = Storage.get("token");
-    if (token) {
-      const user = await User(token);
-      if (user) {
-        await mainWindow!.loadURL(mainPageUrl);
-      }
-    } else {
-      await mainWindow.loadURL(indexPageUrl);
-    }
-  } catch (e) {
-    await mainWindow.loadURL(indexPageUrl);
-  }
-});
-
-process.on("exit", () => {
-  console.log("exit");
-});
+};

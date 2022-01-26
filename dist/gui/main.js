@@ -90,7 +90,9 @@ electron_1.app.on("ready", async () => {
     const mainPageUrl = `${rendererHost}/main.html`;
     // Electronに表示するhtmlを絶対パスで指定（相対パスだと動かない）
     // ChromiumのDevツールを開く
-    mainWindow.webContents.openDevTools();
+    if (process.env.DEV_TOOL === "open") {
+        mainWindow.webContents.openDevTools();
+    }
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -319,6 +321,27 @@ electron_1.app.on("ready", async () => {
             }
         });
     });
+    await setupAutoUpdater();
+    try {
+        const token = Storage.get("token");
+        if (token) {
+            const user = await user_1.default(token);
+            if (user) {
+                await mainWindow.loadURL(mainPageUrl);
+            }
+        }
+        else {
+            await mainWindow.loadURL(indexPageUrl);
+        }
+    }
+    catch (e) {
+        await mainWindow.loadURL(indexPageUrl);
+    }
+});
+process.on("exit", () => {
+    console.log("exit");
+});
+const setupAutoUpdater = async () => {
     // -------------------------------------------
     // 自動アップデート関連のイベント処理
     // -------------------------------------------
@@ -372,23 +395,5 @@ electron_1.app.on("ready", async () => {
     });
     // アップデートをチェック
     await autoUpdater.checkForUpdatesAndNotify();
-    try {
-        const token = Storage.get("token");
-        if (token) {
-            const user = await user_1.default(token);
-            if (user) {
-                await mainWindow.loadURL(mainPageUrl);
-            }
-        }
-        else {
-            await mainWindow.loadURL(indexPageUrl);
-        }
-    }
-    catch (e) {
-        await mainWindow.loadURL(indexPageUrl);
-    }
-});
-process.on("exit", () => {
-    console.log("exit");
-});
+};
 //# sourceMappingURL=main.js.map
