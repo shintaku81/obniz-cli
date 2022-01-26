@@ -1,3 +1,5 @@
+/* global $ */
+
 $(() => {
   if ($('.user-menu.disabled').length === 0) {
     const userinfo = window.electron.userinfo();

@@ -1,3 +1,5 @@
+/* global $*/
+
 $(() => {
   const checkBothSwitcherDisabled = () => {
     const sw1 = $('#whether_write').is(':checked');
