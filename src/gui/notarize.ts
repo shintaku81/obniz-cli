@@ -18,5 +18,6 @@ exports.default = async function notarizing(context: any) {
     appleId: process.env.APPLEID || "",
     appleIdPassword: process.env.APPLEIDPASS || "",
     ascProvider: process.env.ASC_PROVIDER || "",
+    teamId: process.env.ASC_PROVIDER || "",
   });
 };
