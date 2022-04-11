@@ -1,6 +1,6 @@
 {
   "name": "obniz-cli",
-  "version": "0.9.2-beta.18",
+  "version": "0.9.2-beta.19",
   "description": "",
   "main": "./dist/cli.js",
   "keywords": [
