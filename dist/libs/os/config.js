@@ -33,7 +33,8 @@ const operation_setting_1 = require("../obnizio/operation_setting");
 const Storage = __importStar(require("../storage"));
 const configure_1 = __importDefault(require("./configure"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../ora-console/getora");
+const ora = getora_1.getOra();
 async function deviceConfigValidate(args, obj = {}, logging = false) {
     const devicekey = args.d || args.devicekey;
     let obniz_id = null;
@@ -43,7 +44,7 @@ async function deviceConfigValidate(args, obj = {}, logging = false) {
         obniz_id = devicekey.split("&")[0];
     }
     if (args.i || args.id) {
-        const spinner = logging ? ora_1.default(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start() : null;
+        const spinner = logging ? ora(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start() : null;
         try {
             obniz_id = args.i || args.id;
             if (obj.configs && obj.configs.devicekey) {
@@ -106,7 +107,7 @@ async function networkConfigValidate(args, obj = {}, logging = false) {
         obj.configs.config = json;
     }
     else if (operationName && indicationName) {
-        const spinner = logging ? ora_1.default(`Operation: getting information`).start() : null;
+        const spinner = logging ? ora(`Operation: getting information`).start() : null;
         try {
             const token = args.token || Storage.get("token");
             if (!token) {

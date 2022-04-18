@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
 const node_wifi_1 = __importDefault(require("node-wifi"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../../ora-console/getora");
+const ora = getora_1.getOra();
 const os_1 = require("os");
 class WiFi {
     constructor(obj) {
@@ -20,7 +21,7 @@ class WiFi {
         const successIds = [];
         while (true) {
             try {
-                spinner = ora_1.default(`Wi-Fi Scanning...`).start();
+                spinner = ora(`Wi-Fi Scanning...`).start();
                 let networks;
                 while (true) {
                     networks = await this.scanObnizWiFi(30 * 1000);
@@ -35,7 +36,7 @@ class WiFi {
                         continue;
                     }
                     if (i !== 0) {
-                        spinner = ora_1.default(``).start();
+                        spinner = ora(``).start();
                     }
                     try {
                         // Connect access point

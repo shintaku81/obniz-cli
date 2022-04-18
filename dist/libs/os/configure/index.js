@@ -28,7 +28,8 @@ const operation_result_1 = require("../../obnizio/operation_result");
 const operation_setting_1 = require("../../obnizio/operation_setting");
 const Storage = __importStar(require("../../storage"));
 const serial_1 = __importDefault(require("../serial"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../../ora-console/getora");
+const ora = getora_1.getOra();
 exports.default = async (obj) => {
     var _a, _b;
     // Return if no configs required
@@ -63,7 +64,7 @@ exports.default = async (obj) => {
         },
     });
     let received = "";
-    let spinner = ora_1.default(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start();
+    let spinner = ora(`Configure: Opening Serial Port ${chalk_1.default.green(obj.portname)}`).start();
     if (obj.debugserial) {
         spinner.stop();
     }
@@ -147,7 +148,7 @@ exports.default = async (obj) => {
 };
 function nextSpinner(spinner, text, debugserial) {
     spinner.succeed();
-    spinner = ora_1.default(text).start();
+    spinner = ora(text).start();
     if (debugserial) {
         spinner.stop();
     }

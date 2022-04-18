@@ -25,14 +25,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const login_1 = __importDefault(require("../obnizio/login"));
 const user_1 = __importDefault(require("../obnizio/user"));
 const Storage = __importStar(require("../storage"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../ora-console/getora");
+const ora = getora_1.getOra();
 exports.default = async () => {
-    let spinner = ora_1.default(`Singin...`).start();
+    let spinner = ora(`Singin...`).start();
     const token = await login_1.default((text) => {
         spinner.text = text;
     });
     spinner.succeed(`Authenticated.`);
-    spinner = ora_1.default(`Getting User Information`).start();
+    spinner = ora(`Getting User Information`).start();
     const user = await user_1.default(token);
     if (!user) {
         spinner.fail("Get user information failed");

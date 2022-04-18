@@ -28,7 +28,8 @@ const os_1 = __importDefault(require("../../libs/obnizio/os"));
 const _flash_1 = __importDefault(require("./_flash"));
 const config_1 = __importStar(require("./config"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../ora-console/getora");
+const ora = getora_1.getOra();
 exports.default = {
     help: `Flash obnizOS and configure it
 
@@ -58,7 +59,7 @@ exports.default = {
         obj.stdout = (text) => {
             process.stdout.write(text);
         };
-        const spinner = ora_1.default("obnizOS:").start();
+        const spinner = ora("obnizOS:").start();
         // OS setting
         let hardware = args.h || args.hardware;
         if (!hardware) {
