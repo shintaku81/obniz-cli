@@ -20,7 +20,7 @@ $(() => {
   };
 
   window.electron.deviceUpdated(update_device_list);
-  // const device_info = window.electron.devicePorts();
+  const device_info = window.electron.devicePorts();
 
   const hardwares = window.electron.hardwares();
   if (hardwares) {
