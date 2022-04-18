@@ -10,7 +10,8 @@ import * as Storage from "../storage";
 import Config, { ConfigParam } from "./configure";
 import PreparePort from "./serial/prepare";
 
-import ora from "ora";
+import { getOra } from "../ora-console/getora";
+const ora = getOra();
 
 export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
   const devicekey: any = args.d || args.devicekey;

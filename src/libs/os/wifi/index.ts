@@ -1,6 +1,8 @@
 import chalk from "chalk";
 import wifi from "node-wifi";
-import ora, { Ora } from "ora";
+import { Ora } from "ora";
+import { getOra } from "../../ora-console/getora";
+const ora = getOra();
 import { NetworkInterfaceInfo, networkInterfaces } from "os";
 import config from "../config";
 

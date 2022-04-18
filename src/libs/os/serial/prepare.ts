@@ -6,7 +6,8 @@ import SerialGuess from "./guess";
 
 import chalk from "chalk";
 import inquirer from "inquirer";
-import ora from "ora";
+import { getOra } from "../../ora-console/getora";
+const ora = getOra();
 
 export default async (args: any): Promise<any> => {
   let portname: string | undefined = args.p || args.port;
