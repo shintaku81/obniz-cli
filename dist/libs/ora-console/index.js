@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const green = "\u001b[32m";
+const red = "\u001b[31m";
+const reset = "\u001b[0m";
 class OraConsole {
     constructor(options) {
         this.color = "black";
@@ -13,11 +16,11 @@ class OraConsole {
                 text: options,
             };
         }
-        // console.log(options.text);
+        console.log(`${green}info: ${reset}${options.text}`);
     }
     set text(t) {
         if (t) {
-            console.log(`info: ${t}`);
+            console.log(`\u001b[1A\u001b[2K${green}info: ${reset}${t}`);
         }
         this._text = t;
     }
@@ -36,7 +39,7 @@ class OraConsole {
     }
     info(text) {
         if (text) {
-            console.log(`info: ${text}`);
+            console.log(`${green}info: ${reset}${text}`);
         }
         return this;
     }
@@ -45,7 +48,7 @@ class OraConsole {
     }
     start(text) {
         if (text) {
-            console.log(`info: ${text}`);
+            console.log(`${green}info: ${reset}${text}`);
         }
         return this;
     }
@@ -57,12 +60,12 @@ class OraConsole {
     }
     succeed(text) {
         if (text) {
-            console.log(`info: ${text}`);
+            console.log(`\u001b[1A\u001b[2K${green}info: ${reset}${text}`);
         }
         return this;
     }
     warn(text) {
-        console.log(`warn: ${text}`);
+        console.log(`${red}warn: ${text}`);
         return this;
     }
 }

@@ -1,6 +1,10 @@
 import { SpinnerName } from "cli-spinners";
 import { Color, Ora, PersistOptions, PrefixTextGenerator, Spinner } from "ora";
 
+const green = "\u001b[32m";
+const red = "\u001b[31m";
+const reset = "\u001b[0m";
+
 class OraConsole implements Ora {
   public color: Color = "black";
   public indent: number = 2;
@@ -10,7 +14,7 @@ class OraConsole implements Ora {
   private _text = "";
   set text(t) {
     if (t) {
-      console.log(`info: ${t}`);
+      console.log(`\u001b[1A\u001b[2K${green}info: ${reset}${t}`);
     }
     this._text = t;
   }
@@ -24,7 +28,7 @@ class OraConsole implements Ora {
         text: options,
       };
     }
-    // console.log(options.text);
+    console.log(`${green}info: ${reset}${options.text}`);
   }
 
   public clear(): Ora {
@@ -42,7 +46,7 @@ class OraConsole implements Ora {
 
   public info(text?: string): Ora {
     if (text) {
-      console.log(`info: ${text}`);
+      console.log(`${green}info: ${reset}${text}`);
     }
     return this;
   }
@@ -53,7 +57,7 @@ class OraConsole implements Ora {
 
   public start(text?: string): Ora {
     if (text) {
-      console.log(`info: ${text}`);
+      console.log(`${green}info: ${reset}${text}`);
     }
     return this;
   }
@@ -68,13 +72,13 @@ class OraConsole implements Ora {
 
   public succeed(text?: string): Ora {
     if (text) {
-      console.log(`info: ${text}`);
+      console.log(`\u001b[1A\u001b[2K${green}info: ${reset}${text}`);
     }
     return this;
   }
 
   public warn(text?: string): Ora {
-    console.log(`warn: ${text}`);
+    console.log(`${red}warn: ${text}`);
     return this;
   }
 }
