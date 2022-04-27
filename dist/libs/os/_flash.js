@@ -8,10 +8,11 @@ const serial_1 = require("@9wick/esptool.js/build/node/serial");
 const util_1 = require("@9wick/esptool.js/build/util");
 const chalk_1 = __importDefault(require("chalk"));
 const fs_1 = require("fs");
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../ora-console/getora");
+const ora = getora_1.getOra();
 const os_1 = __importDefault(require("../obnizio/os"));
 async function flash(obj) {
-    const spinner = ora_1.default(`Flashing obnizOS: preparing file for hardware=${chalk_1.default.green(obj.hardware)} version=${chalk_1.default.green(obj.version)}`).start();
+    const spinner = ora(`Flashing obnizOS: preparing file for hardware=${chalk_1.default.green(obj.hardware)} version=${chalk_1.default.green(obj.version)}`).start();
     if (obj.debugserial) {
         spinner.stop();
     }

@@ -1,13 +1,25 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const { URL } = require("url");
@@ -20,7 +32,8 @@ const _flash_1 = __importDefault(require("./_flash"));
 const config_1 = __importStar(require("./config"));
 const prepare_1 = __importDefault(require("./serial/prepare"));
 const inquirer_1 = __importDefault(require("inquirer"));
-const ora_1 = __importDefault(require("ora"));
+const getora_1 = require("../ora-console/getora");
+const ora = getora_1.getOra();
 exports.default = {
     help: `Flash obnizOS and configure it
 
@@ -97,7 +110,7 @@ exports.default = {
         let hardware;
         let version;
         let spinner;
-        spinner = ora_1.default("obnizOS:").start();
+        spinner = ora("obnizOS:").start();
         // hardware
         hardware = args.h || args.hardware || defaults_1.default.HARDWARE;
         obj.hardware = hardware;
@@ -120,11 +133,11 @@ exports.default = {
             proceed(5);
         }
         if (device) {
-            spinner = ora_1.default("obnizCloud:").start();
+            spinner = ora("obnizCloud:").start();
             spinner.succeed(`obnizCloud: using recovery device obnizID=${chalk_1.default.green(device.id)} description=${chalk_1.default.green(device.description)} region=${chalk_1.default.green(device.region)}`);
         }
         else {
-            spinner = ora_1.default("obnizCloud: creating device on obnizCloud...").start();
+            spinner = ora("obnizCloud: creating device on obnizCloud...").start();
             try {
                 // Device Creation Setting
                 const region = args.r || args.region || "jp";
@@ -196,7 +209,7 @@ async function askSerialToken(device, serial_token) {
             },
         ]);
     }
-    const spinner = ora_1.default("Serial: Binding...").start();
+    const spinner = ora("Serial: Binding...").start();
     try {
         const url = new URL(answer.serialtoken);
         const paths = url.pathname.split("/");

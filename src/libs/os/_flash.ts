@@ -4,7 +4,10 @@ import { sleep } from "@9wick/esptool.js/build/util";
 import chalk from "chalk";
 import child_process from "child_process";
 import { promises as fs } from "fs";
-import ora from "ora";
+
+import { getOra } from "../ora-console/getora";
+const ora = getOra();
+
 import OS from "../obnizio/os";
 
 export default async function flash(obj: {

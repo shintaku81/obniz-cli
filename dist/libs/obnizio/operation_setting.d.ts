@@ -9,7 +9,7 @@ export declare class OperationSetting {
     } & {
         node?: ({
             __typename?: "operationSetting" | undefined;
-        } & Pick<import("../generated/client").OperationSetting, "id" | "description" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
+        } & Pick<import("../generated/client").OperationSetting, "description" | "id" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
         operationResult?: ({
             __typename?: "operationResultForOperationSetting" | undefined;
         } & Pick<import("../generated/client").OperationResultForOperationSetting, "obnizId" | "successfullyWrittenAt" | "becomeOnlineAt" | "picUrl" | "locationNote" | "typeError">) | null | undefined;
@@ -19,7 +19,7 @@ export declare class OperationSetting {
     } & {
         node?: ({
             __typename?: "operationSetting" | undefined;
-        } & Pick<import("../generated/client").OperationSetting, "id" | "description" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
+        } & Pick<import("../generated/client").OperationSetting, "description" | "id" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
         operationResult?: ({
             __typename?: "operationResultForOperationSetting" | undefined;
         } & Pick<import("../generated/client").OperationResultForOperationSetting, "obnizId" | "successfullyWrittenAt" | "becomeOnlineAt" | "picUrl" | "locationNote" | "typeError">) | null | undefined;
@@ -29,7 +29,7 @@ export declare class OperationSetting {
     } & {
         node?: ({
             __typename?: "operationSetting" | undefined;
-        } & Pick<import("../generated/client").OperationSetting, "id" | "description" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
+        } & Pick<import("../generated/client").OperationSetting, "description" | "id" | "status" | "indicationId" | "operationId" | "networkConfigs" | "appId" | "appConfigs">) | null | undefined;
         operationResult?: ({
             __typename?: "operationResultForOperationSetting" | undefined;
         } & Pick<import("../generated/client").OperationResultForOperationSetting, "obnizId" | "successfullyWrittenAt" | "becomeOnlineAt" | "picUrl" | "locationNote" | "typeError">) | null | undefined;

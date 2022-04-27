@@ -5,7 +5,8 @@ import Flash from "./_flash";
 import Config, { validate as validateConfig } from "./config";
 import PreparePort from "./serial/prepare";
 
-import ora from "ora";
+import { getOra } from "../ora-console/getora";
+const ora = getOra();
 
 export default {
   help: `Flash obnizOS and configure it

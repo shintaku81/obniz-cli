@@ -2,7 +2,8 @@ import Login from "../obnizio/login";
 import User from "../obnizio/user";
 import * as Storage from "../storage";
 
-import ora from "ora";
+import { getOra } from "../ora-console/getora";
+const ora = getOra();
 
 export default async () => {
   let spinner = ora(`Singin...`).start();
