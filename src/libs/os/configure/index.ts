@@ -119,7 +119,7 @@ export default async (obj: ConfigParam) => {
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = obj.token;
+          const token = obj.token || Storage.get("token");
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }
@@ -133,7 +133,7 @@ export default async (obj: ConfigParam) => {
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = obj.token;
+          const token = obj.token || Storage.get("token");
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }

@@ -27,7 +27,7 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
       if (obj.configs && obj.configs.devicekey) {
         throw new Error(`devicekey and id are double specified.`);
       }
-      const token = args.token;
+      const token = args.token || Storage.get("token");
       if (!token) {
         throw new Error(`You need to signin or set --token param`);
       }
@@ -80,7 +80,7 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
   } else if (operationName && indicationName) {
     const spinner = logging ? ora(`Operation: getting information`).start() : null;
     try {
-      const token = args.token;
+      const token = args.token || Storage.get("token");
       if (!token) {
         throw new Error(`You need to signin or set --token param`);
       }

@@ -41,6 +41,10 @@ COMMANDS
   os:erase            Fully erase a flash on target device.
   os:list             List of available obnizOS for specified hardware
   os:ports            Getting serial ports on your machine.
+  
+  operation:list      List of available operations.
+  operation:info      Show operation info.
+
 ```
 
 Each command may respond to help
@@ -65,6 +69,12 @@ Flash obnizOS and configure it
  -d --devicekey devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
  -i --id        obnizID to be configured. You need to signin before use this.
  -c --config    configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
+    --token     Token of api key which use instead of user signin.
+
+[operation]
+    --operation     operation name for setting.
+    --indication    indication name for setting.
+
  ```
 
 
@@ -94,7 +104,8 @@ npm i obniz-cli -g
 
 ## signin
 
-obnizCloudの機能を利用するにはサインインが必要です。以下でサインインできます。
+obnizCloudの機能を利用するにはサインイン、もしくは各コマンドへのTokenパラメータが必要です。
+サインインをする場合は、以下でサインインできます。
 
 ```shell
 obniz-cli signin
@@ -110,6 +121,16 @@ obnizCloudにサインインしていない場合は先にログインを行っ�
 ```shel
 obniz-cli user:info
 ```
+
+## Tokenについて
+
+API KeyのTokenを各コマンドのパラメータとして渡すことで、singinせずに使用することができます。
+API Keyはobniz Cloudの開発者コンソール　→　開発　→ APIキー　にて発行が可能です。
+
+```shel
+obniz-cli os:flash-create --token=token_Bowk7ovyFXcOapGgcwxJTIx23P6WfdX1
+```
+
 
 ## Serial Portについて
 
@@ -140,7 +161,8 @@ obniz-cli os:flash-create -p AUTO --debugserial
 
 ## os:flash-create
 
-サインインしているアカウントでobnizIDを１つ作成し、書き込み、デバイスキーの書き込みまで完了させることができます。
+obnizIDを１つ作成し、書き込み、デバイスキーの書き込みまで完了させることができます。
+obnizIDを作成するアカウントは、サインインしているアカウント、もしくはTokenパラメータで指定したアカウントになります。
 
 まず、どのobnizOSを利用するのか決めます。無指定ですと`obnizOS for esp32`が自動選択されます。以下のコマンドでどのハードウェアが選択できるのか確認できます。
 
@@ -179,7 +201,7 @@ obniz-cli os:flash-create -p AUTO --hardware m5stickc
 クラウド上でobnizIDを生成するときに説明(description)を追加することもできます。
 
 ```shel
-obniz-cli os:flash-create -p AUTO --hardware m5stickc -- description "obniz for my home"
+obniz-cli os:flash-create -p AUTO --hardware m5stickc --description "obniz for my home"
 ```
 
 Wi-Fiなどネットワークの設定も行うことができる`--config`などありますので、
@@ -188,6 +210,27 @@ Wi-Fiなどネットワークの設定も行うことができる`--config`な�
 ```shel
 obniz-cli os:flash-create --help
 ```
+
+## オペレーションの実施（ビジネスプラン）
+
+施設とオペレーションを作成すると、obniz-cliでオペレーションを実行することができるようになります。
+tokenオプションでAPI Keyを渡すようにすればobnizCloudへのログインは必要ありませんので、セキュアに設定作業を依頼することができます。
+
+
+operationオプションでオペレーション名を、indicationオプションで指示IDを指定します。
+
+```shel
+obniz-cli os:flash-create --operation obnizBuilding --indication ob-0 --token token_Bowk7ovyFXcOpGgcwxJTIasdf6WfdX1GOB
+```
+
+順次デバイスに書き込む場合は、indicationオプションにnextを使うことができます。
+nextが指定されると、まだ完了していない指示IDを自動で選択します。
+
+```shel
+obniz-cli os:flash-create --operation obnizBuilding --indication next --token token_Bowk7ovyFXcOpGgcwxJTIasdf6WfdX1GOB
+```
+
+
 
 ### Binding Token (パートナー専用)
 
