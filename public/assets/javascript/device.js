@@ -36,7 +36,9 @@ $(() => {
       $('#os_ver').html('');
       versions.forEach(ver => {
         $('#os_ver').append(
-          `<option value="${ver.version}">${hardwares[0].hardware} - ${ver.version}</option>`
+          `<option value="${ver.version}">${hardwares[0].hardware}  - ${ver.version} ${
+            ver.isPublic ? '' : '( Prerelease version )'
+          }</option>`
         );
       });
     }

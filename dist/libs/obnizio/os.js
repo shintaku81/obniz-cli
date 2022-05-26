@@ -45,7 +45,8 @@ class OS {
         version,
         app_url,
         bootloader_url,
-        partition_url
+        partition_url,
+        isPublic
       }
     }`;
         const ret = await graphQLClient.request(query);
