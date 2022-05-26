@@ -138,7 +138,10 @@ electron_1.app.on("ready", async () => {
         });
     });
     electron_1.ipcMain.handle("obniz:login", async (event, arg) => {
-        await login_1.default();
+        await login_1.default({
+            id: "wa_MTEzNzU=",
+            token: "apptoken_kxDRfltfCETiQbiCKUOju1vQpA_2uj9ux7rMTyTeVevvV2RKcQ2nxsphj4f8D94n",
+        });
         // mainWindow!.loadURL(`${rendererHost}/settings.html`);
         await mainWindow.loadURL(mainPageUrl);
     });
