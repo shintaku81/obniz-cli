@@ -27,11 +27,11 @@ const user_1 = __importDefault(require("../obnizio/user"));
 const Storage = __importStar(require("../storage"));
 const getora_1 = require("../ora-console/getora");
 const ora = getora_1.getOra();
-exports.default = async () => {
+exports.default = async (app) => {
     let spinner = ora(`Singin...`).start();
     const token = await login_1.default((text) => {
         spinner.text = text;
-    });
+    }, app);
     spinner.succeed(`Authenticated.`);
     spinner = ora(`Getting User Information`).start();
     const user = await user_1.default(token);

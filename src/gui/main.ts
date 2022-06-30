@@ -136,7 +136,10 @@ app.on("ready", async () => {
   });
 
   ipcMain.handle("obniz:login", async (event: any, arg: any) => {
-    await Login();
+    await Login({
+      id: "wa_MTEzNzU=",
+      token: "apptoken_kxDRfltfCETiQbiCKUOju1vQpA_2uj9ux7rMTyTeVevvV2RKcQ2nxsphj4f8D94n",
+    });
     // mainWindow!.loadURL(`${rendererHost}/settings.html`);
     await mainWindow!.loadURL(mainPageUrl);
   });
