@@ -81,57 +81,6 @@ $(() => {
     }
   });
 
-  const getSummary = () => {
-    let settings = {};
-
-    settings.whether_write = $('#whether_write').is(':checked');
-    settings.whether_config = $('#whether_configure').is(':checked');
-    settings.device = $('#device').val();
-    settings.baudrate = parseInt($('#baudrate').val());
-    if (settings.whether_write) {
-      settings.hardware = $('#hardware').val();
-      settings.os_ver = $('#os_ver').val();
-
-      settings.target_device = $(
-        '#write_options input[name="target_device"]:checked'
-      ).val();
-
-      switch (settings.target_device) {
-        case 'new':
-          settings.qrcode = $('#qrcode').val();
-          break;
-
-        case 'pregenerated':
-          settings.obniz_id = $('#obniz_id').val();
-          break;
-
-        case 'os_only':
-          break;
-      }
-    }
-
-    settings.automatic_type = $(
-      '#automatic_options input[name="setting_type"]:checked'
-    ).val();
-
-    let filename;
-    switch (settings.automatic_type) {
-      case 'same':
-        settings.opname = $('#op_name').val();
-        settings.indication_id = $('#indication_id').val();
-        break;
-      case 'individual':
-        settings.description = $('#description').val();
-        filename = $('#filename').html();
-        if (filename !== 'No File Chosen') {
-          settings.config_json = filename;
-        }
-        break;
-    }
-    console.log(settings);
-    return settings;
-  };
-
   const writeStart = () => {
     $('#writeModal').modal('hide');
     $('#main_tab #settings_tab').removeClass('active');
@@ -225,4 +174,55 @@ $(() => {
     $('#main_tab #settings_tab').addClass('active');
     $('#main_tab #terminal_tab').removeClass('active');
   });
+
+  const getSummary = () => {
+    let settings = {};
+
+    settings.whether_write = $('#whether_write').is(':checked');
+    settings.whether_config = $('#whether_configure').is(':checked');
+    settings.device = $('#device').val();
+    settings.baudrate = parseInt($('#baudrate').val());
+    if (settings.whether_write) {
+      settings.hardware = $('#hardware').val();
+      settings.os_ver = $('#os_ver').val();
+
+      settings.target_device = $(
+        '#write_options input[name="target_device"]:checked'
+      ).val();
+
+      switch (settings.target_device) {
+        case 'new':
+          settings.qrcode = $('#qrcode').val();
+          break;
+
+        case 'pregenerated':
+          settings.obniz_id = $('#obniz_id').val();
+          break;
+
+        case 'os_only':
+          break;
+      }
+    }
+
+    settings.automatic_type = $(
+      '#automatic_options input[name="setting_type"]:checked'
+    ).val();
+
+    let filename;
+    switch (settings.automatic_type) {
+      case 'same':
+        settings.opname = $('#op_name').val();
+        settings.indication_id = $('#indication_id').val();
+        break;
+      case 'individual':
+        settings.description = $('#description').val();
+        filename = $('#filename').html();
+        if (filename !== 'No File Chosen') {
+          settings.config_json = filename;
+        }
+        break;
+    }
+    console.log(settings);
+    return settings;
+  };
 });
