@@ -150,15 +150,20 @@ app.on("ready", async () => {
 
   ipcMain.handle("obniz:flash", async (event: any, arg: any) => {
     forwardOutput(true);
-    await Flash.execute({
-      port: arg.device,
-      baud: parseInt(arg.baudrate),
-      version: arg.os_ver,
-      stdout: process.stdout.write,
-      hardware: arg.hardware,
-      debugserial: false,
-      skiprecovery: true,
-    }).catch((e) => {
+    await Flash.execute(
+      {
+        port: arg.device,
+        baud: parseInt(arg.baudrate),
+        version: arg.os_ver,
+        stdout: process.stdout.write,
+        hardware: arg.hardware,
+        debugserial: false,
+        skiprecovery: true,
+      },
+      (i: number) => {
+        mainWindow!.webContents.send("write:proceed", i);
+      },
+    ).catch((e) => {
       console.log(e);
       mainWindow!.webContents.send("error:occurred");
     });

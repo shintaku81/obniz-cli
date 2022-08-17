@@ -51,14 +51,23 @@ exports.default = {
     --operation     operation name for setting.
     --indication    indication name for setting.
       `,
-    async execute(args) {
+    async execute(args, proceed) {
         // validate first
+        if (proceed) {
+            proceed(1);
+        }
         await config_1.validate(args);
+        if (proceed) {
+            proceed(2);
+        }
         // flashing os
         const obj = await prepare_1.default(args);
         obj.stdout = (text) => {
             process.stdout.write(text);
         };
+        if (proceed) {
+            proceed(3);
+        }
         const spinner = ora("obnizOS:").start();
         // OS setting
         let hardware = args.h || args.hardware;
@@ -76,7 +85,13 @@ exports.default = {
             spinner.succeed(`obnizOS: decided hardware=${chalk_1.default.green(hardware)} version=${chalk_1.default.green(version)}`);
         }
         obj.version = version;
+        if (proceed) {
+            proceed(4);
+        }
         await _flash_1.default(obj);
+        if (proceed) {
+            proceed(5);
+        }
         // Configure it
         args.p = undefined;
         args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので

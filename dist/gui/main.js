@@ -159,6 +159,8 @@ electron_1.app.on("ready", async () => {
             hardware: arg.hardware,
             debugserial: false,
             skiprecovery: true,
+        }, (i) => {
+            mainWindow.webContents.send("write:proceed", i);
         }).catch((e) => {
             console.log(e);
             mainWindow.webContents.send("error:occurred");
