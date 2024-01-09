@@ -25,6 +25,7 @@ import Logout from "../libs/user/logout";
 
 import log from "electron-log";
 import { AppImageUpdater, MacUpdater, NsisUpdater } from "electron-updater";
+import Config_via_wifi from "../libs/os/config_via_wifi";
 
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
@@ -75,7 +76,7 @@ let mainWindow: Electron.BrowserWindow | null = null;
 app.on("ready", async () => {
   mainWindow = new BrowserWindow({
     width: 980,
-    height: 600,
+    height: 800,
     minWidth: 980,
     minHeight: 600,
     frame: false,
@@ -262,6 +263,13 @@ app.on("ready", async () => {
     });
     forwardOutput(false);
     mainWindow!.webContents.send("obniz:finished");
+  });
+
+  ipcMain.handle("obniz:config_via_wifi", async (event: any, arg: any) => {
+    forwardOutput(true);
+    console.log(arg);
+    await Config_via_wifi.execute(arg);
+    forwardOutput(false);
   });
 
   ipcMain.on("obniz:userinfo", async (event: any, arg: any) => {

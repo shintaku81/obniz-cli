@@ -1,14 +1,14 @@
+
 <div id="settings_tab" class="tab-pane active">
   <div class="flex-row-container">
     <div class="w-80">
       <h2>Create / Update Device</h2>
     </div>
-    <div class="w-20">
-      <button type="button" class="btn btn-thirdly btn-mid w-80" data-bs-toggle="modal" data-bs-target="#eraseModal">Erase</button>
-    </div>
   </div>
 
   <hr class="w-95">
+
+
 
   <div class="flex-row-container">
     <div class="w-80">
@@ -126,8 +126,58 @@
         </div>
       </div>
     </div>
-    <div class="w-20">
-      <button id="write_btn" type="button" class="btn btn-primary btn-mid w-80">Write</button>
-    </div>
   </div>
+
+    <div class="card flex-row-container mx-2">
+        <div class="card-body color-gray">
+            <div class="row g-1">
+                <div class="col-auto">
+                    <label for="device"><i class="fab fa-usb"></i> COM:</label>
+                    <select type="text" id="device" class="input-wid10"></select>
+                </div>
+                <div class="col-auto">
+                    <label for="baudrate">Baudrate:</label>
+                    <select type="text" id="baudrate" class="input-wid10">
+                        <option value="115200" >115200bps</option>
+                        <option value="921600" >921600bps</option>
+                        <option value="1500000" selected>1500000bps</option>
+                    </select>
+                </div>
+                <div class="col-auto ms-auto">
+                    <button type="button" class="btn btn-secondary m-0" data-bs-toggle="modal" data-bs-target="#eraseModal">Erase</button>
+                </div>
+
+                <div class="col-auto">
+                    <button id="write_btn" type="button" class="btn btn-primary m-0 input-wid10">Write</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <hr class="w-100">
+    <div class="flex-row-container">
+        <div class="w-80">
+            <h2>Configure Devices via WiFi</h2>
+        </div>
+    </div>
+
+    <div class="flex-row-container">
+        <div class="w-80">
+
+
+
+            <div class="form-label">
+                <p class="w-100">
+                    <label for="wifi_config_json">Configuration JSON</label>
+                    <button id="wifi_config_json" class="col-2">Choose File</button>
+                    <span id="wifi_config_filename">No File Chosen</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="w-20">
+            <button id="wifi_config_btn" type="button" class="btn btn-primary btn-mid w-80">Configure</button>
+        </div>
+    </div>
 </div>

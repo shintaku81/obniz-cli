@@ -40,6 +40,7 @@ const login_1 = __importDefault(require("../libs/user/login"));
 const logout_1 = __importDefault(require("../libs/user/logout"));
 const electron_log_1 = __importDefault(require("electron-log"));
 const electron_updater_1 = require("electron-updater");
+const config_via_wifi_1 = __importDefault(require("../libs/os/config_via_wifi"));
 const originalStderrWrite = process.stderr.write.bind(process.stderr);
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 const api_key = null;
@@ -83,7 +84,7 @@ let mainWindow = null;
 electron_1.app.on("ready", async () => {
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
-        height: 600,
+        height: 800,
         minWidth: 980,
         minHeight: 600,
         frame: false,
@@ -253,6 +254,12 @@ electron_1.app.on("ready", async () => {
         });
         forwardOutput(false);
         mainWindow.webContents.send("obniz:finished");
+    });
+    electron_1.ipcMain.handle("obniz:config_via_wifi", async (event, arg) => {
+        forwardOutput(true);
+        console.log(arg);
+        await config_via_wifi_1.default.execute(arg);
+        forwardOutput(false);
     });
     electron_1.ipcMain.on("obniz:userinfo", async (event, arg) => {
         try {

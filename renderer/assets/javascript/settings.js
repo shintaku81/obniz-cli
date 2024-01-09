@@ -175,6 +175,24 @@ $(() => {
     $('#main_tab #terminal_tab').removeClass('active');
   });
 
+  $("#wifi_config_btn").on("click", () => {
+      $('#wifiConfigModal').modal('show');
+      setTimeout(() => {
+          window.onresize()
+          window.electron.configViaWifi({
+              config: $('#wifi_config_filename').html(),
+          });
+      }, 1000);
+  })
+
+    $('#wifi_config_json').on('click', event => {
+        event.preventDefault();
+        const filename = window.electron.opendialog();
+        if (filename) {
+            $('#wifi_config_filename').html(filename);
+        }
+    });
+
   const getSummary = () => {
     let settings = {};
 

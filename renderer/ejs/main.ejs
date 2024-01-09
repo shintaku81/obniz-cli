@@ -11,29 +11,6 @@
 </script>
 <div class="fixed-contents">
   <div class="flex-column-container">
-    <div class="card flex-row-container">
-      <div class="card-body color-gray">
-        <div class="form-inline">
-          <div class="form-label">
-            <p class="w-30">
-            <label for="device"><i class="fab fa-usb"></i> COM:</label>
-            <select type="text" id="device" class="input-wid15"></select>
-            </p>
-          </div>
-
-          <div class="form-label">
-            <p class="w-30">
-            <label for="baudrate">Baudrate:</label>
-              <select type="text" id="baudrate" class="input-wid10">
-                <option value="115200" >115200bps</option>
-                <option value="921600" >921600bps</option>
-                <option value="1500000" selected>1500000bps</option>
-              </select>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="card">
       <div class="card-body">
         <div id="main_tab" class="tab-content">
@@ -47,6 +24,7 @@
 
 <%- include('_erase_modal.ejs') %>
 <%- include('_write_modal.ejs') %>
+<%- include('./_wifi_config_modal.ejs') %>
 <%- include('_error_modal.ejs') %>
 
 <script src="./assets/javascript/console.js"></script>
