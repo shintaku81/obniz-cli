@@ -1,5 +1,6 @@
 # 開発者向け obniz-cli readme
 ## 環境構築
+node: 16
 ```bash
 $ git clone https://github.com/obniz/obniz-cli
 $ cd obniz-cli
