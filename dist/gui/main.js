@@ -84,7 +84,7 @@ let mainWindow = null;
 electron_1.app.on("ready", async () => {
     mainWindow = new electron_1.BrowserWindow({
         width: 980,
-        height: 800,
+        height: 720,
         minWidth: 980,
         minHeight: 600,
         frame: false,
@@ -255,11 +255,17 @@ electron_1.app.on("ready", async () => {
         forwardOutput(false);
         mainWindow.webContents.send("obniz:finished");
     });
+    let abortController = null;
     electron_1.ipcMain.handle("obniz:config_via_wifi", async (event, arg) => {
         forwardOutput(true);
-        console.log(arg);
-        await config_via_wifi_1.default.execute(arg);
+        abortController = new AbortController();
+        const signal = abortController.signal;
+        await config_via_wifi_1.default.execute(arg, signal);
         forwardOutput(false);
+    });
+    electron_1.ipcMain.handle("obniz:config_via_wifi:cancel", async (event, arg) => {
+        forwardOutput(false);
+        abortController === null || abortController === void 0 ? void 0 : abortController.abort();
     });
     electron_1.ipcMain.on("obniz:userinfo", async (event, arg) => {
         try {

@@ -16,15 +16,21 @@ class WiFi {
             iface: null,
         });
     }
-    async setNetwork(configs, duplicate = true) {
+    async setNetwork(configs, duplicate = true, signal) {
         let spinner;
         const successIds = [];
         while (true) {
             try {
+                if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
+                    break;
+                }
                 spinner = ora(`Wi-Fi Scanning...`).start();
                 let networks;
                 while (true) {
                     networks = await this.scanObnizWiFi(30 * 1000);
+                    if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
+                        throw new Error(`Aborted.`);
+                    }
                     if (networks.length === 0) {
                         continue;
                     }
@@ -326,11 +332,15 @@ class WiFi {
         }
         return options;
     }
-    scanObnizWiFi(timeout) {
+    scanObnizWiFi(timeout, signal) {
         return new Promise(async (resolve, reject) => {
             const timer = setTimeout(() => {
                 reject(new Error(`Timeout. Cannot find any connectable obniz.`));
             }, timeout);
+            signal === null || signal === void 0 ? void 0 : signal.addEventListener("abort", () => {
+                clearTimeout(timer);
+                reject(new Error(`Aborted.`));
+            });
             node_wifi_1.default.scan((error, networks) => {
                 if (error) {
                     clearTimeout(timer);

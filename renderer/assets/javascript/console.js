@@ -7,19 +7,15 @@ $(() => {
     cols: 100,
   });
 
-
-  term.open( document.getElementById('terminal2'));
+  term.open(document.getElementById('terminal'));
 
   window.onresize = () => {
-    const cols =
-      (document.getElementById('terminal2').clientWidth * 0.72) / 7;
-    const rows =
-      (document.getElementById('terminal2').clientHeight * 0.4) / 11;
+    const cols = (document.body.clientWidth * 0.72) / 7;
+    const rows = (document.body.clientHeight * 0.4) / 11;
     term.resize(Math.round(cols), Math.round(rows));
   };
 
   window.electron.stderr(arg => {
-      console.log(arg);
     term.write(arg.replace(/\n/g, '\n\r'));
   });
 

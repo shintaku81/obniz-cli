@@ -76,7 +76,7 @@ let mainWindow: Electron.BrowserWindow | null = null;
 app.on("ready", async () => {
   mainWindow = new BrowserWindow({
     width: 980,
-    height: 800,
+    height: 720,
     minWidth: 980,
     minHeight: 600,
     frame: false,
@@ -265,11 +265,19 @@ app.on("ready", async () => {
     mainWindow!.webContents.send("obniz:finished");
   });
 
+  let abortController: AbortController | null = null;
+
   ipcMain.handle("obniz:config_via_wifi", async (event: any, arg: any) => {
     forwardOutput(true);
-    console.log(arg);
-    await Config_via_wifi.execute(arg);
+    abortController = new AbortController();
+    const signal = abortController.signal;
+    await Config_via_wifi.execute(arg, signal);
     forwardOutput(false);
+  });
+
+  ipcMain.handle("obniz:config_via_wifi:cancel", async (event: any, arg: any) => {
+    forwardOutput(false);
+    abortController?.abort();
   });
 
   ipcMain.on("obniz:userinfo", async (event: any, arg: any) => {

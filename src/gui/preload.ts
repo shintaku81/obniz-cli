@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld("electron", {
   create: async (arg: any) => await ipcRenderer.invoke("obniz:create", arg),
   config: async (arg: any) => await ipcRenderer.invoke("obniz:config", arg),
   configViaWifi: async (arg: any) => await ipcRenderer.invoke("obniz:config_via_wifi", arg),
+  configViaWifiCancel: async (arg: any) => await ipcRenderer.invoke("obniz:config_via_wifi:cancel", arg),
 
   proceed: async (func: (args: number) => void) => ipcRenderer.on("write:proceed", (event, arg) => func(arg)),
   finished: async (func: () => void) => ipcRenderer.on("obniz:finished", (event, arg) => func()),

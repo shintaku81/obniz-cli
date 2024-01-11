@@ -175,23 +175,33 @@ $(() => {
     $('#main_tab #terminal_tab').removeClass('active');
   });
 
-  $("#wifi_config_btn").on("click", () => {
-      $('#wifiConfigModal').modal('show');
-      setTimeout(() => {
-          window.onresize()
-          window.electron.configViaWifi({
-              config: $('#wifi_config_filename').html(),
-          });
-      }, 1000);
-  })
+  $('#wifi_config_btn').on('click', () => {
+    $('#wifiConfigModal').modal('show');
+    window.terminalResize();
+    setTimeout(() => {
+      window.electron.configViaWifi({
+        config: $('#wifi_config_filename').html(),
+      });
+    }, 1000);
+  });
 
-    $('#wifi_config_json').on('click', event => {
-        event.preventDefault();
-        const filename = window.electron.opendialog();
-        if (filename) {
-            $('#wifi_config_filename').html(filename);
-        }
-    });
+  $('#wifi_config_json').on('click', event => {
+    event.preventDefault();
+    const filename = window.electron.opendialog();
+    if (filename) {
+      $('#wifi_config_filename').html(filename);
+      $('#wifi_config_btn').removeAttr('disabled');
+    } else {
+      $('#wifi_config_filename').html('No File Chosen');
+      $('#wifi_config_btn').addAttr('disabled');
+    }
+  });
+
+  $('#wifiConfigJsonCancel').on('click', () => {
+    // hide modal
+    $('#wifiConfigModal').modal('hide');
+    window.electron.configViaWifiCancel();
+  });
 
   const getSummary = () => {
     let settings = {};

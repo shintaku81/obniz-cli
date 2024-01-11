@@ -7,11 +7,11 @@ $(() => {
     cols: 100,
   });
 
-  term.open(document.getElementById('terminal'));
+  term.open(document.getElementById('terminal2'));
 
-  window.onresize = () => {
-    const cols = (document.body.clientWidth * 0.72) / 7;
-    const rows = (document.body.clientHeight * 0.4) / 11;
+  window.terminalResize = () => {
+    const cols = (document.getElementById('terminal2').clientWidth * 0.72) / 7;
+    const rows = (document.getElementById('terminal2').clientHeight * 0.4) / 11;
     term.resize(Math.round(cols), Math.round(rows));
   };
 
