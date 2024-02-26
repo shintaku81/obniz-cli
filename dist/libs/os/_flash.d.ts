@@ -5,4 +5,4 @@ export default function flash(obj: {
     baud: number;
     debugserial: any;
     stdout: any;
-}): Promise<void>;
+}): Promise<unknown>;
