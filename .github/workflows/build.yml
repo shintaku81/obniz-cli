@@ -28,7 +28,7 @@ jobs:
         run: npm i -g npm@10 --registry=https://registry.npmjs.org
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm i
 
       - name: Install Electron Dependencies
         run: npm run install-for-electron
