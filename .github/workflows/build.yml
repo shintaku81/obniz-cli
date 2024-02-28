@@ -39,7 +39,7 @@ jobs:
       #      - name: Build/release Electron app
 #        run : npm run pack:win64
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: masudayasuto/action-electron-builder@v1.0.1
         env:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
