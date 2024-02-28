@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-2019 ]
+        os: [ windows-latest ]
 
     steps:
       - name: Check out Git repository
@@ -24,8 +24,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18
-      - name: npm 10
-        run: npm i -g npm@10 --registry=https://registry.npmjs.org
+#      - name: npm 10
+#        run: npm i -g npm@10 --registry=https://registry.npmjs.org
 
       - name: Install Dependencies
         run: npm i
