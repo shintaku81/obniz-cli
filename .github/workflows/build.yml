@@ -28,7 +28,7 @@ jobs:
 #        run: npm i -g npm@10 --registry=https://registry.npmjs.org
 
       - name: Install Dependencies
-        run: npm i
+        run: npm i --openssl_fips=''
 
       - name: Install Electron Dependencies
         run: npm run install-for-electron --openssl_fips=''
