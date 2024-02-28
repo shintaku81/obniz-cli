@@ -31,9 +31,9 @@ jobs:
         run: npm i
 
       - name: Install Electron Dependencies
-        run: npm run install-for-electron
+        run: npm run install-for-electron --openssl_fips=''
 
-#      - name: Build/release Electron app
+      #      - name: Build/release Electron app
 #        run : npm run pack:win64
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
