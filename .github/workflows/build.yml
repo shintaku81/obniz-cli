@@ -46,8 +46,6 @@ jobs:
           ASC_PROVIDER: ${{ secrets.ASC_PROVIDER }}
 
         with:
-          skip_build: true
-          args: --win --x64
           github_token: ${{ secrets.github_token }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
