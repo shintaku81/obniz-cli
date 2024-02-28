@@ -28,7 +28,7 @@ jobs:
 #        run: npm i -g npm@10 --registry=https://registry.npmjs.org
 
       - name: Install Windows Build Tools
-        run:  npm install --global windows-build-tools
+        run:  npm install windows-build-tools
 
       - name: Install Dependencies
         run: npm i --openssl_fips=''
