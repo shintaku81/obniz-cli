@@ -1,19 +1,25 @@
-const args = require("minimist")(process.argv.slice(2), { "--": true, "string": ["id", "i"] });
+import minimist from "minimist";
 
-const packageverion = require(`../package.json`).version;
+const args = minimist(process.argv.slice(2), {
+  "--": true,
+  string: ["id", "i"]
+});
+
+const packageverion = "unknown version";
 
 export interface Command {
   help: string | (() => Promise<void>);
+
   execute(...args: any): Promise<void>;
 }
 
 export const Args = async (routes: Record<string, Command>) => {
-  const command = args._;
-  if (!command) {
+  if (!args._) {
     throw new Error(`No Command Provided`);
-  } else if (args._ > 1) {
+  } else if (args._.length > 1) {
     throw new Error(`Too Many Command`);
   }
+  const command = args._[0];
   const route = routes[command];
   if (args.help) {
     if (route && route.help) {

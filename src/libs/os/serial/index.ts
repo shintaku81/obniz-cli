@@ -2,7 +2,6 @@ import chalk from "chalk";
 import semver from "semver";
 
 import SerialPort from "serialport";
-import KeyPairGen from "../keypair";
 
 const baudRate = 115200;
 
@@ -25,7 +24,7 @@ export default class Serial {
   }
 
   public async open() {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       this.serialport = new SerialPort(this.portname, { baudRate });
 
       this.serialport.on("open", () => {
@@ -52,7 +51,7 @@ export default class Serial {
   }
 
   public async close() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.serialport?.close(() => {
         resolve();
       });
@@ -67,7 +66,7 @@ export default class Serial {
    *
    */
   public async reset() {
-    await new Promise(async (resolve, reject) => {
+    await new Promise<void>(async (resolve, reject) => {
       this.serialport?.set(
         {
           dtr: false,
@@ -81,10 +80,10 @@ export default class Serial {
         },
       );
     });
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       setTimeout(resolve, 10);
     });
-    await new Promise(async (resolve, reject) => {
+    await new Promise<void>(async (resolve, reject) => {
       // リセット時にはクリアする
       this.serialport?.set(
         {
@@ -102,7 +101,7 @@ export default class Serial {
   }
 
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
-    return await new Promise((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       let timeoutTimer: null | ReturnType<typeof setTimeout> = setTimeout(() => {
         check();
         this._recvCallback = null;

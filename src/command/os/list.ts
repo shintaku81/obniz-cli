@@ -1,7 +1,6 @@
 import chalk from "chalk";
-import Defaults from "../../defaults";
-import OS from "../../libs/obnizio/os";
-import * as Storage from "../../libs/storage";
+import Defaults from "../../defaults.js";
+import OS from "../../libs/obnizio/os.js";
 
 export const ListCommand =  {
   help: `List available OS list for hardware.

@@ -1,5 +1,5 @@
-import User from "../../libs/obnizio/user";
-import * as Storage from "../../libs/storage";
+import User from "../../libs/obnizio/user.js";
+import * as Storage from "../../libs/storage.js";
 
 export const UserInfoCommand = async () => {
   const token = Storage.get("token");

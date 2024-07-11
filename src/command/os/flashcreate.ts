@@ -1,17 +1,17 @@
-import {ConfigCommand} from "./config";
+import {ConfigCommand} from "./config.js";
 
-const { URL } = require("url");
+import  { URL } from "url";
 import chalk from "chalk";
-import Defaults from "../../defaults";
-import OS from "../../libs/obnizio/os";
-import Device from "../../libs/obnizio/device";
-import * as Storage from "../../libs/storage";
-import Flash from "../../libs/os/_flash";
-import  { validate as validateConfig } from "../../libs/os/config";
-import PreparePort from "../../libs/os/serial/prepare";
+import Defaults from "../../defaults.js";
+import OS from "../../libs/obnizio/os.js";
+import Device from "../../libs/obnizio/device.js";
+import * as Storage from "../../libs/storage.js";
+import Flash from "../../libs/os/_flash.js";
+import  { validate as validateConfig } from "../../libs/os/config.js";
+import PreparePort from "../../libs/os/serial/prepare.js";
 
 import inquirer from "inquirer";
-import { getOra } from "../../libs/ora-console/getora";
+import { getOra } from "../../libs/ora-console/getora.js";
 const ora = getOra();
 
 export const FlashCreateCommand = {

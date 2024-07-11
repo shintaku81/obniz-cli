@@ -1,4 +1,5 @@
 import path from "path";
+import { __dirname } from "../dirname.js";
 
 export default (hw: string, version: string, type: string) => {
   const relative = "../../../";

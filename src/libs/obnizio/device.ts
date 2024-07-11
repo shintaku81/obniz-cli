@@ -1,7 +1,7 @@
 import { GraphQLClient } from "graphql-request";
-import { DeviceCreateInput, getSdk, MutationCreateDeviceArgs } from "../generated/client";
-import { getClientSdk } from "./sdk";
-import { GraphQLURL } from "./url";
+import { DeviceCreateInput, getSdk, MutationCreateDeviceArgs } from "../generated/client.js";
+import { getClientSdk } from "./sdk.js";
+import { GraphQLURL } from "./url.js";
 
 export default class Device {
   public static async create(token?: string, opt: any = {}) {

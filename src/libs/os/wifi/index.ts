@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import wifi from "node-wifi";
 import { Ora } from "ora";
-import { getOra } from "../../ora-console/getora";
+import { getOra } from "../../ora-console/getora.js";
 const ora = getOra();
 import { NetworkInterfaceInfo, networkInterfaces } from "os";
 
@@ -72,11 +72,11 @@ export default class WiFi {
             }
             successIds[network.ssid] = true;
           } catch (e) {
-            spinner.fail(`${chalk.green(network.ssid)} Configuration failed reson=${e.toString()}`);
+            spinner.fail(`${chalk.green(network.ssid)} Configuration failed reson=${e?.toString()}`);
           }
         }
       } catch (e) {
-        spinner?.fail(`${e.toString()}`);
+        spinner?.fail(`${e?.toString()}`);
       }
     }
   }

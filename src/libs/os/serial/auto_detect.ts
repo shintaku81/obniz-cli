@@ -1,4 +1,4 @@
-import guessPort from "./guess";
+import guessPort from "./guess.js";
 
 export default async function waitForPort() {
   while (true) {

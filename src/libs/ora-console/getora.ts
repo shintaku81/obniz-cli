@@ -1,5 +1,5 @@
 import ora from "ora";
-import oraConsole from "./index";
+import oraConsole from "./index.js";
 
 const getOra: any = () => {
   return process.stdout.isTTY ? ora : oraConsole;

@@ -1,13 +1,12 @@
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import Defaults from "../../defaults";
-import Device from "../../libs/obnizio/device";
-import { Operation } from "../../libs/obnizio/operation";
-import { OperationSetting } from "../../libs/obnizio/operation_setting";
-import Config from "../../libs/os/configure";
-import PreparePort from "../../libs/os/serial/prepare";
-import * as Storage from "../../libs/storage";
+import Defaults from "../../defaults.js";
+import Device from "../../libs/obnizio/device.js";
+import { Operation } from "../../libs/obnizio/operation.js";
+import { OperationSetting } from "../../libs/obnizio/operation_setting.js";
+
+import * as Storage from "../../libs/storage.js";
 
 export const OperationInfoCommand = {
   help: `Show the operation info

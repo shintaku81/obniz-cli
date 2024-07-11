@@ -1,14 +1,12 @@
-import { EspLoader } from "@9wick/esptool.js";
-import { EsptoolSerial } from "@9wick/esptool.js/build/node/serial";
-import { sleep } from "@9wick/esptool.js/build/util";
+
 import chalk from "chalk";
 import child_process from "child_process";
 import { promises as fs } from "fs";
 
-import { getOra } from "../ora-console/getora";
+import { getOra } from "../ora-console/getora.js";
 const ora = getOra();
 
-import OS from "../obnizio/os";
+import OS from "../obnizio/os.js";
 
 export default function flash(obj: {
   portname: string;
@@ -18,7 +16,7 @@ export default function flash(obj: {
   debugserial: any;
   stdout: any;
 }) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<void>(async (resolve, reject) => {
     let status = "connecting";
 
     const spinner = ora(

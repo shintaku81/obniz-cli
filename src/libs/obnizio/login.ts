@@ -4,7 +4,7 @@ import getPort from "get-port";
 import http from "http";
 import fetch from "node-fetch";
 import opn from "opn";
-import { ObnizIOURL } from "./url";
+import { ObnizIOURL } from "./url.js";
 
 const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken =
@@ -70,7 +70,7 @@ function oauth(
           return;
         }
 
-        const json = await response.json();
+        const json = (await response.json()) as any;
         const token = json.token;
         callback(null, token);
       } catch (e) {

@@ -7,4 +7,9 @@ generates:
     plugins:
       - typescript
       - typescript-operations
-      - typescript-graphql-request
+      - typescript-graphql-request :
+          config:
+            documentMode: documentNode
+hooks:
+  afterAllFileWrite:
+    - "sed -i '' \"s/import gql from 'graphql-tag'/import { gql } from 'graphql-tag'/\""

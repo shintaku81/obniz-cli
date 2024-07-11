@@ -1,8 +1,8 @@
-import { Login } from "../../libs/obnizio/login";
-import User from "../../libs/obnizio/user";
-import * as Storage from "../../libs/storage";
+import { Login } from "../../libs/obnizio/login.js";
+import User from "../../libs/obnizio/user.js";
+import * as Storage from "../../libs/storage.js";
 
-import { getOra } from "../../libs/ora-console/getora";
+import { getOra } from "../../libs/ora-console/getora.js";
 
 const ora = getOra();
 

@@ -2,15 +2,12 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 import { DeepPartial } from "utility-types";
-import Defaults from "../../defaults";
-import Device from "../obnizio/device";
-import { Operation } from "../obnizio/operation";
-import { OperationSetting } from "../obnizio/operation_setting";
-import * as Storage from "../storage";
-import Config, { ConfigParam } from "./configure";
-import PreparePort from "./serial/prepare";
-
-import { getOra } from "../ora-console/getora";
+import Device from "../obnizio/device.js";
+import { Operation } from "../obnizio/operation.js";
+import { OperationSetting } from "../obnizio/operation_setting.js";
+import * as Storage from "../storage.js";
+import Config, { ConfigParam } from "./configure/index.js";
+import { getOra } from "../ora-console/getora.js";
 const ora = getOra();
 
 export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {

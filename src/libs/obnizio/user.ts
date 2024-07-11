@@ -1,6 +1,6 @@
 import { GraphQLClient } from "graphql-request";
-import { getSdk } from "../generated/client";
-import { GraphQLURL } from "./url";
+import { getSdk } from "../generated/client.js";
+import { GraphQLURL } from "./url.js";
 
 export default async (token: string) => {
   const graphQLClient = new GraphQLClient(GraphQLURL, {

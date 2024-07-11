@@ -1,12 +1,12 @@
 import chalk from "chalk";
-import Defaults from "../../defaults";
-import OS from "../../libs/obnizio/os";
-import Flash from "../../libs/os/_flash";
-import { validate as validateConfig } from "../../libs/os/config";
-import PreparePort from "../../libs/os/serial/prepare";
+import Defaults from "../../defaults.js";
+import OS from "../../libs/obnizio/os.js";
+import Flash from "../../libs/os/_flash.js";
+import { validate as validateConfig } from "../../libs/os/config.js";
+import PreparePort from "../../libs/os/serial/prepare.js";
 
-import { getOra } from "../../libs/ora-console/getora";
-import {ConfigCommand} from "./config";
+import { getOra } from "../../libs/ora-console/getora.js";
+import {ConfigCommand} from "./config.js";
 const ora = getOra();
 
 export const FlashCommand =  {

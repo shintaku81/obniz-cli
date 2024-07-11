@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 import chalk from "chalk";
-import { Args, Command } from "./command/arg";
-import { HelpCommand } from "./command/help";
-import { OperationInfoCommand } from "./command/operation/info";
-import { OperationListCommand } from "./command/operation/list";
-import { ConfigCommand } from "./command/os/config";
-import { ConfigViaWifiCommand } from "./command/os/config_via_wifi";
-import { EraseCommand } from "./command/os/erase";
-import { FlashCommand } from "./command/os/flash";
-import { FlashCreateCommand } from "./command/os/flashcreate";
-import { ListCommand } from "./command/os/list";
-import { PortsCommand } from "./command/os/ports";
-import { UserInfoCommand } from "./command/user/info";
-import { LoginCommand } from "./command/user/login";
-import { LogoutCommand } from "./command/user/logout";
-import PreparePort from "./libs/os/serial/prepare";
+import { Args, Command } from "./command/arg.js";
+import { HelpCommand } from "./command/help.js";
+import { OperationInfoCommand } from "./command/operation/info.js";
+import { OperationListCommand } from "./command/operation/list.js";
+import { ConfigCommand } from "./command/os/config.js";
+import { ConfigViaWifiCommand } from "./command/os/config_via_wifi.js";
+import { EraseCommand } from "./command/os/erase.js";
+import { FlashCommand } from "./command/os/flash.js";
+import { FlashCreateCommand } from "./command/os/flashcreate.js";
+import { ListCommand } from "./command/os/list.js";
+import { PortsCommand } from "./command/os/ports.js";
+import { UserInfoCommand } from "./command/user/info.js";
+import { LoginCommand } from "./command/user/login.js";
+import { LogoutCommand } from "./command/user/logout.js";
+import PreparePort from "./libs/os/serial/prepare.js";
 
 // ========== Global Errors =========
 

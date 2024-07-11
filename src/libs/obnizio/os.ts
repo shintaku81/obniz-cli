@@ -3,9 +3,9 @@ import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
-import * as Storage from "../storage";
-import filepath from "./filepath";
-import { GraphQLURL } from "./url";
+import * as Storage from "../storage.js";
+import filepath from "./filepath.js";
+import { GraphQLURL } from "./url.js";
 
 export default class OS {
   public static async list(hardware: string, type: string | null = null) {
@@ -113,8 +113,8 @@ async function downloadFile(url: string, pathtodownload: string) {
   const res = await fetch(url);
   const fileStream = fs.createWriteStream(pathtodownload);
   await new Promise((resolve, reject) => {
-    res.body.pipe(fileStream);
-    res.body.on("error", (err) => {
+    res.body?.pipe(fileStream);
+    res.body?.on("error", (err: any) => {
       reject(err);
     });
     fileStream.on("finish", () => {

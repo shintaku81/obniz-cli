@@ -1,14 +1,14 @@
-export * from "./command/user/login";
-export * from "./command/user/logout";
-export * from "./command/user/info";
+export * from "./command/user/login.js";
+export * from "./command/user/logout.js";
+export * from "./command/user/info.js";
 
-export * from "./command/os/config";
-export * from "./command/os/erase";
-export * from "./command/os/flash";
-export * from "./command/os/list";
-export * from "./command/os/ports";
-export * from "./command/os/config_via_wifi";
-export * from "./command/os/flashcreate";
+export * from "./command/os/config.js";
+export * from "./command/os/erase.js";
+export * from "./command/os/flash.js";
+export * from "./command/os/list.js";
+export * from "./command/os/ports.js";
+export * from "./command/os/config_via_wifi.js";
+export * from "./command/os/flashcreate.js";
 
-export * from "./command/operation/list";
-export * from "./command/operation/info";
+export * from "./command/operation/list.js";
+export * from "./command/operation/info.js";

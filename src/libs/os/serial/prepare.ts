@@ -1,12 +1,12 @@
 import * as readline from "readline";
 
 import SerialPort from "serialport";
-import Defaults from "../../../defaults";
-import SerialGuess from "./guess";
+import Defaults from "../../../defaults.js";
+import SerialGuess from "./guess.js";
 
 import chalk from "chalk";
 import inquirer from "inquirer";
-import { getOra } from "../../ora-console/getora";
+import { getOra } from "../../ora-console/getora.js";
 const ora = getOra();
 
 export default async (args: any): Promise<any> => {

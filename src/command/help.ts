@@ -1,5 +1,5 @@
 
-const packageverion = require(`../package.json`).version;
+const packageverion = "unknown version";
 
 export const HelpCommand = async () => {
   console.log(`

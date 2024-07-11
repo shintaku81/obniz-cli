@@ -12,6 +12,7 @@
   "repository": "obniz/obniz-cli",
   "scripts": {
     "tsc": "tsc",
+    "build": "tsc",
     "lint": "npm run lint-ts",
     "lint-ts": "tslint --fix -c tslint.json 'src/**/*.ts' ",
     "precommit": "lint-staged && npm run build",
@@ -24,6 +25,7 @@
   "bin": {
     "obniz-cli": "./dist/cli.js"
   },
+  "type": "module",
   "preferGlobal": true,
   "author": "obniz inc",
   "homepage": "https://obniz.com/",
@@ -35,6 +37,7 @@
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/inquirer": "^7.3.3",
+    "@types/minimist": "^1.2.5",
     "@types/node-fetch": "^2.5.12",
     "@types/opn": "^5.5.0",
     "@types/puppeteer-core": "^5.4.0",
@@ -60,7 +63,7 @@
     "ts-node": "^8.8.2",
     "tslint": "^5.20.1",
     "tslint-plugin-prettier": "^2.1.0",
-    "typescript": "^3.8.3"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@9wick/esptool.js": "^0.9.5",
@@ -71,15 +74,17 @@
     "chalk": "^4.0.0",
     "dotenv": "^8.6.0",
     "elliptic": "^6.5.2",
+    "esptool-js": "^0.4.3",
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "graphql": "^15.5.1",
     "graphql-request": "^1.8.2",
     "inquirer": "^7.3.3",
     "log4js": "^6.1.2",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.8",
     "moment": "^2.24.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.3.2",
+    "node-web-serial-ponyfill": "^0.5.3",
     "node-wifi": "^2.0.14",
     "opn": "^6.0.0",
     "ora": "^5.1.0",

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-
+import { __dirname } from "./dirname.js";
 const filepath = path.join(__dirname, "../..", "storage.json");
 
 function read(): any {
