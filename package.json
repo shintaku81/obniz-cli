@@ -2,7 +2,7 @@
   "name": "obniz-cli",
   "version": "0.10.1-beta.0",
   "description": "",
-  "main": "./dist/cli.js",
+  "main": "./dist/index.js",
   "keywords": [
     "obniz"
   ],
@@ -22,7 +22,7 @@
     "install-for-electron": "electron-builder install-app-deps"
   },
   "bin": {
-    "obniz-cli": "./dist/index.js"
+    "obniz-cli": "./dist/cli.js"
   },
   "preferGlobal": true,
   "author": "obniz inc",
