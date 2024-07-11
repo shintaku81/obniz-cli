@@ -1,27 +1,20 @@
 #!/usr/bin/env node
-import wtf from "wtfnode";
-
 import chalk from "chalk";
-
-import {Args, Command} from "./command/arg";
-import { PortsCommand } from "./command/os/ports";
-
+import { Args, Command } from "./command/arg";
+import { HelpCommand } from "./command/help";
+import { OperationInfoCommand } from "./command/operation/info";
+import { OperationListCommand } from "./command/operation/list";
 import { ConfigCommand } from "./command/os/config";
 import { ConfigViaWifiCommand } from "./command/os/config_via_wifi";
 import { EraseCommand } from "./command/os/erase";
 import { FlashCommand } from "./command/os/flash";
 import { FlashCreateCommand } from "./command/os/flashcreate";
 import { ListCommand } from "./command/os/list";
-import PreparePort from "./libs/os/serial/prepare";
-
+import { PortsCommand } from "./command/os/ports";
 import { UserInfoCommand } from "./command/user/info";
 import { LoginCommand } from "./command/user/login";
 import { LogoutCommand } from "./command/user/logout";
-
-import { OperationInfoCommand } from "./command/operation/info";
-import { OperationListCommand } from "./command/operation/list";
-import {HelpCommand} from "./command/help";
-
+import PreparePort from "./libs/os/serial/prepare";
 
 // ========== Global Errors =========
 
@@ -60,7 +53,7 @@ const routes: Record<string, Command> = {
   "os:config": ConfigCommand,
   "os:config-via-wifi": ConfigViaWifiCommand,
   "os:erase": {
-    help: 'Fully erase a flash on target device.',
+    help: "Fully erase a flash on target device.",
     async execute(args: any) {
       const obj = await PreparePort(args);
       obj.stdout = (text: string) => {
