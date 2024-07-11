@@ -3,23 +3,23 @@ import wtf from "wtfnode";
 
 import chalk from "chalk";
 
-import Args from "./arg";
-import Ports from "./libs/os/ports";
+import Args from "./command/arg";
+import { PortsCommand } from "./command/os/ports";
 
 import { ConfigCommand } from "./command/os/config";
-import ConfigViaWiFi from "./libs/os/config_via_wifi";
-import Erase from "./libs/os/erase";
+import { ConfigViaWifiCommand } from "./command/os/config_via_wifi";
+import { EraseCommand } from "./command/os/erase";
 import { FlashCommand } from "./command/os/flash";
 import { FlashCreateCommand } from "./command/os/flashcreate";
-import List from "./libs/os/list";
+import { ListCommand } from "./command/os/list";
 import PreparePort from "./libs/os/serial/prepare";
 
 import { UserInfoCommand } from "./command/user/info";
 import { LoginCommand } from "./command/user/login";
 import { LogoutCommand } from "./command/user/logout";
 
-import OperationInfo from "./libs/operation/info";
-import OperationList from "./libs/operation/list";
+import { OperationInfoCommand } from "./command/operation/info";
+import { OperationListCommand } from "./command/operation/list";
 
 const packageverion = require(`../package.json`).version;
 
@@ -58,25 +58,25 @@ const routes = {
   "os:flash-create": FlashCreateCommand,
   "os:flash": FlashCommand,
   "os:config": ConfigCommand,
-  "os:config-via-wifi": ConfigViaWiFi,
+  "os:config-via-wifi": ConfigViaWifiCommand,
   "os:erase": {
     async execute(args: any) {
       const obj = await PreparePort(args);
       obj.stdout = (text: string) => {
         process.stdout.write(text);
       };
-      await Erase(obj);
+      await EraseCommand(obj);
     }
   },
-  "os:list": List,
+  "os:list": ListCommand,
   "os:ports": {
     help: `List your machine's serial ports`,
     async execute(args: any) {
-      await Ports();
+      await PortsCommand();
     }
   },
-  "operation:list": OperationList,
-  "operation:info": OperationInfo,
+  "operation:list": OperationListCommand,
+  "operation:info": OperationInfoCommand,
   help: async () => {
     console.log(`
        _           _               _ _

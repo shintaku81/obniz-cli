@@ -1,6 +1,6 @@
 import child_process from "child_process";
 
-export default (obj: { portname: string; baud: number; stdout: any }) => {
+export const EraseCommand =  (obj: { portname: string; baud: number; stdout: any }) => {
   return new Promise((resolve, reject) => {
     let received = "";
     let success = false;

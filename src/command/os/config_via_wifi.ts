@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import WiFi from "./wifi";
+import WiFi from "../../libs/os/wifi";
 
-export default {
+export const ConfigViaWifiCommand = {
   help: `Configure ObnizOS network via Wi-Fi from devices.
 
  [configurations]

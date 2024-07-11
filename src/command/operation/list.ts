@@ -2,14 +2,14 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 import Defaults from "../../defaults";
-import Device from "../obnizio/device";
-import { Operation } from "../obnizio/operation";
-import User from "../obnizio/user";
-import Config from "../os/configure";
-import PreparePort from "../os/serial/prepare";
-import * as Storage from "../storage";
+import Device from "../../libs/obnizio/device";
+import { Operation } from "../../libs/obnizio/operation";
+import User from "../../libs/obnizio/user";
+import Config from "../../libs/os/configure";
+import PreparePort from "../../libs/os/serial/prepare";
+import * as Storage from "../../libs/storage";
 
-export default {
+export const OperationListCommand =  {
   help: `Show your operation list
       --token       Token of api key which use instead of user signin.
   `,

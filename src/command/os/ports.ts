@@ -1,6 +1,6 @@
 import SerialPort from "serialport";
 
-export default async () => {
+export const PortsCommand = async () => {
   const ports: SerialPort.PortInfo[] = await SerialPort.list();
   console.log(`===Founded Serial Ports===`);
 
