@@ -2,8 +2,8 @@ const args = require("minimist")(process.argv.slice(2), { "--": true, "string": 
 
 const packageverion = require(`../package.json`).version;
 
-export type Command = {
-  help: string | ( () => Promise<void>);
+export interface Command {
+  help: string | (() => Promise<void>);
   execute(...args: any): Promise<void>;
 }
 
