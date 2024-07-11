@@ -1,18 +1,20 @@
+import {ConfigCommand} from "./config";
+
 const { URL } = require("url");
 import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
-import Device from "../obnizio/device";
-import * as Storage from "../storage";
-import Flash from "./_flash";
-import Config, { validate as validateConfig } from "./config";
-import PreparePort from "./serial/prepare";
+import Device from "../../libs/obnizio/device";
+import * as Storage from "../../libs/storage";
+import Flash from "../../libs/os/_flash";
+import  { validate as validateConfig } from "../../libs/os/config";
+import PreparePort from "../../libs/os/serial/prepare";
 
 import inquirer from "inquirer";
-import { getOra } from "../ora-console/getora";
+import { getOra } from "../../libs/ora-console/getora";
 const ora = getOra();
 
-export default {
+export const FlashCreateCommand = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
@@ -164,7 +166,7 @@ export default {
       args.p = undefined;
       args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
       args.devicekey = device.devicekey;
-      await Config.execute(args, proceed);
+      await ConfigCommand.execute(args, proceed);
       Storage.set("recovery-device", null);
     } catch (e) {
       chalk.yellow(`obnizID ${device.id} device key and information was sotred in recovery file`);

@@ -4,7 +4,6 @@ import { Ora } from "ora";
 import { getOra } from "../../ora-console/getora";
 const ora = getOra();
 import { NetworkInterfaceInfo, networkInterfaces } from "os";
-import config from "../config";
 
 export default class WiFi {
   public stdout: any;

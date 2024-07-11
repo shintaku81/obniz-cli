@@ -1,14 +1,15 @@
 import chalk from "chalk";
 import Defaults from "../../defaults";
 import OS from "../../libs/obnizio/os";
-import Flash from "./_flash";
-import Config, { validate as validateConfig } from "./config";
-import PreparePort from "./serial/prepare";
+import Flash from "../../libs/os/_flash";
+import { validate as validateConfig } from "../../libs/os/config";
+import PreparePort from "../../libs/os/serial/prepare";
 
-import { getOra } from "../ora-console/getora";
+import { getOra } from "../../libs/ora-console/getora";
+import {ConfigCommand} from "./config";
 const ora = getOra();
 
-export default {
+export const FlashCommand =  {
   help: `Flash obnizOS and configure it
 
 [serial setting]
@@ -83,6 +84,6 @@ export default {
     // Configure it
     args.p = undefined;
     args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
-    await Config.execute(args);
+    await ConfigCommand.execute(args);
   },
 };

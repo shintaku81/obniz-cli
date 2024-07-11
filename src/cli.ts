@@ -6,17 +6,17 @@ import chalk from "chalk";
 import Args from "./arg";
 import Ports from "./libs/os/ports";
 
-import Config from "./libs/os/config";
+import { ConfigCommand } from "./command/os/config";
 import ConfigViaWiFi from "./libs/os/config_via_wifi";
 import Erase from "./libs/os/erase";
-import Flash from "./libs/os/flash";
-import Create from "./libs/os/flashcreate";
+import { FlashCommand } from "./command/os/flash";
+import { FlashCreateCommand } from "./command/os/flashcreate";
 import List from "./libs/os/list";
 import PreparePort from "./libs/os/serial/prepare";
 
-import UserInfo from "./libs/user/info";
-import Login from "./libs/user/login";
-import Logout from "./libs/user/logout";
+import { UserInfoCommand } from "./command/user/info";
+import { LoginCommand } from "./command/user/login";
+import { LogoutCommand } from "./command/user/logout";
 
 import OperationInfo from "./libs/operation/info";
 import OperationList from "./libs/operation/list";
@@ -25,39 +25,39 @@ const packageverion = require(`../package.json`).version;
 
 // ========== Global Errors =========
 
-process.on("uncaughtException", (err) => {
+process.on("uncaughtException", err => {
   console.error(err);
   throw err;
 });
 
-process.on("unhandledRejection", (err) => {
+process.on("unhandledRejection", err => {
   console.error(err);
   throw err;
 });
 
 // ========== Routes =========
 const routes = {
-  "signin": {
+  signin: {
     help: `Signin to obniz Cloud`,
     async execute(args: any) {
-      await Login();
-    },
+      await LoginCommand();
+    }
   },
-  "signout": {
+  signout: {
     help: `Signout`,
     async execute(args: any) {
-      await Logout();
-    },
+      await LogoutCommand();
+    }
   },
   "user:info": {
     help: `Get Currently signin user's information from cloud`,
     async execute(args: any) {
-      await UserInfo();
-    },
+      await UserInfoCommand();
+    }
   },
-  "os:flash-create": Create,
-  "os:flash": Flash,
-  "os:config": Config,
+  "os:flash-create": FlashCreateCommand,
+  "os:flash": FlashCommand,
+  "os:config": ConfigCommand,
   "os:config-via-wifi": ConfigViaWiFi,
   "os:erase": {
     async execute(args: any) {
@@ -66,18 +66,18 @@ const routes = {
         process.stdout.write(text);
       };
       await Erase(obj);
-    },
+    }
   },
   "os:list": List,
   "os:ports": {
     help: `List your machine's serial ports`,
     async execute(args: any) {
       await Ports();
-    },
+    }
   },
   "operation:list": OperationList,
   "operation:info": OperationInfo,
-  "help": async () => {
+  help: async () => {
     console.log(`
        _           _               _ _
   ___ | |__  _ __ (_)____      ___| (_)
@@ -112,14 +112,14 @@ COMMANDS
   operation:list      List of available operations.
   operation:info      Show operation info.
   `);
-  },
+  }
 };
 
 Args(routes)
   .then(() => {
     // wtf.dump();
   })
-  .catch((e) => {
+  .catch(e => {
     console.log(chalk.red(`${e}`));
     process.exit(1);
   });

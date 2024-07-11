@@ -10,7 +10,7 @@ const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken =
   process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
-export default async (progress: (arg: string) => void, app?: { id: string; token: string }): Promise<string> => {
+export const Login = async (progress: (arg: string) => void, app?: { id: string; token: string }): Promise<string> => {
   return await new Promise(async (resolve, reject) => {
     // start server
     const port = await getPort();

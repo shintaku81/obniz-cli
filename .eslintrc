@@ -1,14 +1,11 @@
 {
-  "root":true,
+  "root": true,
   "env": {
     "browser": true,
     "es6": true,
     "node": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:prettier/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
   "parserOptions": {
     "ecmaVersion": 2017
   },
@@ -22,8 +19,18 @@
     ],
     "no-console": "off",
     "no-inner-declarations": "warn",
-    "no-constant-condition": ["error", {"checkLoops": false}],
-    "no-unused-vars": ["error", { "args": "none" }],
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "none"
+      }
+    ],
     "no-var": "error"
   }
 }

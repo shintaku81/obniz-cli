@@ -1,15 +1,15 @@
-import Login from "../obnizio/login";
-import User from "../obnizio/user";
-import * as Storage from "../storage";
+import User from "../../libs/obnizio/user";
+import * as Storage from "../../libs/storage";
 
-export default async () => {
+export const UserInfoCommand = async () => {
   const token = Storage.get("token");
   if (!token) {
     console.log(`Not Sign In`);
     return;
   }
   console.log(`Contacting to obniz Cloud...`);
-  const user = await User(token);
+
+  const user = await User(token).catch(() => null);
   if (!user) {
     console.log(`Authentication Failed.`);
     return;
