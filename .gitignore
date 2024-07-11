@@ -23,3 +23,4 @@ storage.json
 .env
 .cache
 .envrc
+dist

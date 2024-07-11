@@ -6,6 +6,9 @@
   "keywords": [
     "obniz"
   ],
+  "files": [
+    "dist"
+  ],
   "repository": "obniz/obniz-cli",
   "scripts": {
     "tsc": "tsc",
@@ -20,54 +23,6 @@
   },
   "bin": {
     "obniz-cli": "./dist/index.js"
-  },
-  "build": {
-    "extraMetadata": {
-      "main": "./dist/gui/main.js"
-    },
-    "appId": "com.obniz.app.writer",
-    "productName": "obnizWriter",
-    "buildDependenciesFromSource": true,
-    "npmRebuild": true,
-    "afterSign": "dist/gui/notarize.js",
-    "dmg": {
-      "sign": false
-    },
-    "directories": {
-      "buildResources": "dist",
-      "output": "app"
-    },
-    "files": [
-      "dist/**/*",
-      "public/**/*",
-      "graphql/**/*",
-      "package.json"
-    ],
-    "asar": false,
-    "mac": {
-      "target": "dmg",
-      "icon": "renderer/obnizwriter.icns",
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "entitlements.mac.plist",
-      "entitlementsInherit": "entitlements.mac.plist"
-    },
-    "win": {
-      "icon": "renderer/obnizwriter.ico",
-      "target": [
-        "zip",
-        "nsis"
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerHeaderIcon": "renderer/obnizwriter.ico"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "obniz"
-    }
   },
   "preferGlobal": true,
   "author": "obniz inc",
