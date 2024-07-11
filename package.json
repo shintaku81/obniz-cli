@@ -8,13 +8,6 @@
   ],
   "repository": "obniz/obniz-cli",
   "scripts": {
-    "pack:mac": "electron-builder --mac --x64",
-    "pack:win64": "electron-builder --win --x64",
-    "packager": "npm run build && npm run pack:mac && npm run pack:win64",
-    "build": "npm run clean && npm run lint && tsc && npm run build:renderer",
-    "build:renderer": "rimraf ./public && gulp sass && gulp ejs && gulp assets",
-    "build-css": "gulp sass",
-    "watch": "gulp",
     "tsc": "tsc",
     "lint": "npm run lint-ts",
     "lint-ts": "tslint --fix -c tslint.json 'src/**/*.ts' ",
@@ -22,12 +15,11 @@
     "clean": "rimraf ./dist && rimraf ./app ",
     "local": "npx ts-node src/index.ts",
     "start": "node ./dist/index.js",
-    "electron": "electron ./dist/gui/main.js",
     "codegen": "graphql-codegen",
     "install-for-electron": "electron-builder install-app-deps"
   },
   "bin": {
-    "obniz-cli": "start.sh"
+    "obniz-cli": "./dist/index.js"
   },
   "build": {
     "extraMetadata": {
@@ -96,11 +88,6 @@
     "@types/socket.io": "^2.1.13",
     "@types/wtfnode": "^0.7.0",
     "browser-sync": "^2.27.5",
-    "electron": "^18.0.3",
-    "electron-builder": "^23.6.0",
-    "electron-packager": "^15.4.0",
-    "electron-rebuild": "^3.2.7",
-    "electron-notarize": "^1.1.1",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^3.6.0",
     "eslint-plugin-jasmine": "^2.10.1",
@@ -112,7 +99,6 @@
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.0.0",
     "npm-run-all": "^4.1.5",
-    "pkg": "^4.4.0",
     "prettier": "^1.14.3",
     "rimraf": "^3.0.0",
     "sass": "^1.38.1",
@@ -129,8 +115,6 @@
     "@graphql-codegen/typescript-operations": "^1.13.5",
     "chalk": "^4.0.0",
     "dotenv": "^8.6.0",
-    "electron-log": "^4.4.6",
-    "electron-updater": "^5.0.1",
     "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "get-port": "^5.1.1",

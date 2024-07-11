@@ -10,7 +10,7 @@ exports.default = (obj) => {
         let received = "";
         let success = false;
         obj.stdout("", { clear: true });
-        const cmd = `esptool.py --chip esp32 --port ${obj.portname} --baud ${obj.baud} erase_flash`;
+        const cmd = `esptool.py --chip auto --port ${obj.portname} --baud ${obj.baud} erase_flash`;
         console.log(cmd);
         const child = child_process_1.default.exec(cmd);
         (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.setEncoding("utf8");

@@ -4,7 +4,6 @@ import wtf from "wtfnode";
 import chalk from "chalk";
 
 import Args from "./arg";
-import * as gui from "./gui";
 import Ports from "./libs/os/ports";
 
 import Config from "./libs/os/config";
@@ -78,18 +77,6 @@ const routes = {
   },
   "operation:list": OperationList,
   "operation:info": OperationInfo,
-  "gui": {
-    async execute(args: any) {
-      console.log(`Launching...`);
-      try {
-        await gui.start();
-      } catch (e) {
-        console.error(`Failed to Launch GUI`);
-        console.error(e);
-        process.exit(1);
-      }
-    },
-  },
   "help": async () => {
     console.log(`
        _           _               _ _
