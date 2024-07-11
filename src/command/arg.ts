@@ -2,7 +2,12 @@ const args = require("minimist")(process.argv.slice(2), { "--": true, "string": 
 
 const packageverion = require(`../package.json`).version;
 
-export default async (routes: any) => {
+export type Command = {
+  help: string | ( () => Promise<void>);
+  execute(...args: any): Promise<void>;
+}
+
+export const Args = async (routes: Record<string, Command>) => {
   const command = args._;
   if (!command) {
     throw new Error(`No Command Provided`);
@@ -19,7 +24,7 @@ export default async (routes: any) => {
         console.log(`${route.help}`);
       }
     } else {
-      await routes.help();
+      await routes.help.execute();
     }
   } else {
     if (!route) {
@@ -28,7 +33,7 @@ export default async (routes: any) => {
         return;
       }
       console.error(`Unknown Command ${command} see below help`);
-      await routes.help();
+      await routes.help.execute();
       return;
     }
     await route.execute(args);

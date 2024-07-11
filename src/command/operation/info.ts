@@ -9,7 +9,7 @@ import Config from "../../libs/os/configure";
 import PreparePort from "../../libs/os/serial/prepare";
 import * as Storage from "../../libs/storage";
 
-export const OperationInfoCommand ={
+export const OperationInfoCommand = {
   help: `Show the operation info
    -o --operation   operationId to be show
       --token       Token of api key which use instead of user signin.
@@ -22,7 +22,9 @@ export const OperationInfoCommand ={
       return;
     }
     if (!(await Operation.checkPermission(token))) {
-      console.log(`You don't have Facility permission. Please 'obniz-cli signin' again`);
+      console.log(
+        `You don't have Facility permission. Please 'obniz-cli signin' again`
+      );
       return;
     }
 
@@ -30,22 +32,31 @@ export const OperationInfoCommand ={
     const operationName = args.o || args.operation || "";
 
     const operations = await Operation.getList(token);
-    const targetOperation = operations.find((o) => o?.node?.name === operationName);
+    const targetOperation = operations.find(
+      o => o?.node?.name === operationName
+    );
     if (!targetOperation) {
       console.log(`Not found operation "${operationName}" `);
       return;
     }
 
-    const operationSettings = await OperationSetting.getList(token, targetOperation?.node?.id || "");
+    const operationSettings = await OperationSetting.getList(
+      token,
+      targetOperation?.node?.id || ""
+    );
 
     const status = {
       0: "Todo",
       1: "Work in progress",
-      2: "Finished",
+      2: "Finished"
     };
 
-    operationSettings.map((op) => {
-      console.log(` - ${op?.node?.indicationId} (${status[(op?.node?.status as any) as keyof typeof status]})`);
+    operationSettings.map(op => {
+      console.log(
+        ` - ${op?.node?.indicationId} (${
+          status[(op?.node?.status as any) as keyof typeof status]
+        })`
+      );
     });
-  },
+  }
 };
