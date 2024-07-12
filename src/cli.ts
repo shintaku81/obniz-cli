@@ -18,12 +18,12 @@ import PreparePort from "./libs/os/serial/prepare.js";
 
 // ========== Global Errors =========
 
-process.on("uncaughtException", err => {
+process.on("uncaughtException", (err) => {
   console.error(err);
   throw err;
 });
 
-process.on("unhandledRejection", err => {
+process.on("unhandledRejection", (err) => {
   console.error(err);
   throw err;
 });
@@ -34,19 +34,19 @@ const routes: Record<string, Command> = {
     help: `Signin to obniz Cloud`,
     async execute(args: any) {
       await LoginCommand();
-    }
+    },
   },
   signout: {
     help: `Signout`,
     async execute(args: any) {
       await LogoutCommand();
-    }
+    },
   },
   "user:info": {
     help: `Get Currently signin user's information from cloud`,
     async execute(args: any) {
       await UserInfoCommand();
-    }
+    },
   },
   "os:flash-create": FlashCreateCommand,
   "os:flash": FlashCommand,
@@ -60,14 +60,14 @@ const routes: Record<string, Command> = {
         process.stdout.write(text);
       };
       await EraseCommand(obj);
-    }
+    },
   },
   "os:list": ListCommand,
   "os:ports": {
     help: `List your machine's serial ports`,
     async execute(args: any) {
       await PortsCommand();
-    }
+    },
   },
   "operation:list": OperationListCommand,
   "operation:info": OperationInfoCommand,
@@ -75,15 +75,15 @@ const routes: Record<string, Command> = {
     help: `Show help`,
     async execute() {
       await HelpCommand();
-    }
-  }
+    },
+  },
 };
 
 Args(routes)
   .then(() => {
     // wtf.dump();
   })
-  .catch(e => {
+  .catch((e) => {
     console.log(chalk.red(`${e}`));
     process.exit(1);
   });

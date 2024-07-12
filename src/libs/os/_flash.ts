@@ -1,4 +1,3 @@
-
 import chalk from "chalk";
 import child_process from "child_process";
 import { promises as fs } from "fs";
@@ -17,7 +16,7 @@ export default function flash(obj: {
   stdout: any;
 }) {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise<void>( async (resolve, reject) => {
+  return new Promise<void>(async (resolve, reject) => {
     let status = "connecting";
 
     const spinner = ora(
@@ -28,9 +27,13 @@ export default function flash(obj: {
     }
 
     // prepare files
-    const files = await OS.prepareLocalFile(obj.hardware, obj.version, (progress: string) => {
-      spinner.text = `Flashing obnizOS: ${progress}`;
-    });
+    const files = await OS.prepareLocalFile(
+      obj.hardware,
+      obj.version,
+      (progress: string) => {
+        spinner.text = `Flashing obnizOS: ${progress}`;
+      },
+    );
 
     let received = "";
 
@@ -100,7 +103,9 @@ function throwIfFailed(text: string) {
   }
   let err;
   if (text.indexOf("Timed out waiting for packet header") >= 0) {
-    err = new Error(`No Bootload mode ESP32 found. Check connection or Boot Mode.`);
+    err = new Error(
+      `No Bootload mode ESP32 found. Check connection or Boot Mode.`,
+    );
   } else {
     err = new Error(`Failed Flashing.`);
   }

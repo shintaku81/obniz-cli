@@ -13,7 +13,7 @@ export const OperationListCommand = {
     }
     if (!(await Operation.checkPermission(token))) {
       console.log(
-        `You don't have Facility permission. Please 'obniz-cli signin' again`
+        `You don't have Facility permission. Please 'obniz-cli signin' again`,
       );
       return;
     }
@@ -22,8 +22,8 @@ export const OperationListCommand = {
 
     const operations = await Operation.getList(token);
 
-    operations.map(op => {
+    operations.map((op) => {
       console.log(` - ${op?.node?.name} (${op?.facilityName})`);
     });
-  }
+  },
 };

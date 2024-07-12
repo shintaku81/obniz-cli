@@ -11,11 +11,9 @@ obnizについてはこちら [https://obniz.com/](https://obniz.com/)
 obniz-cli os:flash-create -p AUTO --config ./wifi-config.json
 ```
 
-
 以下の環境での動作を確認しています。
 
- - Nodejs12 (MacOS 10.15 / Windows 10)
-
+- Nodejs12 (MacOS 10.15 / Windows 10)
 
 ## 利用方法
 
@@ -41,7 +39,7 @@ COMMANDS
   os:erase            Fully erase a flash on target device.
   os:list             List of available obnizOS for specified hardware
   os:ports            Getting serial ports on your machine.
-  
+
   operation:list      List of available operations.
   operation:info      Show operation info.
 
@@ -75,8 +73,7 @@ Flash obnizOS and configure it
     --operation     operation name for setting.
     --indication    indication name for setting.
 
- ```
-
+```
 
 ## インストール
 
@@ -131,7 +128,6 @@ API Keyはobniz Cloudの開発者コンソール　→　開発　→ APIキー�
 obniz-cli os:flash-create --token=token_Bowk7ovyFXcOapGgcwxJTIx23P6WfdX1
 ```
 
-
 ## Serial Portについて
 
 マシンからobnizOSを書き込むのにシリアルポートを利用します。利用可能なものは以下で確認できます。
@@ -158,7 +154,6 @@ obniz-cli os:flash -p AUTO
 obniz-cli os:flash-create -p AUTO --debugserial
 ```
 
-
 ## os:flash-create
 
 obnizIDを１つ作成し、書き込み、デバイスキーの書き込みまで完了させることができます。
@@ -184,7 +179,6 @@ Versions for hardware=esp32w
   3.4.2
   3.4.1
 ```
-
 
 書き込み時にm5stickcを選択すると obnizOS for M5StickCの最新バージョンが書き込まれることになります。
 
@@ -216,7 +210,6 @@ obniz-cli os:flash-create --help
 施設とオペレーションを作成すると、obniz-cliでオペレーションを実行することができるようになります。
 tokenオプションでAPI Keyを渡すようにすればobnizCloudへのログインは必要ありませんので、セキュアに設定作業を依頼することができます。
 
-
 operationオプションでオペレーション名を、indicationオプションで指示IDを指定します。
 
 ```shel
@@ -229,8 +222,6 @@ nextが指定されると、まだ完了していない指示IDを自動で選�
 ```shel
 obniz-cli os:flash-create --operation obnizBuilding --indication next --token token_Bowk7ovyFXcOpGgcwxJTIasdf6WfdX1GOB
 ```
-
-
 
 ### Binding Token (パートナー専用)
 
@@ -247,7 +238,6 @@ obniz-cli os:flash-create -p AUTO --hardware m5stickc --bindtoken
 ```
 
 バーコードリーダーなどでQRを読み取ることで生成されるobnizIDと読み取ったQR(シリアルコード)を紐付けることができます。
-
 
 ## os:flash
 
@@ -286,7 +276,6 @@ jsonで保存されたWi-FiのSSID,パスワードを使って書き込み後に
 
 OS3.4.5かそれ以前の設定については[こちら](./docs/config-345andolder.md)を参照してください
 
-
 ```shell
 obniz-cli os:flash -p /dev/tty.USBSERIAL -i 0000-0000 --config ./wifi-config.json
 ```
@@ -314,4 +303,3 @@ obniz-cli os:config-via-wifi --config ./wifi-config.json
 ![](./docs/images/viawifi.png)
 
 `--duplicate false`を指定すると一度設定を送ったobnizに送らないようにできますが、送信が完了したからといって設定が保存されたか、オンラインになったかは分からないので推奨できない使い方となります。
-

@@ -1,13 +1,17 @@
-mutation createOperationResult($createOperationResultOperationResult: createOperationResultInput!) {
-    createOperationResult(operationResult: $createOperationResultOperationResult) {
-        id
-        operationSettingId
-        indicationId
-        obnizId
-        successfullyWrittenAt
-        becomeOnlineAt
-        picUrl
-        locationNote
-        typeError
-    }
+mutation createOperationResult(
+  $createOperationResultOperationResult: createOperationResultInput!
+) {
+  createOperationResult(
+    operationResult: $createOperationResultOperationResult
+  ) {
+    id
+    operationSettingId
+    indicationId
+    obnizId
+    successfullyWrittenAt
+    becomeOnlineAt
+    picUrl
+    locationNote
+    typeError
+  }
 }

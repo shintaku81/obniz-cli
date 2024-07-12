@@ -1,13 +1,13 @@
-import {ConfigCommand} from "./config.js";
+import { ConfigCommand } from "./config.js";
 
-import  { URL } from "url";
+import { URL } from "url";
 import chalk from "chalk";
 import Defaults from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import Device from "../../libs/obnizio/device.js";
 import * as Storage from "../../libs/storage.js";
 import Flash from "../../libs/os/_flash.js";
-import  { validate as validateConfig } from "../../libs/os/config.js";
+import { validate as validateConfig } from "../../libs/os/config.js";
 import PreparePort from "../../libs/os/serial/prepare.js";
 
 import inquirer from "inquirer";
@@ -39,7 +39,9 @@ export const FlashCreateCommand = {
     // If device related configration exist
     // It is not allowed. because device will be created from me.
     if (args.d || args.devicekey || args.i || args.id) {
-      throw new Error(`You can't pass devicekey/id arguments. Because flash-create will create new device.`);
+      throw new Error(
+        `You can't pass devicekey/id arguments. Because flash-create will create new device.`,
+      );
     }
 
     // login check
@@ -94,7 +96,6 @@ export const FlashCreateCommand = {
 
     // No more asking
 
-
     let version: any;
     let spinner: any;
     spinner = ora("obnizOS:").start();
@@ -112,7 +113,9 @@ export const FlashCreateCommand = {
         )}`,
       );
     } else {
-      spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
+      spinner.succeed(
+        `obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`,
+      );
     }
     obj.version = version;
 
@@ -169,7 +172,9 @@ export const FlashCreateCommand = {
       await ConfigCommand.execute(args, proceed);
       Storage.set("recovery-device", null);
     } catch (e) {
-      chalk.yellow(`obnizID ${device.id} device key and information was sotred in recovery file`);
+      chalk.yellow(
+        `obnizID ${device.id} device key and information was sotred in recovery file`,
+      );
       throw e;
     }
   },
@@ -220,7 +225,9 @@ async function askSerialToken(device: any, serial_token?: string) {
     }
     const serialcode = paths[2];
     const token = paths[3];
-    spinner.succeed(`Serial: SerialCode=${chalk.green(serialcode)} Token=${chalk.green(token)}`);
+    spinner.succeed(
+      `Serial: SerialCode=${chalk.green(serialcode)} Token=${chalk.green(token)}`,
+    );
     return {
       serialcode,
       token,

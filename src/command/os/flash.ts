@@ -6,10 +6,10 @@ import { validate as validateConfig } from "../../libs/os/config.js";
 import PreparePort from "../../libs/os/serial/prepare.js";
 
 import { getOra } from "../../libs/ora-console/getora.js";
-import {ConfigCommand} from "./config.js";
+import { ConfigCommand } from "./config.js";
 const ora = getOra();
 
-export const FlashCommand =  {
+export const FlashCommand = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
@@ -68,7 +68,9 @@ export const FlashCommand =  {
         )}`,
       );
     } else {
-      spinner.succeed(`obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`);
+      spinner.succeed(
+        `obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`,
+      );
     }
     obj.version = version;
 

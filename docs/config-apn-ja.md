@@ -1,4 +1,3 @@
-
 ## APN設定
 
 コネクトハブ セルラーのAPN設定を一気に行う
@@ -7,7 +6,7 @@
 
 ```json
 {
-  "networks":[
+  "networks": [
     {
       "type": "cellular",
       "settings": {

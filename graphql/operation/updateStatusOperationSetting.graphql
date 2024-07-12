@@ -1,5 +1,9 @@
-mutation updateOperationSettingStatus($updateStatusOperationSettingOperationSettingId: ID!) {
-    updateStatusOperationSetting(operationSettingId: $updateStatusOperationSettingOperationSettingId) {
-        updated
-    }
+mutation updateOperationSettingStatus(
+  $updateStatusOperationSettingOperationSettingId: ID!
+) {
+  updateStatusOperationSetting(
+    operationSettingId: $updateStatusOperationSettingOperationSettingId
+  ) {
+    updated
+  }
 }

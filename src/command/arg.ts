@@ -2,7 +2,7 @@ import minimist from "minimist";
 
 const args = minimist(process.argv.slice(2), {
   "--": true,
-  string: ["id", "i"]
+  string: ["id", "i"],
 });
 
 const packageverion = "unknown version";

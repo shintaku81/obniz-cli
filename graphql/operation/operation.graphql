@@ -1,22 +1,22 @@
 query getOperation($operationsId: Int) {
-    operations(id: $operationsId) {
-        edges {
-            node {
-                name
-                id
-                facilityId
-                completionLevel
-                needPicEvidence
-                needLocationNote
-                dueDate
-                operationKey
-                createdAt
-            }
-            facilityName
-            amountExpectedDevices
-            amountOperatedDevices
-            amountReport
-            errorLevelReport
-        }
+  operations(id: $operationsId) {
+    edges {
+      node {
+        name
+        id
+        facilityId
+        completionLevel
+        needPicEvidence
+        needLocationNote
+        dueDate
+        operationKey
+        createdAt
+      }
+      facilityName
+      amountExpectedDevices
+      amountOperatedDevices
+      amountReport
+      errorLevelReport
     }
+  }
 }

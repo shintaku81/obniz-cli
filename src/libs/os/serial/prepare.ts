@@ -32,7 +32,9 @@ export default async (args: any): Promise<any> => {
       }
     }
     if (!found) {
-      console.log(chalk.red(`specified serial port ${portname} was not found.`));
+      console.log(
+        chalk.red(`specified serial port ${portname} was not found.`),
+      );
       portname = undefined;
     }
   }
@@ -58,7 +60,9 @@ export default async (args: any): Promise<any> => {
   const debugserial: any = args.debugserial;
 
   const spinner = ora("Serial Port:").start();
-  spinner.succeed(`Serial Port: decided ${chalk.green(portname)} baudrate ${baud}`);
+  spinner.succeed(
+    `Serial Port: decided ${chalk.green(portname)} baudrate ${baud}`,
+  );
 
   return {
     portname,
@@ -67,7 +71,10 @@ export default async (args: any): Promise<any> => {
   };
 };
 
-async function selectPort(ports: SerialPort.PortInfo[], defaultValue: any): Promise<string> {
+async function selectPort(
+  ports: SerialPort.PortInfo[],
+  defaultValue: any,
+): Promise<string> {
   const portNames = [];
   for (let i = 0; i < ports.length; i++) {
     const port = ports[i];

@@ -1,12 +1,12 @@
 {
-  "networks":[
+  "networks": [
     {
       "type": "wifi",
       "settings": {
         "ssid": "exampl_essid",
         "password": "example_password",
 
-        "dhcp":false,
+        "dhcp": false,
         "static_ip": "192.168.0.2",
         "default_gateway": "192.168.0.1",
         "subnetmask": "255.255.255.0",

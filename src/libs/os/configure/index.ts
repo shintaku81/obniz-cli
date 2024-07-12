@@ -16,15 +16,24 @@ export interface ConfigParam {
   portname: string;
   debugserial?: boolean;
   stdout: (text: string) => void;
-  configs: { devicekey: string; config: NetworkConfig | NetworkConfigBefore3_5_0 };
+  configs: {
+    devicekey: string;
+    config: NetworkConfig | NetworkConfigBefore3_5_0;
+  };
   via: string;
   operation?: {
     operation?: PromiseType<ReturnType<typeof Operation.getByOperationName>>;
-    operationSetting?: PromiseType<ReturnType<typeof OperationSetting.getByIndication>>;
+    operationSetting?: PromiseType<
+      ReturnType<typeof OperationSetting.getByIndication>
+    >;
   };
 }
 
-export type NetworkType = "wirelesslan" | "wifimesh" | "wiredlan" | "cellularmodule";
+export type NetworkType =
+  | "wirelesslan"
+  | "wifimesh"
+  | "wiredlan"
+  | "cellularmodule";
 
 export interface NetworkConfig {
   net: NetworkType;
@@ -90,7 +99,9 @@ export default async (obj: ConfigParam) => {
     },
   });
   let received = "";
-  let spinner = ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start();
+  let spinner = ora(
+    `Configure: Opening Serial Port ${chalk.green(obj.portname)}`,
+  ).start();
   if (obj.debugserial) {
     spinner.stop();
   }
@@ -114,7 +125,9 @@ export default async (obj: ConfigParam) => {
 
       if (semver.satisfies(info.version, ">=3.5.0")) {
         if ("networks" in obj.configs.config) {
-          throw new Error(`You can't use older version of network configuration json file.`);
+          throw new Error(
+            `You can't use older version of network configuration json file.`,
+          );
         }
 
         if (obj.operation) {
@@ -125,7 +138,10 @@ export default async (obj: ConfigParam) => {
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }
-          await OperationSetting.updateStatus(token, obj.operation.operationSetting.node?.id || "");
+          await OperationSetting.updateStatus(
+            token,
+            obj.operation.operationSetting.node?.id || "",
+          );
         }
         const userconf = obj.configs.config as NetworkConfig;
         // menu mode and json flashing enabled device.
@@ -139,11 +155,17 @@ export default async (obj: ConfigParam) => {
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }
-          await OperationResult.createWriteSuccess(token, obj.operation.operationSetting.node?.id || "", info.obnizid);
+          await OperationResult.createWriteSuccess(
+            token,
+            obj.operation.operationSetting.node?.id || "",
+            info.obnizid,
+          );
         }
       } else {
         if (!("networks" in obj.configs.config)) {
-          throw new Error(`please provide "networks". see more detail at example json file`);
+          throw new Error(
+            `please provide "networks". see more detail at example json file`,
+          );
         }
         if (obj.operation) {
           throw new Error(`Cannot use operation on obnizOS ver < 3.5.0`);
@@ -166,7 +188,9 @@ export default async (obj: ConfigParam) => {
           await serial.setWiFi(settings);
         } else {
           spinner.fail(`Configure: Not Supported Network Type ${type}`);
-          throw new Error(`obniz-cli not supporting settings for ${type} right now. wait for future release`);
+          throw new Error(
+            `obniz-cli not supporting settings for ${type} right now. wait for future release`,
+          );
         }
       }
     }

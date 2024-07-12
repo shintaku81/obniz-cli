@@ -16,7 +16,9 @@ export const ConfigViaWifiCommand = {
       // Network Setting
       const configPath: any = args.c || args.config;
       if (configPath) {
-        const filepath = path.isAbsolute(configPath) ? configPath : path.join(process.cwd(), configPath);
+        const filepath = path.isAbsolute(configPath)
+          ? configPath
+          : path.join(process.cwd(), configPath);
         if (!fs.existsSync(filepath)) {
           throw new Error(`config file ${filepath} does not exist!!`);
         }

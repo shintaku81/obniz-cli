@@ -2,7 +2,7 @@ import Defaults from "../../defaults.js";
 import PreparePort from "../../libs/os/serial/prepare.js";
 import * as Storage from "../../libs/storage.js";
 import Config from "../../libs/os/configure/index.js";
-import {validate} from "../../libs/os/config.js";
+import { validate } from "../../libs/os/config.js";
 
 export const ConfigCommand = {
   help: `Flash obnizOS and configure it

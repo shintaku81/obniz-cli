@@ -2,7 +2,7 @@
 
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import globals from 'globals';
+import globals from "globals";
 import eslintConfigPrettier from "eslint-config-prettier";
 
 const config = tseslint.config(
@@ -14,7 +14,7 @@ const config = tseslint.config(
       globals: {
         ...globals.node,
         ...globals.es2017,
-        ...globals.browser
+        ...globals.browser,
       },
       parserOptions: {
         sourceType: "module",

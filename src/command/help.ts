@@ -1,4 +1,3 @@
-
 const packageverion = "unknown version";
 
 export const HelpCommand = async () => {
@@ -36,4 +35,4 @@ COMMANDS
   operation:list      List of available operations.
   operation:info      Show operation info.
   `);
-}
+};

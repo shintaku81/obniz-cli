@@ -24,7 +24,9 @@ export class Operation {
     }
   }
 
-  public static checkCanWriteFromCli(operation: PromiseType<ReturnType<typeof Operation.getByOperationName>>) {
+  public static checkCanWriteFromCli(
+    operation: PromiseType<ReturnType<typeof Operation.getByOperationName>>,
+  ) {
     if (!operation || !operation.node) {
       throw new Error("operation not found");
     }

@@ -1,10 +1,10 @@
-mutation createDevice($createDeviceDevice:deviceCreateInput!){
-    createDevice(device: $createDeviceDevice){
-        id,
-        createdAt,
-        devicekey,
-        region,
-        hardware,
-        description
-    }
+mutation createDevice($createDeviceDevice: deviceCreateInput!) {
+  createDevice(device: $createDeviceDevice) {
+    id
+    createdAt
+    devicekey
+    region
+    hardware
+    description
+  }
 }

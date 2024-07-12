@@ -1,19 +1,19 @@
 query getDeviceById($deviceId: String) {
-    devices(id: $deviceId) {
-        totalCount,
-        pageInfo {
-            hasNextPage,
-            hasPreviousPage
-        },
-        edges{
-            node {
-                id,
-                createdAt,
-                description,
-                devicekey,
-                hardware,
-                status
-            }
-        }
+  devices(id: $deviceId) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
     }
+    edges {
+      node {
+        id
+        createdAt
+        description
+        devicekey
+        hardware
+        status
+      }
+    }
+  }
 }

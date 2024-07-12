@@ -10,7 +10,11 @@ import Config, { ConfigParam } from "./configure/index.js";
 import { getOra } from "../ora-console/getora.js";
 const ora = getOra();
 
-export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
+export async function deviceConfigValidate(
+  args: Readonly<any>,
+  obj: DeepPartial<ConfigParam> = {},
+  logging = false,
+) {
   const devicekey: any = args.d || args.devicekey;
   let obniz_id: any = null;
   if (devicekey) {
@@ -19,7 +23,11 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
     obniz_id = devicekey.split("&")[0];
   }
   if (args.i || args.id) {
-    const spinner = logging ? ora(`Configure: Opening Serial Port ${chalk.green(obj.portname)}`).start() : null;
+    const spinner = logging
+      ? ora(
+          `Configure: Opening Serial Port ${chalk.green(obj.portname)}`,
+        ).start()
+      : null;
     try {
       obniz_id = args.i || args.id;
       if (obj.configs && obj.configs.devicekey) {
@@ -41,7 +49,9 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
       }
       obj.configs = obj.configs || {};
       obj.configs.devicekey = device.devicekey;
-      spinner?.succeed(`Configure: obnizID=${device.id} hardware=${device.hardware} devicekey=${device.devicekey}`);
+      spinner?.succeed(
+        `Configure: obnizID=${device.id} hardware=${device.hardware} devicekey=${device.devicekey}`,
+      );
     } catch (e) {
       spinner?.fail(`Configure: Failed ${e}`);
       throw e;
@@ -49,19 +59,29 @@ export async function deviceConfigValidate(args: Readonly<any>, obj: DeepPartial
   }
 }
 
-export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
+export async function networkConfigValidate(
+  args: Readonly<any>,
+  obj: DeepPartial<ConfigParam> = {},
+  logging = false,
+) {
   // Network Setting
   const configPath: string | null = args.c || args.config || null;
   const operationName: string | null = args.operation || null;
   const indicationName: string | null = args.indication || null;
   if (operationName && !indicationName) {
-    throw new Error("If you want to use operation, set both param of operation and indication.");
+    throw new Error(
+      "If you want to use operation, set both param of operation and indication.",
+    );
   } else if (!operationName && indicationName) {
-    throw new Error("If you want to use operation, set both param of operation and indication.");
+    throw new Error(
+      "If you want to use operation, set both param of operation and indication.",
+    );
   } else if (configPath && operationName && indicationName) {
     throw new Error("You cannot use configPath and operation same time.");
   } else if (configPath) {
-    const filepath = path.isAbsolute(configPath) ? configPath : path.join(process.cwd(), configPath);
+    const filepath = path.isAbsolute(configPath)
+      ? configPath
+      : path.join(process.cwd(), configPath);
     if (!fs.existsSync(filepath)) {
       throw new Error(`config file ${filepath} does not exist!!`);
     }
@@ -76,7 +96,9 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
     obj.configs = obj.configs || {};
     obj.configs.config = json;
   } else if (operationName && indicationName) {
-    const spinner = logging ? ora(`Operation: getting information`).start() : null;
+    const spinner = logging
+      ? ora(`Operation: getting information`).start()
+      : null;
     try {
       const token = args.token || Storage.get("token");
       if (!token) {
@@ -96,7 +118,11 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
       const ops =
         indicationName === "next"
           ? await OperationSetting.getFirstTodoOrWipOne(token, op.node.id || "")
-          : await OperationSetting.getByIndication(token, op.node.id || "", indicationName);
+          : await OperationSetting.getByIndication(
+              token,
+              op.node.id || "",
+              indicationName,
+            );
 
       if (!ops || !ops.node) {
         if (indicationName === "next") {
@@ -127,7 +153,11 @@ export async function networkConfigValidate(args: Readonly<any>, obj: DeepPartia
   }
 }
 
-export async function validate(args: Readonly<any>, obj: DeepPartial<ConfigParam> = {}, logging = false) {
+export async function validate(
+  args: Readonly<any>,
+  obj: DeepPartial<ConfigParam> = {},
+  logging = false,
+) {
   await deviceConfigValidate(args, obj, logging);
   await networkConfigValidate(args, obj, logging);
 }

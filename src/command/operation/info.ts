@@ -22,7 +22,7 @@ export const OperationInfoCommand = {
     }
     if (!(await Operation.checkPermission(token))) {
       console.log(
-        `You don't have Facility permission. Please 'obniz-cli signin' again`
+        `You don't have Facility permission. Please 'obniz-cli signin' again`,
       );
       return;
     }
@@ -32,7 +32,7 @@ export const OperationInfoCommand = {
 
     const operations = await Operation.getList(token);
     const targetOperation = operations.find(
-      o => o?.node?.name === operationName
+      (o) => o?.node?.name === operationName,
     );
     if (!targetOperation) {
       console.log(`Not found operation "${operationName}" `);
@@ -41,21 +41,21 @@ export const OperationInfoCommand = {
 
     const operationSettings = await OperationSetting.getList(
       token,
-      targetOperation?.node?.id || ""
+      targetOperation?.node?.id || "",
     );
 
     const status = {
       0: "Todo",
       1: "Work in progress",
-      2: "Finished"
+      2: "Finished",
     };
 
-    operationSettings.map(op => {
+    operationSettings.map((op) => {
       console.log(
         ` - ${op?.node?.indicationId} (${
-          status[(op?.node?.status as any) as keyof typeof status]
-        })`
+          status[op?.node?.status as any as keyof typeof status]
+        })`,
       );
     });
-  }
+  },
 };

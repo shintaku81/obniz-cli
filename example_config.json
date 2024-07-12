@@ -1,6 +1,6 @@
 {
   "net": "wirelesslan",
-  "wifi":[
+  "wifi": [
     {
       "ssid": "your ssid",
       "pass": "password"

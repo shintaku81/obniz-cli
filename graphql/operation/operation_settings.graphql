@@ -1,25 +1,25 @@
 query getOperationSettings($operationSettingsOperationId: ID) {
-    operationSettings(operationId: $operationSettingsOperationId) {
-        totalCount
-        edges {
-            node {
-                operationId
-                id
-                indicationId
-                networkConfigs
-                appId
-                appConfigs
-                description
-                status
-            }
-            operationResult {
-                obnizId
-                successfullyWrittenAt
-                becomeOnlineAt
-                picUrl
-                locationNote
-                typeError
-            }
-        }
+  operationSettings(operationId: $operationSettingsOperationId) {
+    totalCount
+    edges {
+      node {
+        operationId
+        id
+        indicationId
+        networkConfigs
+        appId
+        appConfigs
+        description
+        status
+      }
+      operationResult {
+        obnizId
+        successfullyWrittenAt
+        becomeOnlineAt
+        picUrl
+        locationNote
+        typeError
+      }
     }
+  }
 }

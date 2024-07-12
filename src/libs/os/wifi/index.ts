@@ -17,7 +17,11 @@ export default class WiFi {
     });
   }
 
-  public async setNetwork(configs: any, duplicate: boolean = true, signal?: AbortSignal) {
+  public async setNetwork(
+    configs: any,
+    duplicate: boolean = true,
+    signal?: AbortSignal,
+  ) {
     let spinner;
     const successIds = [];
     while (true) {
@@ -51,28 +55,44 @@ export default class WiFi {
             try {
               await wifi.connect({ ssid: network.ssid });
             } catch (e) {
-              throw new Error(`Connection to ${chalk.green(network.ssid)} failed`);
+              throw new Error(
+                `Connection to ${chalk.green(network.ssid)} failed`,
+              );
             }
 
             const destIP = guessObnizIP();
             console.log(destIP);
             spinner.text = `Connected ${chalk.green(network.ssid)}. IP=${destIP} Configuring...`;
             if (destIP === "1.2.3.4" || destIP === "192.168.0.1") {
-              const succeed = await this.setForUnder350Devices(destIP, spinner, configs);
+              const succeed = await this.setForUnder350Devices(
+                destIP,
+                spinner,
+                configs,
+              );
               if (!succeed) {
                 continue;
               }
-              spinner.succeed(`Configuration sent ${chalk.green(network.ssid)}`);
+              spinner.succeed(
+                `Configuration sent ${chalk.green(network.ssid)}`,
+              );
             } else {
-              const succeed = await this.setForEqualOrOver350Devices(destIP, spinner, configs);
+              const succeed = await this.setForEqualOrOver350Devices(
+                destIP,
+                spinner,
+                configs,
+              );
               if (!succeed) {
                 continue;
               }
-              spinner.succeed(`Configuration Saved and Device Rebooted ${chalk.green(network.ssid)}`);
+              spinner.succeed(
+                `Configuration Saved and Device Rebooted ${chalk.green(network.ssid)}`,
+              );
             }
             successIds[network.ssid] = true;
           } catch (e) {
-            spinner.fail(`${chalk.green(network.ssid)} Configuration failed reson=${e?.toString()}`);
+            spinner.fail(
+              `${chalk.green(network.ssid)} Configuration failed reson=${e?.toString()}`,
+            );
           }
         }
       } catch (e) {
@@ -81,11 +101,17 @@ export default class WiFi {
     }
   }
 
-  private async setForUnder350Devices(targetIP: string, spinner: Ora, configs: any) {
+  private async setForUnder350Devices(
+    targetIP: string,
+    spinner: Ora,
+    configs: any,
+  ) {
     // Configure network via wifi
     const networks = configs.networks;
     if (!networks) {
-      throw new Error(`please provide "networks". see more detail at example json file`);
+      throw new Error(
+        `please provide "networks". see more detail at example json file`,
+      );
     }
     if (!Array.isArray(networks)) {
       throw new Error(`"networks" must be an array`);
@@ -127,7 +153,9 @@ export default class WiFi {
       ++getCount;
       spinner.text = `${chalk.green(network.ssid)} Connecting HTTP Server... ${getCount}`;
       if (getCount >= 4) {
-        throw new Error(`${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`);
+        throw new Error(
+          `${chalk.green(network.ssid)} HTTP Communication Failed ${getCount} times. abort`,
+        );
       }
     }
 
@@ -160,7 +188,11 @@ export default class WiFi {
    * @param configs json user set
    * @returns
    */
-  private async setForEqualOrOver350Devices(targetIP: string, spinner: Ora, configs: any) {
+  private async setForEqualOrOver350Devices(
+    targetIP: string,
+    spinner: Ora,
+    configs: any,
+  ) {
     // Configure network via wifi
 
     let getCount = 0;
@@ -262,7 +294,9 @@ export default class WiFi {
       mode: "reset_all",
     };
     const params = new URLSearchParams();
-    (Object.keys(urlSetting) as Array<keyof typeof urlSetting>).forEach((key) => params.append(key, urlSetting[key]));
+    (Object.keys(urlSetting) as Array<keyof typeof urlSetting>).forEach((key) =>
+      params.append(key, urlSetting[key]),
+    );
     options.body = params;
     return options;
   }
@@ -301,7 +335,9 @@ export default class WiFi {
       }
 
       const params = new URLSearchParams();
-      Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+      Object.keys(urlSetting).forEach((key) =>
+        params.append(key, urlSetting[key]),
+      );
       options.body = params;
     } else if (type === "wifimesh") {
       const urlSetting: any = {
@@ -331,19 +367,23 @@ export default class WiFi {
       }
 
       const params = new URLSearchParams();
-      Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+      Object.keys(urlSetting).forEach((key) =>
+        params.append(key, urlSetting[key]),
+      );
       options.body = params;
     } else if (type === "cellular") {
       const urlSetting = setting;
       const params = new URLSearchParams();
-      Object.keys(urlSetting).forEach((key) => params.append(key, urlSetting[key]));
+      Object.keys(urlSetting).forEach((key) =>
+        params.append(key, urlSetting[key]),
+      );
       options.body = params;
     }
     return options;
   }
 
   private scanObnizWiFi(timeout: number, signal?: AbortSignal): Promise<any> {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Timeout. Cannot find any connectable obniz.`));
       }, timeout);
@@ -380,7 +420,10 @@ function currentLocalIP() {
     for (const net of nets[name]!) {
       // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === "IPv4" && !net.internal) {
-        if (net.address.startsWith("192.168") || net.address.startsWith("1.2.3.")) {
+        if (
+          net.address.startsWith("192.168") ||
+          net.address.startsWith("1.2.3.")
+        ) {
           return net.address;
         }
       }

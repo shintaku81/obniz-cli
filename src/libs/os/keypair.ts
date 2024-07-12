@@ -1,5 +1,4 @@
-
-import {ec as EC} from "elliptic";
+import { ec as EC } from "elliptic";
 const ec = new EC("p192");
 
 export default () => {

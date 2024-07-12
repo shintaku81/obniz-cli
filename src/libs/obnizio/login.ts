@@ -8,27 +8,36 @@ import { ObnizIOURL } from "./url.js";
 
 const WebAppId = process.env.APP_ID || `wa_MjI`;
 const WebAppToken =
-  process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
+  process.env.APP_TOKEN ||
+  `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
-export const Login = async (progress: (arg: string) => void, app?: { id: string; token: string }): Promise<string> => {
+export const Login = async (
+  progress: (arg: string) => void,
+  app?: { id: string; token: string },
+): Promise<string> => {
   // eslint-disable-next-line no-async-promise-executor
   return await new Promise(async (resolve, reject) => {
     // start server
     const port = await getPort();
-    const server = await oauth(port, app?.token || WebAppToken, (err, access_token) => {
-      server.close();
-      if (err || !access_token) {
-        reject(err);
-        return;
-      }
-      resolve(access_token);
-    });
+    const server = await oauth(
+      port,
+      app?.token || WebAppToken,
+      (err, access_token) => {
+        server.close();
+        if (err || !access_token) {
+          reject(err);
+          return;
+        }
+        resolve(access_token);
+      },
+    );
 
     progress(`Local Server Created PORT=${port}. Waiting Permission`);
 
     const redirect_uri = `http://localhost:${port}/code`;
-    const open_url = `${ObnizIOURL}/login/oauth/authorize?webapp_id=${app?.id ||
-      WebAppId}&redirect_uri=${redirect_uri}`;
+    const open_url = `${ObnizIOURL}/login/oauth/authorize?webapp_id=${
+      app?.id || WebAppId
+    }&redirect_uri=${redirect_uri}`;
     opn(open_url);
   });
 };
@@ -39,9 +48,12 @@ function oauth(
   callback: (error: Error | null, token: string | null) => void,
 ): Promise<http.Server> {
   return new Promise((resolve, reject) => {
-    let timeout: null | ReturnType<typeof setTimeout> = setTimeout(() => {
-      callback(new Error(`Authentication Timeout`), null);
-    }, 3 * 60 * 1000);
+    let timeout: null | ReturnType<typeof setTimeout> = setTimeout(
+      () => {
+        callback(new Error(`Authentication Timeout`), null);
+      },
+      3 * 60 * 1000,
+    );
 
     const expressApp = express();
 
@@ -61,7 +73,7 @@ function oauth(
         const response = await fetch(url, {
           method: "post",
           headers: {
-            "authorization": `Bearer ${appToken}`,
+            authorization: `Bearer ${appToken}`,
             "Content-Type": "application/json",
           },
         });
@@ -79,7 +91,9 @@ function oauth(
         callback(e as any, null);
         return;
       }
-      res.send(`Authentication Success. Close this page and back to your shell.`);
+      res.send(
+        `Authentication Success. Close this page and back to your shell.`,
+      );
     });
 
     const server = http.createServer(expressApp);
