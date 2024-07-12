@@ -1,5 +1,5 @@
 import child_process from "child_process";
-import { ESPLoader, Transport } from "esptool-js";
+import { ESPLoader, Transport } from "@9wick/esptool-js";
 
 export const EraseCommand = async (obj: {
   portname: string;

@@ -12,9 +12,9 @@
   "repository": "obniz/obniz-cli",
   "scripts": {
     "tsc": "tsc",
-    "build": "tsc",
+    "build": "npm run lint-ts && tsc",
     "lint": "npm run lint-ts",
-    "lint-ts": "eslint --fix -c eslint.config.js 'src/**/*.ts' ",
+    "lint-ts": "npx prettier . --write && eslint --fix -c eslint.config.js 'src/**/*.ts' ",
     "precommit": "lint-staged && npm run build",
     "clean": "rimraf ./dist && rimraf ./app ",
     "local": "npx ts-node src/index.ts",
@@ -68,7 +68,7 @@
     "typescript-eslint": "^7.16.0"
   },
   "dependencies": {
-    "@9wick/esptool.js": "^0.9.5",
+    "@9wick/esptool-js": "^0.4.3",
     "@graphql-codegen/cli": "^1.13.5",
     "@graphql-codegen/typescript": "^1.13.5",
     "@graphql-codegen/typescript-graphql-request": "^1.13.5",
@@ -76,7 +76,6 @@
     "chalk": "^4.0.0",
     "dotenv": "^8.6.0",
     "elliptic": "^6.5.5",
-    "esptool-js": "^0.4.3",
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "globals": "^15.8.0",
