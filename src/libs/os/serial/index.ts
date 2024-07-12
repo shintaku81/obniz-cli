@@ -24,7 +24,7 @@ export default class Serial {
   }
 
   public async open() {
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>( (resolve, reject) => {
       this.serialport = new SerialPort(this.portname, { baudRate });
 
       this.serialport.on("open", () => {
@@ -66,7 +66,7 @@ export default class Serial {
    *
    */
   public async reset() {
-    await new Promise<void>(async (resolve, reject) => {
+    await new Promise<void>( (resolve, reject) => {
       this.serialport?.set(
         {
           dtr: false,
@@ -83,7 +83,7 @@ export default class Serial {
     await new Promise<void>((resolve, reject) => {
       setTimeout(resolve, 10);
     });
-    await new Promise<void>(async (resolve, reject) => {
+    await new Promise<void>( (resolve, reject) => {
       // リセット時にはクリアする
       this.serialport?.set(
         {
@@ -209,7 +209,10 @@ export default class Serial {
         this.send(`menu`);
         await this.waitFor("Input number >>", 3 * 1000);
         return;
-      } catch (e) {}
+      } catch (e) {
+        // do nothing
+      }
+
       i++;
       if (i > 6) {
         throw new Error(`Failed to entering menu`);

@@ -11,6 +11,7 @@ const WebAppToken =
   process.env.APP_TOKEN || `apptoken_X9jp0G6pbmG_XzC5yIKg9_oo7jMIUA3I2IPG58viAsAVyfHmJWmJYgaxnGzcg1kf`;
 
 export const Login = async (progress: (arg: string) => void, app?: { id: string; token: string }): Promise<string> => {
+  // eslint-disable-next-line no-async-promise-executor
   return await new Promise(async (resolve, reject) => {
     // start server
     const port = await getPort();

@@ -94,12 +94,12 @@ export const FlashCreateCommand = {
 
     // No more asking
 
-    let hardware: any;
+
     let version: any;
     let spinner: any;
     spinner = ora("obnizOS:").start();
     // hardware
-    hardware = args.h || args.hardware || Defaults.HARDWARE;
+    const hardware = args.h || args.hardware || Defaults.HARDWARE;
     obj.hardware = hardware;
     // version
     version = args.v || args.version;

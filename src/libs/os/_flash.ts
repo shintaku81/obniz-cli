@@ -16,7 +16,8 @@ export default function flash(obj: {
   debugserial: any;
   stdout: any;
 }) {
-  return new Promise<void>(async (resolve, reject) => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise<void>( async (resolve, reject) => {
     let status = "connecting";
 
     const spinner = ora(

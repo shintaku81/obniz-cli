@@ -10,6 +10,7 @@ export const ConfigViaWifiCommand = {
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   execute(args: any, signal?: AbortSignal): Promise<void> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       let configs: any;
       // Network Setting

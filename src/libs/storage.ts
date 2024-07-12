@@ -8,7 +8,9 @@ function read(): any {
   try {
     const txt = fs.readFileSync(filepath, { encoding: "utf8" });
     obj = JSON.parse(txt);
-  } catch (e) {}
+  } catch (e) {
+    // do nothing
+  }
 
   return obj;
 }

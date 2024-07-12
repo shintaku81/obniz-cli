@@ -343,7 +343,7 @@ export default class WiFi {
   }
 
   private scanObnizWiFi(timeout: number, signal?: AbortSignal): Promise<any> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise( (resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Timeout. Cannot find any connectable obniz.`));
       }, timeout);
