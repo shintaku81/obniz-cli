@@ -1,4 +1,6 @@
 import minimist from "minimist";
+import { getLogger, setLogger } from "../libs/logger/index.js";
+import { SimpleLogger } from "../libs/logger/simpleLogger.js";
 
 const args = minimist(process.argv.slice(2), {
   "--": true,
@@ -21,6 +23,9 @@ export const Args = async (routes: Record<string, Command>) => {
   }
   const command = args._[0];
   const route = routes[command];
+  if (args["v"]) {
+    setLogger(new SimpleLogger(SimpleLogger.LEVEL_DEBUG));
+  }
   if (args.help) {
     if (route && route.help) {
       console.log(`Usage for\n$obniz-cli ${command}\n`);
@@ -42,6 +47,19 @@ export const Args = async (routes: Record<string, Command>) => {
       await routes.help.execute();
       return;
     }
-    await route.execute(args);
+    try {
+      await route.execute(args);
+    } catch (e) {
+      const logger = getLogger();
+      if (e instanceof Error) {
+        if (args["v"]) {
+          logger.error(e);
+        } else {
+          logger.error(e.message);
+        }
+      } else {
+        logger.error(e);
+      }
+    }
   }
 };

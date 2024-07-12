@@ -3,9 +3,14 @@ import child_process from "child_process";
 import { promises as fs } from "fs";
 
 import { getOra } from "../ora-console/getora.js";
+
 const ora = getOra();
 
 import OS from "../obnizio/os.js";
+import { serial } from "@9wick/node-web-serial-ponyfill";
+import { ESP_ROM_BAUD, ESPLoader } from "@9wick/adafruit-webserial-esptool";
+import { getLogger } from "../logger/index.js";
+import { wait } from "../wait.js";
 
 export default function flash(obj: {
   portname: string;
@@ -17,14 +22,13 @@ export default function flash(obj: {
 }) {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
-    let status = "connecting";
+    const logger = getLogger();
+    const status = "connecting";
 
     const spinner = ora(
       `Flashing obnizOS: preparing file for hardware=${chalk.green(obj.hardware)} version=${chalk.green(obj.version)}`,
     ).start();
-    if (obj.debugserial) {
-      spinner.stop();
-    }
+    spinner.stop();
 
     // prepare files
     const files = await OS.prepareLocalFile(
@@ -35,64 +39,138 @@ export default function flash(obj: {
       },
     );
 
-    let received = "";
+    const received = "";
 
-    const cmd =
-      `esptool.py --chip auto --port "${obj.portname}" --baud ${obj.baud} --before default_reset --after hard_reset` +
-      ` write_flash` +
-      ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-      ` 0x1000 "${files.bootloader_path}"` +
-      ` 0x10000 "${files.app_path}"` +
-      ` 0x8000 "${files.partition_path}"`;
-
-    const onSuccess = () => {
-      spinner.succeed(`Flashing obnizOS: Flashed`);
-      resolve();
-    };
-    const onFailed = (err: any) => {
-      spinner.fail(`Flashing obnizOS: Fail`);
-      reject(err);
-    };
+    const device = await serial.findPort(obj.portname);
+    if (!device) {
+      throw new Error("Device not found");
+    }
 
     spinner.text = `Flashing obnizOS: Opening Serial Port ${chalk.green(obj.portname)}`;
+    await device.open({ baudRate: ESP_ROM_BAUD });
+    const esploader = new ESPLoader(device, logger);
 
-    const child = child_process.exec(cmd);
-    child.stdout?.setEncoding("utf8");
-    child.stdout?.on("data", (text) => {
-      // console.log(text);
-      if (obj.debugserial) {
-        console.log(text);
-        obj.stdout(text);
-      }
-      received += text;
+    try {
+      // esploader.debug = true;
+      await esploader.initialize();
 
-      if (status === "connecting" && received.indexOf(`Chip is`) >= 0) {
-        status = "flashing";
-        spinner.text = `Flashing obnizOS: Connected. Flashing...`;
-      }
-    });
-    child.stderr?.on("data", (text) => {
-      if (obj.debugserial) {
-        obj.stdout(text);
-      }
-      received += `${chalk.red(text)}`;
-    });
-    child.on("error", (er) => {
-      onFailed(er);
-    });
-    child.on("exit", (code) => {
-      try {
-        throwIfFailed(received);
-      } catch (e) {
-        onFailed(e);
-        return;
-      }
-      if (code !== 0) {
-        reject(new Error(`Failed Flashing.`));
-        return;
-      }
-      onSuccess();
-    });
+      logger.log("Connected to " + esploader.chipName);
+      logger.log(
+        "MAC Address: " + Buffer.from(esploader.macAddr()).toString("hex"),
+      );
+
+      spinner.text = `Flashing obnizOS: Connected. Flashing...`;
+      const espStub = await esploader.runStub();
+      espStub.debug = true;
+      // await espStub.setBaudrate(obj.baud);
+      const appFileBuffer = await fs.readFile(files.app_path);
+      const bootloaderFileBuffer = await fs.readFile(files.bootloader_path);
+      const partitionFileBuffer = await fs.readFile(files.partition_path);
+
+      logger.log("BootloaderFile writing...");
+      await espStub.flashData(
+        bootloaderFileBuffer,
+        (bytesWritten, totalBytes) => {
+          logger.log(
+            "BootloaderFile : " +
+              Math.floor((bytesWritten / totalBytes) * 100) +
+              "%",
+          );
+        },
+        0x1000,
+        true,
+      );
+      await wait(100);
+      logger.log("AppFile writing...");
+      await espStub.flashData(
+        appFileBuffer,
+        (bytesWritten, totalBytes) => {
+          logger.log(
+            "AppFile : " + Math.floor((bytesWritten / totalBytes) * 100) + "%",
+          );
+        },
+        0x10000,
+        true,
+      );
+      await wait(100);
+      logger.log("PartitionFile writing...");
+      await espStub.flashData(
+        partitionFileBuffer,
+        (bytesWritten, totalBytes) => {
+          logger.log(
+            "PartitionFile : " +
+              Math.floor((bytesWritten / totalBytes) * 100) +
+              "%",
+          );
+        },
+        0x8000,
+        true,
+      );
+
+      logger.log("Flashing obnizOS: Flashed");
+      spinner.succeed(`Flashing obnizOS: Flashed`);
+    } catch (e) {
+      console.error(e);
+      spinner.fail(`Flashing obnizOS: Fail`);
+    } finally {
+      await esploader.disconnect();
+    }
+    //
+    // const cmd =
+    //   `esptool.py --chip auto --port "${obj.portname}" --baud ${obj.baud} --before default_reset --after hard_reset` +
+    //   ` write_flash` +
+    //   ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
+    //   ` 0x1000 "${files.bootloader_path}"` +
+    //   ` 0x10000 "${files.app_path}"` +
+    //   ` 0x8000 "${files.partition_path}"`;
+    //
+    // const onSuccess = () => {
+    //   spinner.succeed(`Flashing obnizOS: Flashed`);
+    //   resolve();
+    // };
+    // const onFailed = (err: any) => {
+    //   spinner.fail(`Flashing obnizOS: Fail`);
+    //   reject(err);
+    // };
+    //
+    //
+    // const child = child_process.exec(cmd);
+    // child.stdout?.setEncoding("utf8");
+    // child.stdout?.on("data", (text) => {
+    //   // console.log(text);
+    //   if (obj.debugserial) {
+    //     console.log(text);
+    //     obj.stdout(text);
+    //   }
+    //   received += text;
+    //
+    //   if (status === "connecting" && received.indexOf(`Chip is`) >= 0) {
+    //     status = "flashing";
+    //     spinner.text = `Flashing obnizOS: Connected. Flashing...`;
+    //   }
+    // });
+    // child.stderr?.on("data", (text) => {
+    //   if (obj.debugserial) {
+    //     obj.stdout(text);
+    //   }
+    //   received += `${chalk.red(text)}`;
+    // });
+    // child.on("error", (er) => {
+    //   onFailed(er);
+    // });
+    // child.on("exit", (code) => {
+    //   try {
+    //     throwIfFailed(received);
+    //   } catch (e) {
+    //     onFailed(e);
+    //     return;
+    //   }
+    //   if (code !== 0) {
+    //     reject(new Error(`Failed Flashing.`));
+    //     return;
+    //   }
+    //   onSuccess();
+    // });
   });
 }
 
