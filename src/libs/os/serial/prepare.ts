@@ -7,6 +7,8 @@ import SerialGuess from "./guess.js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { getOra } from "../../ora-console/getora.js";
+import { serial } from "@9wick/node-web-serial-ponyfill";
+
 const ora = getOra();
 
 export default async (args: any): Promise<any> => {
@@ -20,13 +22,15 @@ export default async (args: any): Promise<any> => {
     portname = undefined;
   }
 
+  const ports = await serial.listPorts();
   // display port list
-  const ports: SerialPort.PortInfo[] = await SerialPort.list();
+  // const ports: SerialPort.PortInfo[] = await SerialPort.list();
   // Specified. check ports
   if (portname) {
     let found = false;
     for (const port of ports) {
-      if (port.path === portname) {
+      const info = (port as any).info_;
+      if (info.path === portname) {
         found = true;
         break;
       }
@@ -47,7 +51,11 @@ export default async (args: any): Promise<any> => {
     }
 
     if (!portname) {
-      const selected = await selectPort(ports, guessed_portname);
+      const list = ports.map((p) => {
+        const info = (p as any).info_;
+        return { path: info.path, manufacturer: info.man };
+      });
+      const selected = await selectPort(list, guessed_portname);
       portname = selected;
     }
   }
@@ -72,7 +80,7 @@ export default async (args: any): Promise<any> => {
 };
 
 async function selectPort(
-  ports: SerialPort.PortInfo[],
+  ports: Array<{ path: string; manufacturer?: string }>,
   defaultValue: any,
 ): Promise<string> {
   const portNames = [];
