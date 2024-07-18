@@ -73,14 +73,7 @@ Flash obnizOS and configure it
 ```
 
 ## Dependency
-
-obniz-cli use [esptool](https://github.com/espressif/esptool) internally. Install it from [pip](https://pip.pypa.io/en/stable/installing/)
-
-```
-pip install esptool
-```
-
-And you need to instal Node.js on your machine.
+You need to install Node.js on your machine.
 
 If you are using Windows. You may need to install below before installing obniz-cli
 

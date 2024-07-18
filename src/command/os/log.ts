@@ -1,10 +1,8 @@
 import { serial } from "@9wick/node-web-serial-ponyfill";
 import {
-  ESPLoader,
   ESP_ROM_BAUD,
 } from "@9wick/adafruit-webserial-esptool/dist/index.js";
 import { getLogger } from "../../libs/logger/index.js";
-import { WritableStream } from "web-streams-polyfill";
 
 export const LogCommand = async (obj: {
   portname: string;
@@ -37,5 +35,3 @@ export const LogCommand = async (obj: {
   }
   await device.close();
 };
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -78,14 +78,7 @@ Flash obnizOS and configure it
 ## インストール
 
 ### 事前準備
-
-obniz-cli は [esptool](https://github.com/espressif/esptool) を利用しますので [pip](https://pip.pypa.io/en/stable/installing/)　よりインストールしてください。
-
-```
-pip install esptool
-```
-
-また、Nodejsをマシンにインストールする必要があります。
+Nodejsをマシンにインストールする必要があります。
 
 Windowsをお使いでしたら以下がobniz-cliをインストールするよりも先に必要です。
 
