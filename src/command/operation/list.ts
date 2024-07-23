@@ -1,7 +1,8 @@
 import { Operation } from "../../libs/obnizio/operation.js";
 import * as Storage from "../../libs/storage.js";
+import { Command } from "../arg.js";
 
-export const OperationListCommand = {
+export const OperationListCommand: Command = {
   help: `Show your operation list
       --token       Token of api key which use instead of user signin.
   `,

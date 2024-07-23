@@ -1,16 +1,17 @@
 import chalk from "chalk";
-import Defaults from "../../defaults.js";
+import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
+import { Command } from "../arg.js";
 
-export const ListCommand = {
+export const ListCommand: Command = {
   help: `List available OS list for hardware.
 
--h --hardware   hardware identifier. Default to ${Defaults.HARDWARE}
+-h --hardware   hardware identifier. Default to ${DefaultParams.HARDWARE}
   `,
   async execute(args: any) {
     let hardware: any = args.h || args.hardware;
     if (!hardware) {
-      hardware = Defaults.HARDWARE;
+      hardware = DefaultParams.HARDWARE;
       await listHardwares();
     }
     await listForHardware(hardware);

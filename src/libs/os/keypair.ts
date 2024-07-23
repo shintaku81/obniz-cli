@@ -1,7 +1,7 @@
 import { ec as EC } from "elliptic";
 const ec = new EC("p192");
 
-export default () => {
+export const generateKeyPair = () => {
   const key = ec.genKeyPair();
   const pubPoint = key.getPublic();
   const privkey = key.getPrivate("hex");

@@ -2,27 +2,28 @@ import { ConfigCommand } from "./config.js";
 
 import { URL } from "url";
 import chalk from "chalk";
-import Defaults from "../../defaults.js";
+import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import Device from "../../libs/obnizio/device.js";
 import * as Storage from "../../libs/storage.js";
-import Flash from "../../libs/os/_flash.js";
+import { flash } from "../../libs/os/flash.js";
 import { validate as validateConfig } from "../../libs/os/config.js";
-import PreparePort from "../../libs/os/serial/prepare.js";
+import { PreparePort } from "../../libs/os/serial/prepare.js";
 
 import inquirer from "inquirer";
 import { getOra } from "../../libs/ora-console/getora.js";
+import { Command } from "../arg.js";
 const ora = getOra();
 
-export const FlashCreateCommand = {
+export const FlashCreateCommand: Command = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
  -p --port        serial port path to flash.If not specified, the port list will be displayed.
- -b --baud        flashing baud rate. default to ${Defaults.BAUD}
+ -b --baud        flashing baud rate. default to ${DefaultParams.BAUD}
 
 [flashing setting]
- -h --hardware    hardware to be flashed. default to ${Defaults.HARDWARE}
+ -h --hardware    hardware to be flashed. default to ${DefaultParams.HARDWARE}
  -v --version     obnizOS version to be flashed. default to latest one.
 
 [obnizCloud device setting]
@@ -60,10 +61,7 @@ export const FlashCreateCommand = {
       proceed(2);
     }
     // SerialPortSetting
-    const obj: any = await PreparePort(args);
-    obj.stdout = (text: string) => {
-      // process.stdout.write(text);
-    };
+    const port = await PreparePort(args);
 
     if (proceed) {
       proceed(3);
@@ -100,8 +98,7 @@ export const FlashCreateCommand = {
     let spinner: any;
     spinner = ora("obnizOS:").start();
     // hardware
-    const hardware = args.h || args.hardware || Defaults.HARDWARE;
-    obj.hardware = hardware;
+    const hardware = args.h || args.hardware || DefaultParams.HARDWARE;
     // version
     version = args.v || args.version;
     if (!version) {
@@ -117,13 +114,16 @@ export const FlashCreateCommand = {
         `obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`,
       );
     }
-    obj.version = version;
 
     if (proceed) {
       proceed(4);
     }
+    const os = {
+      hardware,
+      version,
+    };
 
-    await Flash(obj);
+    await flash(port, os);
 
     if (proceed) {
       proceed(5);
@@ -167,7 +167,7 @@ export const FlashCreateCommand = {
     try {
       // Configure it
       args.p = undefined;
-      args.port = obj.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
+      args.port = port.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
       args.devicekey = device.devicekey;
       await ConfigCommand.execute(args, proceed);
       Storage.set("recovery-device", null);

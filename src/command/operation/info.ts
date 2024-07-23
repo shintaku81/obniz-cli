@@ -1,14 +1,10 @@
-import chalk from "chalk";
-import fs from "fs";
-import path from "path";
-import Defaults from "../../defaults.js";
-import Device from "../../libs/obnizio/device.js";
 import { Operation } from "../../libs/obnizio/operation.js";
 import { OperationSetting } from "../../libs/obnizio/operation_setting.js";
 
 import * as Storage from "../../libs/storage.js";
+import { Command } from "../arg.js";
 
-export const OperationInfoCommand = {
+export const OperationInfoCommand: Command = {
   help: `Show the operation info
    -o --operation   operationId to be show
       --token       Token of api key which use instead of user signin.

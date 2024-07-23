@@ -11,7 +11,6 @@ const packageverion = "unknown version";
 
 export interface Command {
   help: string | (() => Promise<void>);
-
   execute(...args: any): Promise<void>;
 }
 

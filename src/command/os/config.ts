@@ -1,15 +1,16 @@
-import Defaults from "../../defaults.js";
-import PreparePort from "../../libs/os/serial/prepare.js";
+import { DefaultParams } from "../../defaults.js";
+import { PreparePort } from "../../libs/os/serial/prepare.js";
 import * as Storage from "../../libs/storage.js";
 import Config from "../../libs/os/configure/index.js";
 import { validate } from "../../libs/os/config.js";
+import { Command } from "../arg.js";
 
-export const ConfigCommand = {
+export const ConfigCommand: Command = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
  -p --port        serial port path to flash.If not specified, the port list will be displayed.
- -b --baud        flashing baud rate. default to ${Defaults.BAUD}
+ -b --baud        flashing baud rate. default to ${DefaultParams.BAUD}
 
  [configurations]
  -d --devicekey     devicekey to be configured after flash. please quote it like "00000000&abcdefghijklkm"
@@ -27,26 +28,30 @@ export const ConfigCommand = {
 
     // Serial Port Setting
     let received = "";
-    const obj = await PreparePort(args);
-    obj.stdout = (text: string) => {
-      // process.stdout.write(text);
-      received += text;
-    };
-    obj.token = args.token || Storage.get("token");
+    const port = await PreparePort(args);
+    const token = args.token || Storage.get("token");
 
+    const config: any = {
+      token,
+      portname: port.portname,
+      stdout: (text: string) => {
+        // process.stdout.write(text);
+        received += text;
+      },
+    };
     // set params to obj
-    await validate(args, obj, true);
+    await validate(args, config, true);
     if (proceed) {
       proceed(6);
     }
 
-    if (!obj.configs) {
+    if (!config.configs) {
       // no configuration provided
       console.log(`No configuration found. Finished.`);
       return;
     }
 
-    await Config(obj);
+    await Config(config);
     if (proceed) {
       proceed(7);
     }

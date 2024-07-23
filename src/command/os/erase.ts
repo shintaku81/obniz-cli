@@ -1,39 +1,19 @@
-import { serial } from "@9wick/node-web-serial-ponyfill";
-import {
-  ESPLoader,
-  ESP_ROM_BAUD,
-} from "@9wick/adafruit-webserial-esptool/dist/index.js";
 import { getLogger } from "../../libs/logger/index.js";
+import { erase } from "../../libs/os/erase.js";
+import { PreparePort } from "../../libs/os/serial/prepare.js";
+import { Command } from "../arg.js";
 
-export const EraseCommand = async (obj: {
-  portname: string;
-  baud: number;
-  stdout: any;
-}) => {
-  console.log("Erasing...");
-  const logger = getLogger();
+export const EraseCommand: Command = {
+  help: "Fully erase a flash on target device.",
+  async execute(args: any) {
+    const port = await PreparePort(args);
+    const logger = getLogger();
+    logger.log("Erasing...");
 
-  const device = await serial.findPort(obj.portname);
-  if (!device) {
-    throw new Error("Device not found");
-  }
-  await device.open({ baudRate: ESP_ROM_BAUD });
-  const esploader = new ESPLoader(device, logger);
-  try {
-   // esploader.debug = true;
-    await esploader.initialize();
-
-    logger.log("Connected to " + esploader.chipName);
-    logger.log(
-      "MAC Address: " + Buffer.from(esploader.macAddr()).toString("hex"),
-    );
-    const espStub = await esploader.runStub();
-    await espStub.setBaudrate(obj.baud);
-    await espStub.eraseFlash();
-    logger.log("finished erasing");
-  } finally {
-    await esploader.disconnect();
-    await device.close();
-  }
+    try {
+      await erase(port);
+    } catch (e) {
+      logger.log("Error:" + ((e as Error).message || e));
+    }
+  },
 };
-

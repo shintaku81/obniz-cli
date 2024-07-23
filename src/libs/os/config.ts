@@ -15,7 +15,7 @@ export async function deviceConfigValidate(
   obj: DeepPartial<ConfigParam> = {},
   logging = false,
 ) {
-  const devicekey: any = args.d || args.devicekey;
+  const devicekey: string | undefined = args.d || args.devicekey;
   let obniz_id: any = null;
   if (devicekey) {
     obj.configs = obj.configs || {};

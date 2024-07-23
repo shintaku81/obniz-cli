@@ -1,83 +1,66 @@
-import * as readline from "readline";
-
-import SerialPort from "serialport";
-import Defaults from "../../../defaults.js";
-import SerialGuess from "./guess.js";
+import { DefaultParams } from "../../../defaults.js";
+import { SerialGuess } from "./guess.js";
 
 import chalk from "chalk";
 import inquirer from "inquirer";
-import { getOra } from "../../ora-console/getora.js";
 import { serial } from "@9wick/node-web-serial-ponyfill";
+import { SerialPortSelect } from "../../../types.js";
+import { getLogger } from "../../logger/index.js";
 
-const ora = getOra();
-
-export default async (args: any): Promise<any> => {
-  let portname: string | undefined = args.p || args.port;
-  if (!portname) {
-    console.log(chalk.yellow(`No serial port specified.`));
+export const PreparePort = async (
+  port: Partial<SerialPortSelect>,
+): Promise<SerialPortSelect> => {
+  const logger = getLogger();
+  if (!port.portname) {
+    logger.log(chalk.yellow(`No serial port specified.`));
   }
 
-  const autoChoose = portname === "AUTO";
-  if (autoChoose) {
-    portname = undefined;
-  }
+  const autoChoose = port.portname === "AUTO";
+  const userInputPortname = autoChoose ? undefined : port.portname;
 
   const ports = await serial.listPorts();
   // display port list
   // const ports: SerialPort.PortInfo[] = await SerialPort.list();
   // Specified. check ports
-  if (portname) {
-    let found = false;
-    for (const port of ports) {
-      const info = (port as any).info_;
-      if (info.path === portname) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      console.log(
-        chalk.red(`specified serial port ${portname} was not found.`),
-      );
-      portname = undefined;
-    }
-  }
 
-  // not specified or not found
-  if (!portname) {
-    const guessed_portname = (await SerialGuess()).portname;
-    if (autoChoose) {
-      portname = guessed_portname;
-    }
-
-    if (!portname) {
+  let selectedPortname: string | null = null;
+  if (userInputPortname && (await isExistPort(userInputPortname))) {
+    selectedPortname = userInputPortname;
+  } else {
+    const guessedPortname = (await SerialGuess()).portname;
+    if (autoChoose && guessedPortname) {
+      selectedPortname = guessedPortname;
+    } else {
       const list = ports.map((p) => {
         const info = (p as any).info_;
         return { path: info.path, manufacturer: info.man };
       });
-      const selected = await selectPort(list, guessed_portname);
-      portname = selected;
+      selectedPortname = await selectPort(list, guessedPortname);
     }
   }
 
-  let baud: any = args.b || args.baud;
-  if (!baud) {
-    baud = Defaults.BAUD;
-  }
+  const baud = port.baud ?? DefaultParams.BAUD;
 
-  const debugserial: any = args.debugserial;
-
-  const spinner = ora("Serial Port:").start();
-  spinner.succeed(
-    `Serial Port: decided ${chalk.green(portname)} baudrate ${baud}`,
+  logger.log(
+    `Serial Port: decided ${chalk.green(selectedPortname)} baudrate ${baud}`,
   );
 
   return {
-    portname,
+    portname: selectedPortname,
     baud,
-    debugserial,
   };
 };
+
+async function isExistPort(portname: string) {
+  const ports = await serial.listPorts();
+  for (const port of ports) {
+    const info = (port as any).info_;
+    if (info.path === portname) {
+      return true;
+    }
+  }
+  return false;
+}
 
 async function selectPort(
   ports: Array<{ path: string; manufacturer?: string }>,

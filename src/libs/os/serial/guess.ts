@@ -1,6 +1,6 @@
 import SerialPort from "serialport";
 
-export default async () => {
+export const SerialGuess = async () => {
   let portname;
   const serialInfo = await findUsbSerials();
   const availablePorts = serialInfo.availablePorts;

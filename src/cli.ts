@@ -14,7 +14,7 @@ import { PortsCommand } from "./command/os/ports.js";
 import { UserInfoCommand } from "./command/user/info.js";
 import { LoginCommand } from "./command/user/login.js";
 import { LogoutCommand } from "./command/user/logout.js";
-import PreparePort from "./libs/os/serial/prepare.js";
+import { PreparePort } from "./libs/os/serial/prepare.js";
 import { LogCommand } from "./command/os/log.js";
 
 // ========== Global Errors =========
@@ -53,24 +53,12 @@ const routes: Record<string, Command> = {
   "os:flash": FlashCommand,
   "os:config": ConfigCommand,
   "os:config-via-wifi": ConfigViaWifiCommand,
-  "os:erase": {
-    help: "Fully erase a flash on target device.",
-    async execute(args: any) {
-      const obj = await PreparePort(args);
-      obj.stdout = (text: string) => {
-        process.stdout.write(text);
-      };
-      await EraseCommand(obj);
-    },
-  },
+  "os:erase": EraseCommand,
   "os:list": ListCommand,
   "os:log": {
     help: "Fully erase a flash on target device.",
     async execute(args: any) {
       const obj = await PreparePort(args);
-      obj.stdout = (text: string) => {
-        process.stdout.write(text);
-      };
       await LogCommand(obj);
     },
   },
@@ -82,12 +70,7 @@ const routes: Record<string, Command> = {
   },
   "operation:list": OperationListCommand,
   "operation:info": OperationInfoCommand,
-  help: {
-    help: `Show help`,
-    async execute() {
-      await HelpCommand();
-    },
-  },
+  help: HelpCommand,
 };
 
 Args(routes)

@@ -1,7 +1,11 @@
+import { Command } from "./arg.js";
+
 const packageverion = "unknown version";
 
-export const HelpCommand = async () => {
-  console.log(`
+export const HelpCommand: Command = {
+  help: `Show help`,
+  async execute(args: any) {
+    console.log(`
        _           _               _ _
   ___ | |__  _ __ (_)____      ___| (_)
  / _ \\| '_ \\| '_ \\| |_  /____ / __| | |
@@ -35,4 +39,5 @@ COMMANDS
   operation:list      List of available operations.
   operation:info      Show operation info.
   `);
+  },
 };

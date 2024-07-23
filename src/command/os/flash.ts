@@ -1,23 +1,24 @@
 import chalk from "chalk";
-import Defaults from "../../defaults.js";
+import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
-import Flash from "../../libs/os/_flash.js";
+import { flash } from "../../libs/os/flash.js";
 import { validate as validateConfig } from "../../libs/os/config.js";
-import PreparePort from "../../libs/os/serial/prepare.js";
+import { PreparePort } from "../../libs/os/serial/prepare.js";
 
 import { getOra } from "../../libs/ora-console/getora.js";
 import { ConfigCommand } from "./config.js";
+import { Command } from "../arg.js";
 const ora = getOra();
 
-export const FlashCommand = {
+export const FlashCommand: Command = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
  -p --port      serial port path to flash.If not specified, the port list will be displayed.
- -b --baud      flashing baud rate. default to ${Defaults.BAUD}
+ -b --baud      flashing baud rate. default to ${DefaultParams.BAUD}
 
 [flashing setting]
- -h --hardware  hardware to be flashed. default to ${Defaults.HARDWARE}
+ -h --hardware  hardware to be flashed. default to ${DefaultParams.HARDWARE}
  -v --version   obnizOS version to be flashed. default to latest one.
 
 [configurations]
@@ -42,10 +43,7 @@ export const FlashCommand = {
       proceed(2);
     }
     // flashing os
-    const obj: any = await PreparePort(args);
-    obj.stdout = (text: string) => {
-      process.stdout.write(text);
-    };
+    const obj = await PreparePort(args);
 
     if (proceed) {
       proceed(3);
@@ -55,9 +53,8 @@ export const FlashCommand = {
     // OS setting
     let hardware: any = args.h || args.hardware;
     if (!hardware) {
-      hardware = Defaults.HARDWARE;
+      hardware = DefaultParams.HARDWARE;
     }
-    obj.hardware = hardware;
     let version: any = args.v || args.version;
     if (!version) {
       spinner.text = `obnizOS: Connecting obnizCloud to Public Latest Version of hardware=${chalk.green(hardware)}`;
@@ -72,13 +69,16 @@ export const FlashCommand = {
         `obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`,
       );
     }
-    obj.version = version;
 
     if (proceed) {
       proceed(4);
     }
 
-    await Flash(obj);
+    const os = {
+      hardware,
+      version,
+    };
+    await flash(obj, os);
 
     if (proceed) {
       proceed(5);
