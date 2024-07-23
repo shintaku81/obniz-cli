@@ -20,7 +20,7 @@ export const EraseCommand = async (obj: {
   await device.open({ baudRate: ESP_ROM_BAUD });
   const esploader = new ESPLoader(device, logger);
   try {
-    // esploader.debug = true;
+   // esploader.debug = true;
     await esploader.initialize();
 
     logger.log("Connected to " + esploader.chipName);
@@ -28,12 +28,12 @@ export const EraseCommand = async (obj: {
       "MAC Address: " + Buffer.from(esploader.macAddr()).toString("hex"),
     );
     const espStub = await esploader.runStub();
-    // await espStub.setBaudrate(obj.baud);
+    await espStub.setBaudrate(obj.baud);
     await espStub.eraseFlash();
     logger.log("finished erasing");
   } finally {
     await esploader.disconnect();
+    await device.close();
   }
 };
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -73,6 +73,7 @@ Flash obnizOS and configure it
 ```
 
 ## Dependency
+
 You need to install Node.js on your machine.
 
 If you are using Windows. You may need to install below before installing obniz-cli

@@ -12,6 +12,12 @@ import { ESP_ROM_BAUD, ESPLoader } from "@9wick/adafruit-webserial-esptool";
 import { getLogger } from "../logger/index.js";
 import { wait } from "../wait.js";
 
+interface PartitionData {
+  name: string;
+  offset: number;
+  bin: Buffer;
+}
+
 export default function flash(obj: {
   portname: string;
   hardware: string;
@@ -61,51 +67,46 @@ export default function flash(obj: {
 
       spinner.text = `Flashing obnizOS: Connected. Flashing...`;
       const espStub = await esploader.runStub();
-      espStub.debug = true;
-      // await espStub.setBaudrate(obj.baud);
+      // espStub.debug = true;
+      await espStub.setBaudrate(obj.baud);
       const appFileBuffer = await fs.readFile(files.app_path);
       const bootloaderFileBuffer = await fs.readFile(files.bootloader_path);
       const partitionFileBuffer = await fs.readFile(files.partition_path);
 
-      logger.log("BootloaderFile writing...");
-      await espStub.flashData(
-        bootloaderFileBuffer,
-        (bytesWritten, totalBytes) => {
-          logger.log(
-            "BootloaderFile : " +
-              Math.floor((bytesWritten / totalBytes) * 100) +
-              "%",
-          );
+      const partitions: PartitionData[] = [
+        {
+          name: "bootloader",
+          offset: 0x1000,
+          bin: bootloaderFileBuffer,
         },
-        0x1000,
-        true,
-      );
-      await wait(100);
-      logger.log("AppFile writing...");
-      await espStub.flashData(
-        appFileBuffer,
-        (bytesWritten, totalBytes) => {
-          logger.log(
-            "AppFile : " + Math.floor((bytesWritten / totalBytes) * 100) + "%",
-          );
+        {
+          name: "app",
+          offset: 0x10000,
+          bin: appFileBuffer,
         },
-        0x10000,
-        true,
-      );
-      await wait(100);
-      logger.log("PartitionFile writing...");
-      await espStub.flashData(
-        partitionFileBuffer,
-        (bytesWritten, totalBytes) => {
-          logger.log(
-            "PartitionFile : " +
-              Math.floor((bytesWritten / totalBytes) * 100) +
-              "%",
-          );
+        {
+          name: "partition",
+          offset: 0x8000,
+          bin: partitionFileBuffer,
         },
-        0x8000,
-        true,
-      );
+      ];
+
+      for (const partition of partitions) {
+        logger.log(`${partition.name} writing...`);
+        await espStub.flashData(
+          partition.bin,
+          (bytesWritten, totalBytes) => {
+            logger.log(
+              `${partition.name} : ` +
+                Math.floor((bytesWritten / totalBytes) * 100) +
+                "%",
+            );
+          },
+          partition.offset,
+          true,
+        );
+        await wait(100);
+      }
 
       logger.log("Flashing obnizOS: Flashed");
       spinner.succeed(`Flashing obnizOS: Flashed`);
@@ -113,7 +114,10 @@ export default function flash(obj: {
       console.error(e);
       spinner.fail(`Flashing obnizOS: Fail`);
     } finally {
+      console.log("disconnecting");
       await esploader.disconnect();
+      await device.close();
+      console.log("disconnected");
     }
     //
     // const cmd =

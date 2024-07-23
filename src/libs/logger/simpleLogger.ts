@@ -43,8 +43,10 @@ export class SimpleLogger {
       } else if (typeof arg == "boolean") {
         this.logMsg(prefix + (arg ? "true" : "false"));
       } else if (Array.isArray(arg)) {
-        // logMsg(prefix + "[" + arg.map((value) => toHex(value)).join(", ") + "]");
-        this.logMsg(prefix + "[" + Buffer.from(arg).toString("ascii") + "]");
+        this.logMsg(
+          prefix + "[" + arg.map((value) => toHex(value)).join(", ") + "]",
+        );
+        // this.logMsg(prefix + "[" + Buffer.from(arg).toString("ascii") + "]");
       } else if (typeof arg == "object" && arg instanceof Uint8Array) {
         this.logMsg(
           prefix +

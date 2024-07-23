@@ -78,6 +78,7 @@ Flash obnizOS and configure it
 ## インストール
 
 ### 事前準備
+
 Nodejsをマシンにインストールする必要があります。
 
 Windowsをお使いでしたら以下がobniz-cliをインストールするよりも先に必要です。

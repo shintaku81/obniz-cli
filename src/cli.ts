@@ -97,4 +97,7 @@ Args(routes)
   .catch((e) => {
     console.log(chalk.red(`${e}`));
     process.exit(1);
+  })
+  .then(() => {
+    process.exit(0);
   });

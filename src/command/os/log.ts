@@ -1,7 +1,5 @@
 import { serial } from "@9wick/node-web-serial-ponyfill";
-import {
-  ESP_ROM_BAUD,
-} from "@9wick/adafruit-webserial-esptool/dist/index.js";
+import { ESP_ROM_BAUD } from "@9wick/adafruit-webserial-esptool/dist/index.js";
 import { getLogger } from "../../libs/logger/index.js";
 
 export const LogCommand = async (obj: {
