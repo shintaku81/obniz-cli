@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import semver from "semver";
 
-import SerialPort from "serialport";
+import { SerialPort } from "serialport";
 
 const baudRate = 115200;
 
@@ -30,7 +30,7 @@ export default class Serial {
 
   public async open() {
     return new Promise<void>((resolve, reject) => {
-      this.serialport = new SerialPort(this.portname, { baudRate });
+      this.serialport = new SerialPort({ path: this.portname, baudRate });
 
       this.serialport.on("open", () => {
         // open logic

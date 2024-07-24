@@ -1,4 +1,5 @@
-import SerialPort from "serialport";
+import { SerialPort } from "serialport";
+import { SerialPortInfo } from "../../../types.js";
 
 export const SerialGuess = async () => {
   let portname;
@@ -20,12 +21,12 @@ export const SerialGuess = async () => {
 
 interface ISerialInfo {
   availablePorts: string[];
-  ports: SerialPort.PortInfo[];
+  ports: SerialPortInfo[];
 }
 
 async function findUsbSerials(): Promise<ISerialInfo> {
   const availablePorts: string[] = [];
-  const ports: SerialPort.PortInfo[] = await SerialPort.list();
+  const ports: SerialPortInfo[] = await SerialPort.list();
   for (const port of ports) {
     if (port.manufacturer && port.manufacturer.indexOf("M5STACK") >= 0) {
       availablePorts.push(port.path);

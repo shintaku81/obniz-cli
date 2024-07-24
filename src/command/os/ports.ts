@@ -1,7 +1,8 @@
-import SerialPort from "serialport";
+import { SerialPort } from "serialport";
+import { SerialPortInfo } from "../../types.js";
 
-export const PortsCommand = async () => {
-  const ports: SerialPort.PortInfo[] = await SerialPort.list();
+export const PortsCommand = async (): Promise<SerialPortInfo[]> => {
+  const ports = await SerialPort.list();
   console.log(`===Founded Serial Ports===`);
 
   for (let i = 0; i < ports.length; i++) {
