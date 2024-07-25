@@ -2,7 +2,6 @@ import chalk from "chalk";
 import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import { flash } from "../../libs/os/flash.js";
-import { validate as validateConfig } from "../../libs/os/config.js";
 import { PreparePort } from "../common/prepare_port.js";
 
 import { getOra } from "../../libs/ora-console/getora.js";
@@ -15,6 +14,17 @@ import {
   FlashObnizOsArgs,
   PortArgs,
 } from "../parameters.js";
+import { PrepareDevicekey } from "../common/prepare_devicekey.js";
+import { PrepareConfigFromFile } from "../common/prepare_config_from_file.js";
+import { PrepareConfigFromOperation } from "../common/prepare_config_from_operation.js";
+import { OperationSetting } from "../../libs/obnizio/operation_setting.js";
+import {
+  DeviceAndNetworkConfig,
+  execConfig,
+  OnlyDeviceConfig,
+  OnlyNetworkConfig,
+} from "../../libs/os/configure/index.js";
+import { OperationResult } from "../../libs/obnizio/operation_result.js";
 const ora = getOra();
 
 export type FlashCommandArgs = PortArgs &
@@ -44,24 +54,57 @@ export const FlashCommand = {
     --indication    indication name for setting.
       `,
   async execute(args: FlashCommandArgs) {
-    // validate first
-    await validateConfig(args);
-
     // flashing os
-    const baudStr = args.b || args.baud;
-    const port = await PreparePort({
-      portname: args.p || args.port,
-      baud: baudStr ? parseInt(baudStr) : undefined,
-    });
-    const os = await PrepareOs({
-      hardware: args.h || args.hardware,
-      version: args.v || args.version,
-    });
+    const port = await PreparePort(args);
+    const os = await PrepareOs(args);
+    const deviceConfig = await PrepareDevicekey(args);
+    const networkConfigFromFile = await PrepareConfigFromFile(args);
+    const networkConfigFromOperation = await PrepareConfigFromOperation(args);
+    if (networkConfigFromFile && networkConfigFromOperation) {
+      throw new Error(
+        `You can't use both config file and operation setting at the same time.`,
+      );
+    }
+    const networkConfig =
+      networkConfigFromFile?.config ||
+      networkConfigFromOperation?.config ||
+      null;
+
+    const deviceOrNetworkConfig = { deviceConfig, networkConfig };
 
     await flash(port, os);
-    // Configure it
-    args.p = undefined;
-    args.port = port.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
-    await ConfigCommand.execute(args);
+
+    if (
+      !deviceOrNetworkConfig.deviceConfig &&
+      !deviceOrNetworkConfig.networkConfig
+    ) {
+      // no configuration provided
+      console.log(`No configuration found. Finished.`);
+      return;
+    }
+
+    if (networkConfigFromOperation) {
+      await OperationSetting.updateStatus(
+        networkConfigFromOperation.token,
+        networkConfigFromOperation.operation.operationSetting?.node?.id || "",
+      );
+    }
+
+    const info = await execConfig(
+      deviceOrNetworkConfig as
+        | DeviceAndNetworkConfig
+        | OnlyDeviceConfig
+        | OnlyNetworkConfig,
+      port,
+      !!networkConfigFromOperation,
+    );
+
+    if (info && networkConfigFromOperation) {
+      await OperationResult.createWriteSuccess(
+        networkConfigFromOperation.token,
+        networkConfigFromOperation.operation.operationSetting?.node?.id || "",
+        info.obnizId,
+      );
+    }
   },
 } as const satisfies Command;

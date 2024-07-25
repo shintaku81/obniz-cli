@@ -1,9 +1,18 @@
 import { DefaultParams } from "../../defaults.js";
 import { PreparePort } from "../common/prepare_port.js";
-import Config from "../../libs/os/configure/index.js";
-import { validate } from "../../libs/os/config.js";
+import {
+  DeviceAndNetworkConfig,
+  execConfig,
+  OnlyDeviceConfig,
+  OnlyNetworkConfig,
+} from "../../libs/os/configure/index.js";
 import { Command } from "../arg.js";
 import { getDefaultStorage } from "../../libs/storage.js";
+import { PrepareDevicekey } from "../common/prepare_devicekey.js";
+import { PrepareConfigFromFile } from "../common/prepare_config_from_file.js";
+import { PrepareConfigFromOperation } from "../common/prepare_config_from_operation.js";
+import { OperationResult } from "../../libs/obnizio/operation_result.js";
+import { OperationSetting } from "../../libs/obnizio/operation_setting.js";
 
 export interface ConfigCommandArgs {
   p?: string;
@@ -39,35 +48,53 @@ export const ConfigCommand = {
     --indication    indication name for setting.
   `,
   async execute(args: ConfigCommandArgs) {
-    // check input first
-    await validate(args);
-
     // Serial Port Setting
-    let received = "";
-    const baudStr = args.b || args.baud;
-    const port = await PreparePort({
-      portname: args.p || args.port,
-      baud: baudStr ? parseInt(baudStr) : undefined,
-    });
-    const token = args.token || getDefaultStorage().get("token");
+    const port = await PreparePort(args);
+    const deviceConfig = await PrepareDevicekey(args);
+    const networkConfigFromFile = await PrepareConfigFromFile(args);
+    const networkConfigFromOperation = await PrepareConfigFromOperation(args);
+    if (networkConfigFromFile && networkConfigFromOperation) {
+      throw new Error(
+        `You can't use both config file and operation setting at the same time.`,
+      );
+    }
+    const networkConfig =
+      networkConfigFromFile?.config ||
+      networkConfigFromOperation?.config ||
+      null;
 
-    const config: any = {
-      token,
-      portname: port.portname,
-      stdout: (text: string) => {
-        // process.stdout.write(text);
-        received += text;
-      },
-    };
-    // set params to obj
-    await validate(args, config, true);
-
-    if (!config.configs) {
+    const deviceOrNetworkConfig = { deviceConfig, networkConfig };
+    if (
+      !deviceOrNetworkConfig.deviceConfig &&
+      !deviceOrNetworkConfig.networkConfig
+    ) {
       // no configuration provided
       console.log(`No configuration found. Finished.`);
       return;
     }
 
-    await Config(config);
+    if (networkConfigFromOperation) {
+      await OperationSetting.updateStatus(
+        networkConfigFromOperation.token,
+        networkConfigFromOperation.operation.operationSetting?.node?.id || "",
+      );
+    }
+
+    const info = await execConfig(
+      deviceOrNetworkConfig as
+        | DeviceAndNetworkConfig
+        | OnlyDeviceConfig
+        | OnlyNetworkConfig,
+      port,
+      !!networkConfigFromOperation,
+    );
+
+    if (info && networkConfigFromOperation) {
+      await OperationResult.createWriteSuccess(
+        networkConfigFromOperation.token,
+        networkConfigFromOperation.operation.operationSetting?.node?.id || "",
+        info.obnizId,
+      );
+    }
   },
 } as const satisfies Command;

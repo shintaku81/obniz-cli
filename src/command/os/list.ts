@@ -3,20 +3,20 @@ import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import { Command } from "../arg.js";
 
-export const ListCommand: Command = {
+export const ListCommand = {
   help: `List available OS list for hardware.
 
 -h --hardware   hardware identifier. Default to ${DefaultParams.HARDWARE}
   `,
-  async execute(args: any) {
-    let hardware: any = args.h || args.hardware;
+  async execute(args: { h?: string; hardware?: string }) {
+    let hardware = args.h || args.hardware;
     if (!hardware) {
       hardware = DefaultParams.HARDWARE;
       await listHardwares();
     }
     await listForHardware(hardware);
   },
-};
+} as const satisfies Command;
 
 async function listHardwares() {
   console.log(`

@@ -6,7 +6,6 @@ import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import Device from "../../libs/obnizio/device.js";
 import { flash } from "../../libs/os/flash.js";
-import { validate as validateConfig } from "../../libs/os/config.js";
 import { PreparePort } from "../common/prepare_port.js";
 
 import inquirer from "inquirer";
@@ -21,6 +20,7 @@ import {
   PortArgs,
   SetObnizCloudConfigArgs,
 } from "../parameters.js";
+import { PrepareToken } from "../common/prepare_token.js";
 
 const ora = getOra();
 
@@ -62,20 +62,10 @@ export const FlashCreateCommand: Command = {
     }
 
     // login check
-    const token = args.token || getDefaultStorage().get("token");
-    if (!token) {
-      throw new Error(`You must singin before create device`);
-    }
-
-    // validate first
-    await validateConfig(args);
+    const token = await PrepareToken(args);
 
     // SerialPortSetting
-    const baudStr = args.b || args.baud;
-    const port = await PreparePort({
-      portname: args.p || args.port,
-      baud: baudStr ? parseInt(baudStr) : undefined,
-    });
+    const port = await PreparePort(args);
 
     let device;
     if (args.obniz_id) {

@@ -1,7 +1,14 @@
 import { SimpleLogger } from "./simpleLogger.js";
 
+export interface StepLogger {
+  updateStatus(message: string): void;
+  finish(message?: string): void;
+  failed(message?: string): void;
+}
+
 export interface Logger {
   log(...args: any[]): void;
+  step(stepName: string): StepLogger;
   debug(...args: any[]): void;
   error(...args: any[]): void;
 }

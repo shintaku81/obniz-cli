@@ -10,11 +10,7 @@ export const EraseCommand = {
   help: "Fully erase a flash on target device.",
   async execute(args: EraseCommandArgs) {
     const logger = getLogger();
-    const baudStr = args.b || args.baud;
-    const port = await PreparePort({
-      portname: args.p || args.port,
-      baud: baudStr ? parseInt(baudStr) : undefined,
-    });
+    const port = await PreparePort(args);
     logger.log("Erasing...");
 
     await erase(port);

@@ -11,6 +11,7 @@ import { ESP_ROM_BAUD, ESPLoader } from "@9wick/adafruit-webserial-esptool";
 import { getLogger } from "../logger/index.js";
 import { wait } from "../wait.js";
 import { ObnizOsSelect, SerialPortSelect } from "../../types.js";
+import { DebugLogger } from "../logger/debugLogger.js";
 
 interface PartitionData {
   name: string;
@@ -41,10 +42,11 @@ export async function flash(
   }) => void,
 ) {
   const logger = getLogger();
+  const stepLogger = logger.step("Flashing obnizOS");
 
   proceed?.(calcProceed("DOWNLOAD_FILES", 0));
-  logger.log(
-    `Flashing obnizOS: preparing file for hardware=${chalk.green(os.hardware)} version=${chalk.green(os.version)}`,
+  stepLogger.updateStatus(
+    `preparing file for hardware=${chalk.green(os.hardware)} version=${chalk.green(os.version)}`,
   );
 
   // prepare files
@@ -52,16 +54,14 @@ export async function flash(
   proceed?.(calcProceed("DOWNLOAD_FILES", 100));
 
   proceed?.(calcProceed("CONNECT", 0));
+  stepLogger.updateStatus(`Opening Serial Port ${chalk.green(port.portname)}`);
   const device = await serial.findPort(port.portname);
   if (!device) {
     throw new Error("Device not found");
   }
-
-  logger.log(
-    `Flashing obnizOS: Opening Serial Port ${chalk.green(port.portname)}`,
-  );
   await device.open({ baudRate: ESP_ROM_BAUD });
-  const esploader = new ESPLoader(device, logger);
+  const debugLogger = new DebugLogger(logger);
+  const esploader = new ESPLoader(device, debugLogger);
   proceed?.(calcProceed("CONNECT", 100));
 
   try {
@@ -69,12 +69,11 @@ export async function flash(
     // esploader.debug = true;
     await esploader.initialize();
 
-    logger.log("Connected to " + esploader.chipName);
-    logger.log(
+    logger.debug(
       "MAC Address: " + Buffer.from(esploader.macAddr()).toString("hex"),
     );
 
-    logger.log(`Flashing obnizOS: Connected. Flashing...`);
+    stepLogger.updateStatus(`Connected. Flashing...`);
     const espStub = await esploader.runStub();
     // espStub.debug = true;
     await espStub.setBaudrate(port.baud);
@@ -105,15 +104,15 @@ export async function flash(
     ];
 
     for (const partition of partitions) {
-      logger.log(`${partition.name} writing...`);
+      stepLogger.updateStatus(`${partition.name} writing...`);
       await espStub.flashData(
         partition.bin,
         (bytesWritten, totalBytes) => {
           proceed?.(
             calcProceed(partition.stepName, (bytesWritten / totalBytes) * 100),
           );
-          logger.log(
-            `${partition.name} : ` +
+          stepLogger.updateStatus(
+            `${partition.name} writing... ` +
               Math.floor((bytesWritten / totalBytes) * 100) +
               "%",
           );
@@ -124,16 +123,16 @@ export async function flash(
       await wait(100);
     }
 
-    logger.log("Flashing obnizOS: Flashed");
     proceed?.(calcProceed("AFTER_FLASH", 100));
+    stepLogger.finish("Flashed");
   } catch (e) {
-    logger.error(`Flashing obnizOS: Fail`);
+    stepLogger.failed(`Fail`);
     logger.error(e);
   } finally {
-    logger.log("disconnecting");
+    logger.debug("disconnecting");
     await esploader.disconnect();
     await device.close();
-    logger.log("disconnected");
+    logger.debug("disconnected");
   }
   //
   // const cmd =

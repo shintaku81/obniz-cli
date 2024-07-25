@@ -2,10 +2,11 @@ import chalk from "chalk";
 import semver from "semver";
 
 import { SerialPort } from "serialport";
+import { NetworkConfig } from "../configure/index.js";
 
 const baudRate = 115200;
 
-export default class Serial {
+export class ObnizOsInteractiveSerial {
   public portname: string;
   public stdout: any;
   public onerror: any;
@@ -154,10 +155,10 @@ export default class Serial {
         if (!obnizIDLine) {
           throw new Error();
         }
-        const obnizid = obnizIDLine.split("obniz id: ")[1];
+        const obnizId = obnizIDLine.split("obniz id: ")[1];
         return {
           version,
-          obnizid,
+          obnizId,
         };
       } catch (e) {
         ++tryCount;
@@ -174,8 +175,10 @@ export default class Serial {
             );
           }
         } else if (tryCount === 3) {
-          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
-            await this._tryCloseOpenSerial();
+          this.progress(
+            chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
+          );
+          await this._tryCloseOpenSerial();
         } else {
           // TimedOut
           throw new Error(`Timed out. Target device seems not in normal mode.`);
@@ -335,9 +338,9 @@ export default class Serial {
 
   /**
    * Setting Network Type.
-   * @param type
+   * @param json
    */
-  public async setAllFromMenu(json: any) {
+  public async setAllFromMenu(json: NetworkConfig) {
     if (this.progress) {
       this.progress(`Entering menu`);
     }

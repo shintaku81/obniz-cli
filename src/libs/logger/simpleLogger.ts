@@ -4,6 +4,7 @@ export class SimpleLogger {
   static LEVEL_ERROR = 100;
   static LEVEL_LOG = 200;
   static LEVEL_DEBUG = 300;
+  currentStep: SimpleStepLogger | null = null;
 
   constructor(private level: number = SimpleLogger.LEVEL_LOG) {}
   log(...args: any[]) {
@@ -27,6 +28,15 @@ export class SimpleLogger {
 
   logMsg(...msg: any[]) {
     console.log(...msg);
+  }
+
+  step(stepName: string) {
+    const newStep = new SimpleStepLogger(this, stepName);
+    if (this.currentStep && !this.currentStep.isFinished) {
+      this.currentStep.finish();
+    }
+    this.currentStep = newStep;
+    return newStep;
   }
 
   debugMsg(...args: any[]) {
@@ -62,5 +72,24 @@ export class SimpleLogger {
         console.log(arg);
       }
     }
+  }
+}
+
+class SimpleStepLogger {
+  isFinished = false;
+  constructor(
+    private logger: SimpleLogger,
+    private stepName: string,
+  ) {}
+  updateStatus(message: string) {
+    this.logger.log(`${this.stepName} :  ${message}`);
+  }
+  finish(message?: string) {
+    this.logger.log(`${this.stepName} :  ${message || "finish"}`);
+    this.isFinished = true;
+  }
+  failed(message?: string) {
+    this.logger.error(`${this.stepName} :  ${message || "failed"}`);
+    this.isFinished = true;
   }
 }

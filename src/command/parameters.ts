@@ -21,12 +21,11 @@ export interface FlashObnizIdWithCloudArgs {
   i?: string;
   id?: string;
   obniz_id?: string; //場所によってはobniz_idという名前で使われている。
-  skiprecovery?: string;
   token?: string;
 }
 
 export type FlashObnizIdArgs = FlashObnizIdDeviceKeyArgs &
-  FlashObnizIdWithCloudArgs;
+  FlashObnizIdWithCloudArgs & { skiprecovery?: string };
 
 export interface SetObnizCloudConfigArgs {
   r?: string;

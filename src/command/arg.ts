@@ -22,7 +22,7 @@ export const Args = async (routes: Record<string, Command>) => {
   }
   const command = args._[0];
   const route = routes[command];
-  if (args["v"]) {
+  if (args["debug"]) {
     setLogger(new SimpleLogger(SimpleLogger.LEVEL_DEBUG));
   }
   if (args.help) {

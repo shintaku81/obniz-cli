@@ -6,17 +6,21 @@ import inquirer from "inquirer";
 import { serial } from "@9wick/node-web-serial-ponyfill";
 import { SerialPortSelect } from "../../types.js";
 import { getLogger } from "../../libs/logger/index.js";
+import { PortArgs } from "../parameters.js";
 
 export const PreparePort = async (
-  port: Partial<SerialPortSelect>,
+  portArgs: PortArgs,
 ): Promise<SerialPortSelect> => {
+  const baudInput = portArgs.b || portArgs.baud;
+  const portnameInput = portArgs.p || portArgs.port;
+
   const logger = getLogger();
-  if (!port.portname) {
+  if (!portnameInput) {
     logger.log(chalk.yellow(`No serial port specified.`));
   }
 
-  const autoChoose = port.portname === "AUTO";
-  const userInputPortname = autoChoose ? undefined : port.portname;
+  const autoChoose = portnameInput === "AUTO";
+  const userInputPortname = autoChoose ? undefined : portnameInput;
 
   const ports = await serial.listPorts();
   // display port list
@@ -39,7 +43,7 @@ export const PreparePort = async (
     }
   }
 
-  const baud = port.baud ?? DefaultParams.BAUD;
+  const baud = baudInput ? parseInt(baudInput) : DefaultParams.BAUD;
 
   logger.log(
     `Serial Port: decided ${chalk.green(selectedPortname)} baudrate ${baud}`,

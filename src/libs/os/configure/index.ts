@@ -5,16 +5,19 @@ import { Operation } from "../../obnizio/operation.js";
 import { OperationResult } from "../../obnizio/operation_result.js";
 import { OperationSetting } from "../../obnizio/operation_setting.js";
 import { getDefaultStorage } from "../../storage.js";
-import Serial from "../serial/index.js";
+import { ObnizOsInteractiveSerial } from "../serial/interactive_serial.js";
 
 import { Ora } from "ora";
 import { getOra } from "../../ora-console/getora.js";
+import { getLogger } from "../../logger/index.js";
+import { SerialPort } from "serialport";
+import { SerialPortSelect } from "../../../types.js";
+
 const ora = getOra();
 
 export interface ConfigParam {
   token: string;
   portname: string;
-  debugserial?: boolean;
   stdout: (text: string) => void;
   configs: {
     devicekey: string;
@@ -65,150 +68,149 @@ export interface NetworkConfigBefore3_5_0 {
   }>;
 }
 
-export default async (obj: ConfigParam) => {
-  // Return if no configs required
-  if (!obj.configs) {
-    return;
-  }
+export interface DeviceAndNetworkConfig {
+  deviceConfig: { obnizId: string; devicekey: string };
+  networkConfig: NetworkConfig | NetworkConfigBefore3_5_0;
+}
+export interface OnlyDeviceConfig {
+  deviceConfig: { obnizId: string; devicekey: string };
+  networkConfig: null;
+}
+export interface OnlyNetworkConfig {
+  deviceConfig: null;
+  networkConfig: NetworkConfig | NetworkConfigBefore3_5_0;
+}
 
-  const serial = new Serial({
-    portname: obj.portname,
+export const execConfig = async (
+  config: DeviceAndNetworkConfig | OnlyDeviceConfig | OnlyNetworkConfig,
+  port: SerialPortSelect,
+  usingOperation: boolean,
+): Promise<{ obnizId: string; version: string } | null> => {
+  // Return if no configs required
+
+  const deviceConfig = config.deviceConfig;
+  const networkConfig = config.networkConfig;
+
+  const logger = getLogger();
+
+  const interactiveSerial = new ObnizOsInteractiveSerial({
+    portname: port.portname,
     stdout: (text: string) => {
-      if (obj.debugserial) {
-        console.log(text);
-      }
-      received += text;
-      obj.stdout(text);
+      logger.debug(text);
     },
     onerror: (err: string) => {
-      received += err;
-      console.log(serial.totalReceived);
+      logger.log(interactiveSerial.totalReceived);
       throw new Error(`${err}`);
     },
     progress: (text: string, option: any = {}) => {
-      if (obj.debugserial) {
-        console.log(text);
-
-        return;
-      }
+      logger.debug(text);
       if (option.keep) {
         spinner.text = text;
       } else {
-        spinner = nextSpinner(spinner, `Configure: ${text}`, obj.debugserial);
+        spinner = nextSpinner(spinner, `Configure: ${text}`);
       }
     },
   });
-  let received = "";
   let spinner = ora(
-    `Configure: Opening Serial Port ${chalk.green(obj.portname)}`,
+    `Configure: Opening Serial Port ${chalk.green(port.portname)}`,
   ).start();
-  if (obj.debugserial) {
-    spinner.stop();
-  }
+
+  let info = null;
   try {
-    await serial.open();
+    await interactiveSerial.open();
 
     // config devicekey
-    if (obj.configs.devicekey) {
-      await serial.setDeviceKey(obj.configs.devicekey);
+    if (deviceConfig) {
+      await interactiveSerial.setDeviceKey(deviceConfig.devicekey);
     }
 
     // config network
-    if (obj.configs.config) {
+    if (networkConfig) {
       // JSON provided by user
 
       // detect Target obnizOS
-      const info = await serial.detectedObnizOSVersion();
+      info = await interactiveSerial.detectedObnizOSVersion();
       spinner.succeed(
-        `Configure: Detect Target obnizOS. version=${chalk.green(info.version)} ${chalk.green(info.obnizid)}`,
+        `Configure: Detect Target obnizOS. version=${chalk.green(info.version)} ${chalk.green(info.obnizId)}`,
       );
 
       if (semver.satisfies(info.version, ">=3.5.0")) {
-        if ("networks" in obj.configs.config) {
-          throw new Error(
-            `You can't use older version of network configuration json file.`,
-          );
-        }
-
-        if (obj.operation) {
-          if (!obj.operation.operation || !obj.operation.operationSetting) {
-            throw new Error("invalid operation state");
-          }
-          const token = obj.token || getDefaultStorage().get("token");
-          if (!token) {
-            throw new Error(`You need to signin or set --token param.`);
-          }
-          await OperationSetting.updateStatus(
-            token,
-            obj.operation.operationSetting.node?.id || "",
-          );
-        }
-        const userconf = obj.configs.config as NetworkConfig;
-        // menu mode and json flashing enabled device.
-        await serial.setAllFromMenu(userconf);
-
-        if (obj.operation) {
-          if (!obj.operation.operation || !obj.operation.operationSetting) {
-            throw new Error("invalid operation state");
-          }
-          const token = obj.token || getDefaultStorage().get("token");
-          if (!token) {
-            throw new Error(`You need to signin or set --token param.`);
-          }
-          await OperationResult.createWriteSuccess(
-            token,
-            obj.operation.operationSetting.node?.id || "",
-            info.obnizid,
-          );
-        }
+        await execNetworkConfigUpper3_5_0(
+          networkConfig as NetworkConfig,
+          interactiveSerial,
+          spinner,
+        );
       } else {
-        if (!("networks" in obj.configs.config)) {
-          throw new Error(
-            `please provide "networks". see more detail at example json file`,
-          );
-        }
-        if (obj.operation) {
+        if (usingOperation) {
           throw new Error(`Cannot use operation on obnizOS ver < 3.5.0`);
         }
-
-        const userconf = obj.configs.config as NetworkConfigBefore3_5_0;
-        // virtual UI.
-        const networks = userconf.networks;
-        if (!Array.isArray(networks)) {
-          throw new Error(`"networks" must be an array`);
-        }
-        if (networks.length !== 1) {
-          throw new Error(`"networks" must have single object in array.`);
-        }
-        const network = networks[0];
-        const type = network.type;
-        const settings = network.settings;
-        await serial.setNetworkType(type);
-        if (type === "wifi") {
-          await serial.setWiFi(settings);
-        } else {
-          spinner.fail(`Configure: Not Supported Network Type ${type}`);
-          throw new Error(
-            `obniz-cli not supporting settings for ${type} right now. wait for future release`,
-          );
-        }
+        await execNetworkConfigUnder3_5_0(
+          networkConfig as NetworkConfigBefore3_5_0,
+          interactiveSerial,
+          spinner,
+        );
       }
     }
-    await serial.close();
+    await interactiveSerial.close();
   } catch (e) {
-    console.log(received);
+    console.log(interactiveSerial.totalReceived);
     spinner.fail(`Configure: Failed ${e}`);
     throw e;
   }
 
   spinner.succeed(`Configure: Success`);
+  return info;
 };
 
-function nextSpinner(spinner: Ora, text: string, debugserial: any) {
+function nextSpinner(spinner: Ora, text: string) {
   spinner.succeed();
   spinner = ora(text).start();
-  if (debugserial) {
-    spinner.stop();
-  }
   return spinner;
+}
+
+async function execNetworkConfigUpper3_5_0(
+  networkConfig: NetworkConfig,
+  interactiveSerial: ObnizOsInteractiveSerial,
+  spinner: Ora,
+) {
+  if ("networks" in networkConfig) {
+    throw new Error(
+      `You can't use older version of network configuration json file.`,
+    );
+  }
+  // menu mode and json flashing enabled device.
+  await interactiveSerial.setAllFromMenu(networkConfig);
+}
+
+async function execNetworkConfigUnder3_5_0(
+  networkConfig: NetworkConfigBefore3_5_0,
+  interactiveSerial: ObnizOsInteractiveSerial,
+  spinner: Ora,
+) {
+  if (!("networks" in networkConfig)) {
+    throw new Error(
+      `please provide "networks". see more detail at example json file`,
+    );
+  }
+
+  // virtual UI.
+  const networks = networkConfig.networks;
+  if (!Array.isArray(networks)) {
+    throw new Error(`"networks" must be an array`);
+  }
+  if (networks.length !== 1) {
+    throw new Error(`"networks" must have single object in array.`);
+  }
+  const network = networks[0];
+  const type = network.type;
+  const settings = network.settings;
+  await interactiveSerial.setNetworkType(type);
+  if (type === "wifi") {
+    await interactiveSerial.setWiFi(settings);
+  } else {
+    spinner.fail(`Configure: Not Supported Network Type ${type}`);
+    throw new Error(
+      `obniz-cli not supporting settings for ${type} right now. wait for future release`,
+    );
+  }
 }
