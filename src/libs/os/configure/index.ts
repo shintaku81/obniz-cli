@@ -4,7 +4,7 @@ import { PromiseType } from "utility-types";
 import { Operation } from "../../obnizio/operation.js";
 import { OperationResult } from "../../obnizio/operation_result.js";
 import { OperationSetting } from "../../obnizio/operation_setting.js";
-import * as Storage from "../../storage.js";
+import { getDefaultStorage } from "../../storage.js";
 import Serial from "../serial/index.js";
 
 import { Ora } from "ora";
@@ -134,7 +134,7 @@ export default async (obj: ConfigParam) => {
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = obj.token || Storage.get("token");
+          const token = obj.token || getDefaultStorage().get("token");
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }
@@ -151,7 +151,7 @@ export default async (obj: ConfigParam) => {
           if (!obj.operation.operation || !obj.operation.operationSetting) {
             throw new Error("invalid operation state");
           }
-          const token = obj.token || Storage.get("token");
+          const token = obj.token || getDefaultStorage().get("token");
           if (!token) {
             throw new Error(`You need to signin or set --token param.`);
           }

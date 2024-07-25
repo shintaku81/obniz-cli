@@ -12,3 +12,5 @@ export * from "./command/os/flashcreate.js";
 
 export * from "./command/operation/list.js";
 export * from "./command/operation/info.js";
+
+export * from "./libs/storage.js";

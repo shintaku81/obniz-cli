@@ -1,11 +1,27 @@
 import { DefaultParams } from "../../defaults.js";
-import { PreparePort } from "../../libs/os/serial/prepare.js";
-import * as Storage from "../../libs/storage.js";
+import { PreparePort } from "../common/prepare_port.js";
 import Config from "../../libs/os/configure/index.js";
 import { validate } from "../../libs/os/config.js";
 import { Command } from "../arg.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
-export const ConfigCommand: Command = {
+export interface ConfigCommandArgs {
+  p?: string;
+  port?: string;
+  b?: string;
+  baud?: string;
+  d?: string;
+  devicekey?: string;
+  i?: string;
+  id?: string;
+  c?: string;
+  config?: string;
+  token?: string;
+  operation?: string;
+  indication?: string;
+}
+
+export const ConfigCommand = {
   help: `Flash obnizOS and configure it
 
 [serial setting]
@@ -22,14 +38,18 @@ export const ConfigCommand: Command = {
     --operation     operation name for setting.
     --indication    indication name for setting.
   `,
-  async execute(args: any, proceed?: (i: number) => void) {
+  async execute(args: ConfigCommandArgs) {
     // check input first
     await validate(args);
 
     // Serial Port Setting
     let received = "";
-    const port = await PreparePort(args);
-    const token = args.token || Storage.get("token");
+    const baudStr = args.b || args.baud;
+    const port = await PreparePort({
+      portname: args.p || args.port,
+      baud: baudStr ? parseInt(baudStr) : undefined,
+    });
+    const token = args.token || getDefaultStorage().get("token");
 
     const config: any = {
       token,
@@ -41,9 +61,6 @@ export const ConfigCommand: Command = {
     };
     // set params to obj
     await validate(args, config, true);
-    if (proceed) {
-      proceed(6);
-    }
 
     if (!config.configs) {
       // no configuration provided
@@ -52,8 +69,5 @@ export const ConfigCommand: Command = {
     }
 
     await Config(config);
-    if (proceed) {
-      proceed(7);
-    }
   },
-};
+} as const satisfies Command;

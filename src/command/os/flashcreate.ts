@@ -5,15 +5,31 @@ import chalk from "chalk";
 import { DefaultParams } from "../../defaults.js";
 import OS from "../../libs/obnizio/os.js";
 import Device from "../../libs/obnizio/device.js";
-import * as Storage from "../../libs/storage.js";
 import { flash } from "../../libs/os/flash.js";
 import { validate as validateConfig } from "../../libs/os/config.js";
-import { PreparePort } from "../../libs/os/serial/prepare.js";
+import { PreparePort } from "../common/prepare_port.js";
 
 import inquirer from "inquirer";
 import { getOra } from "../../libs/ora-console/getora.js";
 import { Command } from "../arg.js";
+import { getDefaultStorage } from "../../libs/storage.js";
+import {
+  FlashConfigArgs,
+  FlashObnizIdArgs,
+  FlashObnizOsArgs,
+  FlashOperationArgs,
+  PortArgs,
+  SetObnizCloudConfigArgs,
+} from "../parameters.js";
+
 const ora = getOra();
+
+export type FlashCreateCommandArgs = PortArgs &
+  FlashObnizOsArgs &
+  FlashObnizIdArgs &
+  FlashConfigArgs &
+  SetObnizCloudConfigArgs &
+  FlashOperationArgs;
 
 export const FlashCreateCommand: Command = {
   help: `Flash obnizOS and configure it
@@ -36,7 +52,7 @@ export const FlashCreateCommand: Command = {
     --operation     operation name for setting.
     --indication    indication name for setting.
   `,
-  async execute(args: any, proceed?: (i: number) => void) {
+  async execute(args: FlashCreateCommandArgs) {
     // If device related configration exist
     // It is not allowed. because device will be created from me.
     if (args.d || args.devicekey || args.i || args.id) {
@@ -46,26 +62,20 @@ export const FlashCreateCommand: Command = {
     }
 
     // login check
-    const token = args.token || Storage.get("token");
+    const token = args.token || getDefaultStorage().get("token");
     if (!token) {
       throw new Error(`You must singin before create device`);
     }
 
-    if (proceed) {
-      proceed(1);
-    }
     // validate first
     await validateConfig(args);
 
-    if (proceed) {
-      proceed(2);
-    }
     // SerialPortSetting
-    const port = await PreparePort(args);
-
-    if (proceed) {
-      proceed(3);
-    }
+    const baudStr = args.b || args.baud;
+    const port = await PreparePort({
+      portname: args.p || args.port,
+      baud: baudStr ? parseInt(baudStr) : undefined,
+    });
 
     let device;
     if (args.obniz_id) {
@@ -73,14 +83,14 @@ export const FlashCreateCommand: Command = {
       device = await Device.get(token, args.obniz_id);
     } else if (!args.skiprecovery) {
       // recovery data.
-      const recoveryDeviceString = Storage.get("recovery-device");
+      const recoveryDeviceString = getDefaultStorage().get("recovery-device");
       if (recoveryDeviceString) {
         const readedDevice = JSON.parse(recoveryDeviceString);
         const use = await askUseRecovery(readedDevice);
         if (use) {
           device = readedDevice;
         } else {
-          Storage.set("recovery-device", null);
+          getDefaultStorage().set("recovery-device", null);
         }
       }
     }
@@ -114,20 +124,12 @@ export const FlashCreateCommand: Command = {
         `obnizOS: decided hardware=${chalk.green(hardware)} version=${chalk.green(version)}`,
       );
     }
-
-    if (proceed) {
-      proceed(4);
-    }
     const os = {
       hardware,
       version,
     };
 
     await flash(port, os);
-
-    if (proceed) {
-      proceed(5);
-    }
 
     if (device) {
       spinner = ora("obnizCloud:").start();
@@ -152,7 +154,7 @@ export const FlashCreateCommand: Command = {
           requestObj.serialdata = `${qrData.serialcode}/${qrData.token}`;
         }
         device = await Device.create(token, requestObj);
-        Storage.set("recovery-device", JSON.stringify(device));
+        getDefaultStorage().set("recovery-device", JSON.stringify(device));
         spinner.succeed(
           `obnizCloud: created device on obnizCloud obnizID=${chalk.green(device.id)} description=${chalk.green(
             device.description,
@@ -169,8 +171,8 @@ export const FlashCreateCommand: Command = {
       args.p = undefined;
       args.port = port.portname; // 万が一この期間にシリアルポートが新たに追加されるとずれる可能性があるので
       args.devicekey = device.devicekey;
-      await ConfigCommand.execute(args, proceed);
-      Storage.set("recovery-device", null);
+      await ConfigCommand.execute(args);
+      getDefaultStorage().set("recovery-device", null);
     } catch (e) {
       chalk.yellow(
         `obnizID ${device.id} device key and information was sotred in recovery file`,

@@ -14,8 +14,9 @@ import { PortsCommand } from "./command/os/ports.js";
 import { UserInfoCommand } from "./command/user/info.js";
 import { LoginCommand } from "./command/user/login.js";
 import { LogoutCommand } from "./command/user/logout.js";
-import { PreparePort } from "./libs/os/serial/prepare.js";
+import { PreparePort } from "./command/common/prepare_port.js";
 import { LogCommand } from "./command/os/log.js";
+import { getLogger } from "./libs/logger/index.js";
 
 // ========== Global Errors =========
 
@@ -78,7 +79,7 @@ Args(routes)
     // wtf.dump();
   })
   .catch((e) => {
-    console.log(chalk.red(`${e}`));
+    getLogger().log(chalk.red(`${e}`));
     process.exit(1);
   })
   .then(() => {

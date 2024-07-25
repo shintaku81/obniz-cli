@@ -1,13 +1,13 @@
 import { Operation } from "../../libs/obnizio/operation.js";
-import * as Storage from "../../libs/storage.js";
 import { Command } from "../arg.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
 export const OperationListCommand: Command = {
   help: `Show your operation list
       --token       Token of api key which use instead of user signin.
   `,
   async execute(args: any) {
-    const token = args.token || Storage.get("token");
+    const token = args.token || getDefaultStorage().get("token");
     if (!token) {
       console.log(`Not Sign In`);
       return;

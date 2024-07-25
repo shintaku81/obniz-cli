@@ -1,8 +1,8 @@
 import { Operation } from "../../libs/obnizio/operation.js";
 import { OperationSetting } from "../../libs/obnizio/operation_setting.js";
 
-import * as Storage from "../../libs/storage.js";
 import { Command } from "../arg.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
 export const OperationInfoCommand: Command = {
   help: `Show the operation info
@@ -11,7 +11,7 @@ export const OperationInfoCommand: Command = {
   \`,
   `,
   async execute(args: any) {
-    const token = args.token || Storage.get("token");
+    const token = args.token || getDefaultStorage().get("token");
     if (!token) {
       console.log(`Not Sign In`);
       return;

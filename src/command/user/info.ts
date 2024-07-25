@@ -1,8 +1,8 @@
 import User from "../../libs/obnizio/user.js";
-import * as Storage from "../../libs/storage.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
 export const UserInfoCommand = async () => {
-  const token = Storage.get("token");
+  const token = getDefaultStorage().get("token");
   if (!token) {
     console.log(`Not Sign In`);
     return;

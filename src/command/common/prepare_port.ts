@@ -1,11 +1,11 @@
-import { DefaultParams } from "../../../defaults.js";
-import { SerialGuess } from "./guess.js";
+import { DefaultParams } from "../../defaults.js";
+import { SerialGuess } from "../../libs/os/serial/guess.js";
 
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { serial } from "@9wick/node-web-serial-ponyfill";
-import { SerialPortSelect } from "../../../types.js";
-import { getLogger } from "../../logger/index.js";
+import { SerialPortSelect } from "../../types.js";
+import { getLogger } from "../../libs/logger/index.js";
 
 export const PreparePort = async (
   port: Partial<SerialPortSelect>,

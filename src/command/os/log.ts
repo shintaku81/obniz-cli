@@ -22,11 +22,9 @@ export const LogCommand = async (port: SerialPortSelect) => {
         }
         logger.log(Buffer.from(value).toString("ascii"));
       }
-    } catch (error) {
-      // |error| を処理する
     } finally {
       reader.releaseLock();
+      await device.close();
     }
   }
-  await device.close();
 };

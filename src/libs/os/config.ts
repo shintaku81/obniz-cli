@@ -5,35 +5,43 @@ import { DeepPartial } from "utility-types";
 import Device from "../obnizio/device.js";
 import { Operation } from "../obnizio/operation.js";
 import { OperationSetting } from "../obnizio/operation_setting.js";
-import * as Storage from "../storage.js";
+import { getDefaultStorage } from "../storage.js";
 import Config, { ConfigParam } from "./configure/index.js";
 import { getOra } from "../ora-console/getora.js";
+import {
+  FlashConfigArgs,
+  FlashObnizIdArgs,
+  FlashOperationArgs,
+} from "../../command/parameters.js";
 const ora = getOra();
 
+export type DeviceConfigArgs = FlashObnizIdArgs;
+
 export async function deviceConfigValidate(
-  args: Readonly<any>,
+  args: Readonly<DeviceConfigArgs>,
   obj: DeepPartial<ConfigParam> = {},
   logging = false,
 ) {
   const devicekey: string | undefined = args.d || args.devicekey;
-  let obniz_id: any = null;
+  let obniz_id: string | null = null;
   if (devicekey) {
     obj.configs = obj.configs || {};
     obj.configs.devicekey = devicekey;
-    obniz_id = devicekey.split("&")[0];
+    obniz_id = devicekey.split("&")[0] ?? null;
   }
-  if (args.i || args.id) {
+  const inputId = args.i || args.id;
+  if (inputId) {
     const spinner = logging
       ? ora(
           `Configure: Opening Serial Port ${chalk.green(obj.portname)}`,
         ).start()
       : null;
     try {
-      obniz_id = args.i || args.id;
+      obniz_id = inputId;
       if (obj.configs && obj.configs.devicekey) {
         throw new Error(`devicekey and id are double specified.`);
       }
-      const token = args.token || Storage.get("token");
+      const token = args.token || getDefaultStorage().get("token");
       if (!token) {
         throw new Error(`You need to signin or set --token param`);
       }
@@ -59,8 +67,10 @@ export async function deviceConfigValidate(
   }
 }
 
+export type NetworkConfigArgs = FlashConfigArgs & FlashOperationArgs;
+
 export async function networkConfigValidate(
-  args: Readonly<any>,
+  args: Readonly<NetworkConfigArgs>,
   obj: DeepPartial<ConfigParam> = {},
   logging = false,
 ) {
@@ -100,7 +110,7 @@ export async function networkConfigValidate(
       ? ora(`Operation: getting information`).start()
       : null;
     try {
-      const token = args.token || Storage.get("token");
+      const token = args.token || getDefaultStorage().get("token");
       if (!token) {
         throw new Error(`You need to signin or set --token param`);
       }
@@ -154,7 +164,7 @@ export async function networkConfigValidate(
 }
 
 export async function validate(
-  args: Readonly<any>,
+  args: Readonly<NetworkConfigArgs & DeviceConfigArgs>,
   obj: DeepPartial<ConfigParam> = {},
   logging = false,
 ) {

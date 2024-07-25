@@ -11,7 +11,7 @@ const packageverion = "unknown version";
 
 export interface Command {
   help: string | (() => Promise<void>);
-  execute(...args: any): Promise<void>;
+  execute(args: any): Promise<void>;
 }
 
 export const Args = async (routes: Record<string, Command>) => {
@@ -34,7 +34,7 @@ export const Args = async (routes: Record<string, Command>) => {
         console.log(`${route.help}`);
       }
     } else {
-      await routes.help.execute();
+      await routes.help.execute({});
     }
   } else {
     if (!route) {
@@ -43,7 +43,7 @@ export const Args = async (routes: Record<string, Command>) => {
         return;
       }
       console.error(`Unknown Command ${command} see below help`);
-      await routes.help.execute();
+      await routes.help.execute({});
       return;
     }
     try {

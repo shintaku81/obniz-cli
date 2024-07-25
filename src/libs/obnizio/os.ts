@@ -3,7 +3,7 @@ import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
-import * as Storage from "../storage.js";
+import { getDefaultStorage } from "../storage.js";
 import filepath from "./filepath.js";
 import { GraphQLURL } from "./url.js";
 import { ObnizOsSelect } from "../../types.js";
@@ -13,7 +13,7 @@ import { Hardware, Os } from "../generated/client.js";
 export default class OS {
   public static async list(hardware: string, type: string | null = null) {
     const headers: Record<string, string> = {};
-    const token = Storage.get("token");
+    const token = getDefaultStorage().get("token");
     if (token && type !== "public") {
       headers.authorization = `Bearer ${token}`;
     }
@@ -35,7 +35,7 @@ export default class OS {
 
   public static async hardwares(type: string | null = null) {
     const headers: any = {};
-    const token = Storage.get("token");
+    const token = getDefaultStorage().get("token");
     if (token && type !== "public") {
       headers.authorization = `Bearer ${token}`;
     }

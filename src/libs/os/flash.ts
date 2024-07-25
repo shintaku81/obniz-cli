@@ -18,16 +18,40 @@ interface PartitionData {
   bin: Buffer;
 }
 
-export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
+export const FlashSteps = [
+  { name: "DOWNLOAD_FILES", raito: 10 },
+  { name: "CONNECT", raito: 10 },
+  { name: "PREPARE_FLASH", raito: 10 },
+  { name: "FLASH_BOOTLOADER", raito: 10 },
+  { name: "FLASH_APP", raito: 100 },
+  { name: "FLASH_PARTITION", raito: 10 },
+  { name: "AFTER_FLASH", raito: 10 },
+] as const satisfies { name: string; raito: number }[];
+
+export type FlashStepName = (typeof FlashSteps)[number]["name"];
+const totalRaito = FlashSteps.reduce((acc, cur) => acc + cur.raito, 0);
+
+export async function flash(
+  port: SerialPortSelect,
+  os: ObnizOsSelect,
+  proceed?: (args: {
+    percentage: number;
+    step: FlashStepName;
+    stepPercentage: number;
+  }) => void,
+) {
   const logger = getLogger();
 
+  proceed?.(calcProceed("DOWNLOAD_FILES", 0));
   logger.log(
     `Flashing obnizOS: preparing file for hardware=${chalk.green(os.hardware)} version=${chalk.green(os.version)}`,
   );
 
   // prepare files
   const files = await OS.prepareLocalFile(os);
+  proceed?.(calcProceed("DOWNLOAD_FILES", 100));
 
+  proceed?.(calcProceed("CONNECT", 0));
   const device = await serial.findPort(port.portname);
   if (!device) {
     throw new Error("Device not found");
@@ -38,8 +62,10 @@ export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
   );
   await device.open({ baudRate: ESP_ROM_BAUD });
   const esploader = new ESPLoader(device, logger);
+  proceed?.(calcProceed("CONNECT", 100));
 
   try {
+    proceed?.(calcProceed("PREPARE_FLASH", 0));
     // esploader.debug = true;
     await esploader.initialize();
 
@@ -56,21 +82,25 @@ export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
     const bootloaderFileBuffer = await fs.readFile(files.bootloader_path);
     const partitionFileBuffer = await fs.readFile(files.partition_path);
 
-    const partitions: PartitionData[] = [
+    proceed?.(calcProceed("PREPARE_FLASH", 100));
+    const partitions: (PartitionData & { stepName: FlashStepName })[] = [
       {
         name: "bootloader",
         offset: 0x1000,
         bin: bootloaderFileBuffer,
+        stepName: "FLASH_BOOTLOADER",
       },
       {
         name: "app",
         offset: 0x10000,
         bin: appFileBuffer,
+        stepName: "FLASH_APP",
       },
       {
         name: "partition",
         offset: 0x8000,
         bin: partitionFileBuffer,
+        stepName: "FLASH_PARTITION",
       },
     ];
 
@@ -79,6 +109,9 @@ export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
       await espStub.flashData(
         partition.bin,
         (bytesWritten, totalBytes) => {
+          proceed?.(
+            calcProceed(partition.stepName, (bytesWritten / totalBytes) * 100),
+          );
           logger.log(
             `${partition.name} : ` +
               Math.floor((bytesWritten / totalBytes) * 100) +
@@ -92,6 +125,7 @@ export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
     }
 
     logger.log("Flashing obnizOS: Flashed");
+    proceed?.(calcProceed("AFTER_FLASH", 100));
   } catch (e) {
     logger.error(`Flashing obnizOS: Fail`);
     logger.error(e);
@@ -175,3 +209,17 @@ export async function flash(port: SerialPortSelect, os: ObnizOsSelect) {
 //   console.log(text);
 //   throw err;
 // }
+
+function calcProceed(stepName: FlashStepName, percentage: number) {
+  const stepIndex = FlashSteps.findIndex((s) => s.name === stepName);
+  const step = FlashSteps[stepIndex];
+  const current = FlashSteps.slice(0, stepIndex).reduce(
+    (acc, cur) => acc + cur.raito,
+    0,
+  );
+  return {
+    percentage: (current + (percentage / 100) * step.raito) / totalRaito,
+    step: stepName,
+    stepPercentage: percentage,
+  };
+}

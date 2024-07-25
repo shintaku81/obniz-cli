@@ -1,8 +1,8 @@
 import { Login } from "../../libs/obnizio/login.js";
 import User from "../../libs/obnizio/user.js";
-import * as Storage from "../../libs/storage.js";
 
 import { getOra } from "../../libs/ora-console/getora.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
 const ora = getOra();
 
@@ -18,6 +18,6 @@ export const LoginCommand = async (app?: { id: string; token: string }) => {
     spinner.fail("Get user information failed");
     return;
   }
-  Storage.set("token", token);
+  getDefaultStorage().set("token", token);
   spinner.succeed(`Sign in as "${user.email}"`);
 };

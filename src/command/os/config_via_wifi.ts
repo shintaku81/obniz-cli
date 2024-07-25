@@ -4,7 +4,7 @@ import path from "path";
 import WiFi from "../../libs/os/wifi/index.js";
 import { Command } from "../arg.js";
 
-export const ConfigViaWifiCommand: Command = {
+export const ConfigViaWifiCommand = {
   help: `Configure ObnizOS network via Wi-Fi from devices.
 
  [configurations]
@@ -58,4 +58,4 @@ export const ConfigViaWifiCommand: Command = {
       await wifi.setNetwork(configs, duplicate, signal);
     });
   },
-};
+} as const satisfies Command;

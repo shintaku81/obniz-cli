@@ -1,6 +1,6 @@
-import * as Storage from "../../libs/storage.js";
+import { getDefaultStorage } from "../../libs/storage.js";
 
 export const LogoutCommand = async () => {
-  Storage.set("token", null);
+  getDefaultStorage().set("token", null);
   console.log(`Signed out`);
 };
