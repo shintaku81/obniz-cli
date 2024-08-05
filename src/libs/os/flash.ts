@@ -82,10 +82,12 @@ export async function flash(
     const partitionFileBuffer = await fs.readFile(files.partition_path);
 
     proceed?.(calcProceed("PREPARE_FLASH", 100));
+
+    const bootloaderOffset = os.hardware === "esp32c3" ? 0x0000 : 0x1000;
     const partitions: (PartitionData & { stepName: FlashStepName })[] = [
       {
         name: "bootloader",
-        offset: 0x1000,
+        offset: bootloaderOffset,
         bin: bootloaderFileBuffer,
         stepName: "FLASH_BOOTLOADER",
       },
@@ -127,87 +129,14 @@ export async function flash(
     stepLogger.finish("Flashed");
   } catch (e) {
     stepLogger.failed(`Fail`);
-    logger.error(e);
+    throw e;
   } finally {
     logger.debug("disconnecting");
     await esploader.disconnect();
     await device.close();
     logger.debug("disconnected");
   }
-  //
-  // const cmd =
-  //   `esptool.py --chip auto --port "${obj.portname}" --baud ${obj.baud} --before default_reset --after hard_reset` +
-  //   ` write_flash` +
-  //   ` -z --flash_mode dio --flash_freq 40m --flash_size detect` +
-  //   ` 0x1000 "${files.bootloader_path}"` +
-  //   ` 0x10000 "${files.app_path}"` +
-  //   ` 0x8000 "${files.partition_path}"`;
-  //
-  // const onSuccess = () => {
-  //   spinner.succeed(`Flashing obnizOS: Flashed`);
-  //   resolve();
-  // };
-  // const onFailed = (err: any) => {
-  //   spinner.fail(`Flashing obnizOS: Fail`);
-  //   reject(err);
-  // };
-  //
-  //
-  // const child = child_process.exec(cmd);
-  // child.stdout?.setEncoding("utf8");
-  // child.stdout?.on("data", (text) => {
-  //   // console.log(text);
-  //   if (obj.debugserial) {
-  //     console.log(text);
-  //     obj.stdout(text);
-  //   }
-  //   received += text;
-  //
-  //   if (status === "connecting" && received.indexOf(`Chip is`) >= 0) {
-  //     status = "flashing";
-  //     spinner.text = `Flashing obnizOS: Connected. Flashing...`;
-  //   }
-  // });
-  // child.stderr?.on("data", (text) => {
-  //   if (obj.debugserial) {
-  //     obj.stdout(text);
-  //   }
-  //   received += `${chalk.red(text)}`;
-  // });
-  // child.on("error", (er) => {
-  //   onFailed(er);
-  // });
-  // child.on("exit", (code) => {
-  //   try {
-  //     throwIfFailed(received);
-  //   } catch (e) {
-  //     onFailed(e);
-  //     return;
-  //   }
-  //   if (code !== 0) {
-  //     reject(new Error(`Failed Flashing.`));
-  //     return;
-  //   }
-  //   onSuccess();
-  // });
 }
-
-// function throwIfFailed(text: string) {
-//   if (text.indexOf("Leaving...") >= 0) {
-//     // success
-//     return;
-//   }
-//   let err;
-//   if (text.indexOf("Timed out waiting for packet header") >= 0) {
-//     err = new Error(
-//       `No Bootload mode ESP32 found. Check connection or Boot Mode.`,
-//     );
-//   } else {
-//     err = new Error(`Failed Flashing.`);
-//   }
-//   console.log(text);
-//   throw err;
-// }
 
 function calcProceed(stepName: FlashStepName, percentage: number) {
   const stepIndex = FlashSteps.findIndex((s) => s.name === stepName);

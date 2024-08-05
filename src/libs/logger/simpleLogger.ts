@@ -67,6 +67,8 @@ export class SimpleLogger {
             // Buffer.from(arg).toString("ascii") +
             "]",
         );
+      } else if (arg instanceof Error) {
+        this.logMsg(`[${arg.name}] ${arg.message} \n ${arg.stack}`);
       } else {
         this.logMsg(prefix + "Unhandled type of argument:" + typeof arg);
         console.log(arg);
