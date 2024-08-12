@@ -1,12 +1,12 @@
 import chalk from "chalk";
 import semver from "semver";
 
-import SerialPort from "serialport";
-import KeyPairGen from "../keypair";
+import { SerialPort } from "serialport";
+import { NetworkConfig } from "../configure/index.js";
 
 const baudRate = 115200;
 
-export default class Serial {
+export class ObnizOsInteractiveSerial {
   public portname: string;
   public stdout: any;
   public onerror: any;
@@ -17,7 +17,12 @@ export default class Serial {
 
   private _recvCallback: any;
 
-  constructor(obj: { portname: string; stdout: any; onerror: any; progress: any }) {
+  constructor(obj: {
+    portname: string;
+    stdout: any;
+    onerror: any;
+    progress: any;
+  }) {
     this.portname = obj.portname;
     this.stdout = obj.stdout;
     this.onerror = obj.onerror;
@@ -25,8 +30,8 @@ export default class Serial {
   }
 
   public async open() {
-    return new Promise(async (resolve, reject) => {
-      this.serialport = new SerialPort(this.portname, { baudRate });
+    return new Promise<void>((resolve, reject) => {
+      this.serialport = new SerialPort({ path: this.portname, baudRate });
 
       this.serialport.on("open", () => {
         // open logic
@@ -52,7 +57,7 @@ export default class Serial {
   }
 
   public async close() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.serialport?.close(() => {
         resolve();
       });
@@ -67,7 +72,7 @@ export default class Serial {
    *
    */
   public async reset() {
-    await new Promise(async (resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       this.serialport?.set(
         {
           dtr: false,
@@ -81,10 +86,10 @@ export default class Serial {
         },
       );
     });
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       setTimeout(resolve, 10);
     });
-    await new Promise(async (resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       // リセット時にはクリアする
       this.serialport?.set(
         {
@@ -102,12 +107,15 @@ export default class Serial {
   }
 
   public async waitFor(key: string, timeout: number | undefined = 20 * 1000) {
-    return await new Promise((resolve, reject) => {
-      let timeoutTimer: null | ReturnType<typeof setTimeout> = setTimeout(() => {
-        check();
-        this._recvCallback = null;
-        reject(new Error(`Timeout. waiting for ${key}`));
-      }, timeout);
+    return await new Promise<void>((resolve, reject) => {
+      let timeoutTimer: null | ReturnType<typeof setTimeout> = setTimeout(
+        () => {
+          check();
+          this._recvCallback = null;
+          reject(new Error(`Timeout. waiting for ${key}`));
+        },
+        timeout,
+      );
 
       const check = () => {
         if (this.totalReceived.indexOf(`${key}`) >= 0) {
@@ -137,7 +145,9 @@ export default class Serial {
         const verLine = this._searchLine("obniz ver:");
         let version = "0.0.0";
         if (!verLine) {
-          throw new Error(`Failed to check obnizOS version. Subsequent flows can be failed.`);
+          throw new Error(
+            `Failed to check obnizOS version. Subsequent flows can be failed.`,
+          );
         }
         version = semver.clean(verLine.split("obniz ver: ")[1]) || "";
 
@@ -145,10 +155,10 @@ export default class Serial {
         if (!obnizIDLine) {
           throw new Error();
         }
-        const obnizid = obnizIDLine.split("obniz id: ")[1];
+        const obnizId = obnizIDLine.split("obniz id: ")[1];
         return {
           version,
-          obnizid,
+          obnizId,
         };
       } catch (e) {
         ++tryCount;
@@ -158,10 +168,17 @@ export default class Serial {
             setTimeout(resolve, 2 * 1000);
           });
           if (this.progress) {
-            this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
+            this.progress(
+              chalk.yellow(
+                `Could you reset your device? Can you press reset button?`,
+              ),
+            );
           }
         } else if (tryCount === 3) {
-          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`), await this._tryCloseOpenSerial();
+          this.progress(
+            chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
+          );
+          await this._tryCloseOpenSerial();
         } else {
           // TimedOut
           throw new Error(`Timed out. Target device seems not in normal mode.`);
@@ -187,10 +204,15 @@ export default class Serial {
             setTimeout(resolve, 2 * 1000);
           });
           if (this.progress) {
-            this.progress(chalk.yellow(`Could you reset your device? Can you press reset button?`));
+            this.progress(
+              chalk.yellow(
+                `Could you reset your device? Can you press reset button?`,
+              ),
+            );
           }
         } else if (tryCount === 3) {
-          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`), await this._tryCloseOpenSerial();
+          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
+            await this._tryCloseOpenSerial();
         } else {
           // TimedOut
           throw new Error(`Timed out. Target device seems not in normal mode.`);
@@ -210,12 +232,17 @@ export default class Serial {
         this.send(`menu`);
         await this.waitFor("Input number >>", 3 * 1000);
         return;
-      } catch (e) {}
+      } catch (e) {
+        // do nothing
+      }
+
       i++;
       if (i > 6) {
         throw new Error(`Failed to entering menu`);
       }
-      this.progress(chalk.yellow(`Entering menu ... (try ${i} times)`), { keep: true });
+      this.progress(chalk.yellow(`Entering menu ... (try ${i} times)`), {
+        keep: true,
+      });
       await this.reset();
       await new Promise((resolve, reject) => {
         setTimeout(resolve, 3 * 1000);
@@ -252,7 +279,11 @@ export default class Serial {
           this.totalReceived.indexOf(`obniz id:  ${obnizid}`) >= 0
         ) {
           if (this.progress) {
-            this.progress(chalk.yellow(`This device is already configured as obnizID ${obnizid}`));
+            this.progress(
+              chalk.yellow(
+                `This device is already configured as obnizID ${obnizid}`,
+              ),
+            );
           }
           return;
         } else {
@@ -285,7 +316,9 @@ export default class Serial {
             await this._tryCloseOpenSerial();
         } else {
           // TimedOut
-          throw new Error(`Device seems not launched. Reset the connected device to wake up as Normal Mode`);
+          throw new Error(
+            `Device seems not launched. Reset the connected device to wake up as Normal Mode`,
+          );
         }
       }
     }
@@ -296,16 +329,18 @@ export default class Serial {
         this.waitFor(`obniz id:  ${obnizid}`, 10 * 1000),
       ]);
     } catch (e) {
-      throw new Error(`Written obniz id not confirmed. maybe success otherwise failed.`);
+      throw new Error(
+        `Written obniz id not confirmed. maybe success otherwise failed.`,
+      );
     }
     await this.reset();
   }
 
   /**
    * Setting Network Type.
-   * @param type
+   * @param json
    */
-  public async setAllFromMenu(json: any) {
+  public async setAllFromMenu(json: NetworkConfig) {
     if (this.progress) {
       this.progress(`Entering menu`);
     }
@@ -371,7 +406,11 @@ export default class Serial {
       version = info.version;
     } catch (e) {
       if (this.progress) {
-        this.progress(chalk.yellow("Failed to check obnizOS version. Subsequent flows can be failed."));
+        this.progress(
+          chalk.yellow(
+            "Failed to check obnizOS version. Subsequent flows can be failed.",
+          ),
+        );
       }
     }
 

@@ -1,5 +1,7 @@
 mutation removeOperationResult($removeOperationResultOperationSettingId: ID!) {
-    removeOperationResult(operationSettingId: $removeOperationResultOperationSettingId) {
-        removed
-    }
+  removeOperationResult(
+    operationSettingId: $removeOperationResultOperationSettingId
+  ) {
+    removed
+  }
 }

@@ -1,4 +1,4 @@
-import { getClientSdk } from "./sdk";
+import { getClientSdk } from "./sdk.js";
 
 export class OperationResult {
   public static status = {
@@ -7,7 +7,11 @@ export class OperationResult {
     Finished: 2,
   };
 
-  public static async createWriteSuccess(token: string, operationSettingId: string, obnizId: string) {
+  public static async createWriteSuccess(
+    token: string,
+    operationSettingId: string,
+    obnizId: string,
+  ) {
     const successfullyWrittenAt = new Date().toISOString();
     const typeError = 0;
 

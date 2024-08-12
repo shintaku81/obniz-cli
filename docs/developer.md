@@ -3,7 +3,7 @@
 デバッグでの即時実行はnpmでなくnpxで以下のようにする
 
 ```
-npx ts-node src/index.ts os:create -r us -d "text"
+npx ts-node src/interactive_serial.ts os:create -r us -d "text"
 ```
 
 環境変数

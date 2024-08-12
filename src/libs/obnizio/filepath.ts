@@ -1,4 +1,5 @@
 import path from "path";
+import { __dirname } from "../dirname.js";
 
 export default (hw: string, version: string, type: string) => {
   const relative = "../../../";
@@ -7,5 +8,10 @@ export default (hw: string, version: string, type: string) => {
     partition: "__partition.bin",
     app: ".bin",
   };
-  return path.join(__dirname, relative, `temp`, `obnizos__${hw}__${version}${map[type]}`);
+  return path.join(
+    __dirname,
+    relative,
+    `temp`,
+    `obnizos__${hw}__${version}${map[type]}`,
+  );
 };

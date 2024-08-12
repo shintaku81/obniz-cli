@@ -1,31 +1,36 @@
-import child_process from "child_process";
+import { serial } from "@9wick/node-web-serial-ponyfill";
+import {
+  ESPLoader,
+  ESP_ROM_BAUD,
+} from "@9wick/adafruit-webserial-esptool/dist/index.js";
+import { getLogger } from "../logger/index.js";
+import { SerialPortSelect } from "../../types.js";
 
-export default (obj: { portname: string; baud: number; stdout: any }) => {
-  return new Promise((resolve, reject) => {
-    let received = "";
-    let success = false;
-    obj.stdout("", { clear: true });
-    const cmd = `esptool.py --chip auto --port ${obj.portname} --baud ${obj.baud} erase_flash`;
-    console.log(cmd);
-    const child = child_process.exec(cmd);
-    child.stdout?.setEncoding("utf8");
-    child.stdout?.on("data", (text) => {
-      obj.stdout(text);
-      received += text;
-      if (received.indexOf("Chip erase completed successfully") >= 0) {
-        // 終わったっぽい
-        success = true;
-      }
-    });
-    child.stderr?.on("data", (text) => {
-      obj.stdout(text);
-      received += text;
-    });
-    child.on("error", (err) => {
-      reject(err);
-    });
-    child.on("exit", () => {
-      resolve(success);
-    });
-  });
+export const erase = async (port: SerialPortSelect) => {
+  const logger = getLogger();
+
+  const device = await serial.findPort(port.portname);
+  if (!device) {
+    throw new Error("Device not found");
+  }
+  await device.open({ baudRate: ESP_ROM_BAUD });
+  const esploader = new ESPLoader(device, logger);
+  try {
+    // esploader.debug = true;
+    await esploader.initialize();
+
+    logger.log("Connected to " + esploader.chipName);
+    logger.log(
+      "MAC Address: " + Buffer.from(esploader.macAddr()).toString("hex"),
+    );
+    const espStub = await esploader.runStub();
+    await espStub.setBaudrate(port.baud);
+    await espStub.eraseFlash();
+    logger.log("Finished erasing");
+  } finally {
+    logger.log("Disconnecting...");
+    await esploader.disconnect();
+    await device.close();
+    logger.log("Disconnected");
+  }
 };

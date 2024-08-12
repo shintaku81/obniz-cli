@@ -1,5 +1,5 @@
 import { PromiseType } from "utility-types";
-import { getClientSdk } from "./sdk";
+import { getClientSdk } from "./sdk.js";
 
 export class Operation {
   public static async getList(token?: string) {
@@ -24,7 +24,9 @@ export class Operation {
     }
   }
 
-  public static checkCanWriteFromCli(operation: PromiseType<ReturnType<typeof Operation.getByOperationName>>) {
+  public static checkCanWriteFromCli(
+    operation: PromiseType<ReturnType<typeof Operation.getByOperationName>>,
+  ) {
     if (!operation || !operation.node) {
       throw new Error("operation not found");
     }

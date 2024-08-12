@@ -3,14 +3,17 @@ import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 import path from "path";
 import semver from "semver";
-import * as Storage from "../storage";
-import filepath from "./filepath";
-import { GraphQLURL } from "./url";
+import { getDefaultStorage } from "../storage.js";
+import filepath from "./filepath.js";
+import { GraphQLURL } from "./url.js";
+import { ObnizOsSelect } from "../../types.js";
+import { getLogger } from "../logger/index.js";
+import { Hardware, Os } from "../generated/client.js";
 
 export default class OS {
   public static async list(hardware: string, type: string | null = null) {
-    const headers: any = {};
-    const token = Storage.get("token");
+    const headers: Record<string, string> = {};
+    const token = getDefaultStorage().get("token");
     if (token && type !== "public") {
       headers.authorization = `Bearer ${token}`;
     }
@@ -26,14 +29,13 @@ export default class OS {
         isPublic
       }
     }`;
-
     const ret: any = await graphQLClient.request(query);
-    return ret.os;
+    return ret.os as Os[];
   }
 
   public static async hardwares(type: string | null = null) {
     const headers: any = {};
-    const token = Storage.get("token");
+    const token = getDefaultStorage().get("token");
     if (token && type !== "public") {
       headers.authorization = `Bearer ${token}`;
     }
@@ -47,13 +49,13 @@ export default class OS {
     }`;
 
     const ret: any = await graphQLClient.request(query);
-    return ret.hardwares;
+    return ret.hardwares as Hardware[];
   }
 
   public static async latestPublic(hardware: string) {
     const versions = await this.list(hardware, "public");
     for (const v of versions) {
-      if (!semver.prerelease(v)) {
+      if (!semver.prerelease(v.version)) {
         return v.version;
       }
     }
@@ -67,35 +69,43 @@ export default class OS {
         return v;
       }
     }
-    throw new Error(`No obnizOS and Version Found for hardware=${hardware} version=${version}`);
+    throw new Error(
+      `No obnizOS and Version Found for hardware=${hardware} version=${version}`,
+    );
   }
 
-  public static async prepareLocalFile(hardware: string, version: string, progress: (progress: string) => void) {
+  public static async prepareLocalFile(os: ObnizOsSelect) {
+    const logger = getLogger();
+    const hardware = os.hardware;
+    const version = os.version;
     const appPath = filepath(hardware, version, "app");
     const bootloaderPath = filepath(hardware, version, "bootloader");
     const partitionPath = filepath(hardware, version, "partition");
     let v;
+    logger.log(`Downloading files from obnizCloud`);
     if (!fs.existsSync(appPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`);
+      logger.debug(`Downloading app from obnizCloud`);
       await downloadFile(v.app_url, appPath);
     }
     if (!fs.existsSync(bootloaderPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`);
+      logger.debug(`Downloading bootloader from obnizCloud`);
       await downloadFile(v.bootloader_url, bootloaderPath);
     }
     if (!fs.existsSync(partitionPath)) {
       if (!v) {
         v = await this.os(hardware, version);
       }
-      progress(`Downloading from obnizCloud`);
+      logger.debug(`Downloading partition from obnizCloud`);
       await downloadFile(v.partition_url, partitionPath);
     }
+    logger.log(`Download finished`);
+
     return {
       app_path: appPath,
       bootloader_path: bootloaderPath,
@@ -113,8 +123,8 @@ async function downloadFile(url: string, pathtodownload: string) {
   const res = await fetch(url);
   const fileStream = fs.createWriteStream(pathtodownload);
   await new Promise((resolve, reject) => {
-    res.body.pipe(fileStream);
-    res.body.on("error", (err) => {
+    res.body?.pipe(fileStream);
+    res.body?.on("error", (err: any) => {
       reject(err);
     });
     fileStream.on("finish", () => {

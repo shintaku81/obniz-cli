@@ -1,21 +1,25 @@
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import WiFi from "./wifi";
+import WiFi from "../../libs/os/wifi/index.js";
+import { Command } from "../arg.js";
 
-export default {
+export const ConfigViaWifiCommand = {
   help: `Configure ObnizOS network via Wi-Fi from devices.
 
  [configurations]
  -c --config      configuration file path. If specified obniz-cli proceed settings following file like setting wifi SSID/Password.
   `,
   execute(args: any, signal?: AbortSignal): Promise<void> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       let configs: any;
       // Network Setting
       const configPath: any = args.c || args.config;
       if (configPath) {
-        const filepath = path.isAbsolute(configPath) ? configPath : path.join(process.cwd(), configPath);
+        const filepath = path.isAbsolute(configPath)
+          ? configPath
+          : path.join(process.cwd(), configPath);
         if (!fs.existsSync(filepath)) {
           throw new Error(`config file ${filepath} does not exist!!`);
         }
@@ -54,4 +58,4 @@ export default {
       await wifi.setNetwork(configs, duplicate, signal);
     });
   },
-};
+} as const satisfies Command;
