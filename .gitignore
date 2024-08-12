@@ -17,3 +17,10 @@ log
 storage.json
 /.graphqlconfig
 /schema.graphql
+
+/app
+
+.env
+.cache
+.envrc
+dist
