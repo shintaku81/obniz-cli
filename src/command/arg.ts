@@ -1,14 +1,14 @@
 import minimist from "minimist";
 import { getLogger, setLogger } from "../libs/logger/index.js";
 import { SimpleLogger } from "../libs/logger/simpleLogger.js";
+import * as Pkg from "../libs/version.cjs";
 
 const args = minimist(process.argv.slice(2), {
   "--": true,
   string: ["id", "i"],
 });
 
-const packageverion = "unknown version";
-
+const packageverion = Pkg.version;
 export interface Command {
   help: string | (() => Promise<void>);
   execute(args: any): Promise<void>;

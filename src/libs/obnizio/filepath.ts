@@ -1,16 +1,15 @@
 import path from "path";
-import { __dirname } from "../dirname.js";
+import { getAppDataDir } from "../app_data_dir.js";
 
 export default (hw: string, version: string, type: string) => {
-  const relative = "../../../";
   const map: any = {
     bootloader: "__bootloader.bin",
     partition: "__partition.bin",
     app: ".bin",
   };
+
   return path.join(
-    __dirname,
-    relative,
+    getAppDataDir(),
     `temp`,
     `obnizos__${hw}__${version}${map[type]}`,
   );

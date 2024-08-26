@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { __dirname } from "./dirname.js";
-const filepath = path.join(__dirname, "../..", "storage.json");
+import { getAppDataDir } from "./app_data_dir.js";
 
 export class Storage {
   read(): any {
     let obj = {};
     try {
+      const filepath = path.join(getAppDataDir(), "storage.json");
       const txt = fs.readFileSync(filepath, { encoding: "utf8" });
       obj = JSON.parse(txt);
     } catch (e) {
@@ -17,6 +18,7 @@ export class Storage {
   }
 
   write(obj: any) {
+    const filepath = path.join(getAppDataDir(), "storage.json");
     fs.writeFileSync(filepath, JSON.stringify(obj));
   }
 

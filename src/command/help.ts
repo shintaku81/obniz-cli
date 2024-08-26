@@ -1,6 +1,7 @@
 import { Command } from "./arg.js";
+import * as Pkg from "../libs/version.cjs";
 
-const packageverion = "unknown version";
+const packageverion = Pkg.version;
 
 export const HelpCommand: Command = {
   help: `Show help`,
