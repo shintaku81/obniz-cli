@@ -67,15 +67,16 @@ export class ObnizOsInteractiveSerial {
   public clearReceived() {
     this.totalReceived = "";
   }
-
   /**
    *
    */
   public async reset() {
     await new Promise<void>((resolve, reject) => {
+      // リセット時にはクリアする
       this.serialport?.set(
         {
           dtr: false,
+          rts: false,
         },
         (e) => {
           if (e) {
@@ -87,13 +88,29 @@ export class ObnizOsInteractiveSerial {
       );
     });
     await new Promise<void>((resolve, reject) => {
-      setTimeout(resolve, 10);
+      this.serialport?.set(
+        {
+          dtr: false,
+          rts: true,
+        },
+        (e) => {
+          if (e) {
+            reject(e);
+            return;
+          }
+          resolve();
+        },
+      );
+    });
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(resolve, 100);
     });
     await new Promise<void>((resolve, reject) => {
       // リセット時にはクリアする
       this.serialport?.set(
         {
-          dtr: true,
+          dtr: false,
+          rts: false,
         },
         (e) => {
           if (e) {
