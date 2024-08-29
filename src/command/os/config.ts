@@ -7,7 +7,6 @@ import {
   OnlyNetworkConfig,
 } from "../../libs/os/configure/index.js";
 import { Command } from "../arg.js";
-import { getDefaultStorage } from "../../libs/storage.js";
 import { PrepareDevicekey } from "../common/prepare_devicekey.js";
 import { PrepareConfigFromFile } from "../common/prepare_config_from_file.js";
 import { PrepareConfigFromOperation } from "../common/prepare_config_from_operation.js";

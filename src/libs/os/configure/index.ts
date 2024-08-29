@@ -2,15 +2,12 @@ import chalk from "chalk";
 import semver from "semver";
 import { PromiseType } from "utility-types";
 import { Operation } from "../../obnizio/operation.js";
-import { OperationResult } from "../../obnizio/operation_result.js";
 import { OperationSetting } from "../../obnizio/operation_setting.js";
-import { getDefaultStorage } from "../../storage.js";
 import { ObnizOsInteractiveSerial } from "../serial/interactive_serial.js";
 
 import { Ora } from "ora";
 import { getOra } from "../../ora-console/getora.js";
 import { getLogger } from "../../logger/index.js";
-import { SerialPort } from "serialport";
 import { SerialPortSelect } from "../../../types.js";
 
 const ora = getOra();

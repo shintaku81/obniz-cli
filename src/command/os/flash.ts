@@ -1,11 +1,8 @@
-import chalk from "chalk";
 import { DefaultParams } from "../../defaults.js";
-import OS from "../../libs/obnizio/os.js";
 import { flash } from "../../libs/os/flash.js";
 import { PreparePort } from "../common/prepare_port.js";
 
 import { getOra } from "../../libs/ora-console/getora.js";
-import { ConfigCommand } from "./config.js";
 import { Command } from "../arg.js";
 import { PrepareOs } from "../common/prepare_os.js";
 import {
@@ -25,6 +22,7 @@ import {
   OnlyNetworkConfig,
 } from "../../libs/os/configure/index.js";
 import { OperationResult } from "../../libs/obnizio/operation_result.js";
+
 const ora = getOra();
 
 export type FlashCommandArgs = PortArgs &

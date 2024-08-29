@@ -2,9 +2,6 @@ import chalk from "chalk";
 import { promises as fs } from "fs";
 
 import { getOra } from "../ora-console/getora.js";
-
-const ora = getOra();
-
 import OS from "../obnizio/os.js";
 import { serial } from "@9wick/node-web-serial-ponyfill";
 import { ESP_ROM_BAUD, ESPLoader } from "@9wick/adafruit-webserial-esptool";
@@ -12,6 +9,8 @@ import { getLogger } from "../logger/index.js";
 import { wait } from "../wait.js";
 import { ObnizOsSelect, SerialPortSelect } from "../../types.js";
 import { DebugLogger } from "../logger/debugLogger.js";
+
+const ora = getOra();
 
 interface PartitionData {
   name: string;

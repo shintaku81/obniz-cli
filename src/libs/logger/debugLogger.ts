@@ -1,4 +1,3 @@
-import { toHex } from "@9wick/adafruit-webserial-esptool/dist/util.js";
 import { Logger } from "./index.js";
 
 export class DebugLogger {

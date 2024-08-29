@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { __dirname } from "./dirname.js";
 import { getAppDataDir } from "./app_data_dir.js";
 
 export class Storage {

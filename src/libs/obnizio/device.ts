@@ -1,9 +1,5 @@
 import { GraphQLClient } from "graphql-request";
-import {
-  DeviceCreateInput,
-  getSdk,
-  MutationCreateDeviceArgs,
-} from "../generated/client.js";
+import { DeviceCreateInput, getSdk } from "../generated/client.js";
 import { getClientSdk } from "./sdk.js";
 import { GraphQLURL } from "./url.js";
 

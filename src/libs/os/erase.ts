@@ -1,7 +1,7 @@
 import { serial } from "@9wick/node-web-serial-ponyfill";
 import {
-  ESPLoader,
   ESP_ROM_BAUD,
+  ESPLoader,
 } from "@9wick/adafruit-webserial-esptool/dist/index.js";
 import { getLogger } from "../logger/index.js";
 import { SerialPortSelect } from "../../types.js";

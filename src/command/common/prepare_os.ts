@@ -1,10 +1,7 @@
 import { DefaultParams } from "../../defaults.js";
-import { SerialGuess } from "../../libs/os/serial/guess.js";
 
 import chalk from "chalk";
-import inquirer from "inquirer";
-import { serial } from "@9wick/node-web-serial-ponyfill";
-import { ObnizOsSelect, SerialPortSelect } from "../../types.js";
+import { ObnizOsSelect } from "../../types.js";
 import { getLogger } from "../../libs/logger/index.js";
 import OS from "../../libs/obnizio/os.js";
 import { FlashObnizOsArgs } from "../parameters.js";

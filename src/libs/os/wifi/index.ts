@@ -2,8 +2,9 @@ import chalk from "chalk";
 import wifi from "node-wifi";
 import { Ora } from "ora";
 import { getOra } from "../../ora-console/getora.js";
+import { networkInterfaces } from "os";
+
 const ora = getOra();
-import { NetworkInterfaceInfo, networkInterfaces } from "os";
 
 export default class WiFi {
   public stdout: any;

@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { print } from "graphql";
 import { gql } from "graphql-tag";
+
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
