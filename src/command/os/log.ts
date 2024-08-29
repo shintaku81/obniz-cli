@@ -11,7 +11,12 @@ export const LogCommand = async (port: SerialPortSelect) => {
     throw new Error("Device not found");
   }
 
-  await device.open({ baudRate: ESP_ROM_BAUD });
+  await device.open({
+    baudRate: ESP_ROM_BAUD,
+    dataBits: 8,
+    stopBits: 1,
+    parity: "none",
+  });
   if (device.readable) {
     const reader = device.readable.getReader();
     try {

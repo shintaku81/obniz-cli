@@ -58,7 +58,12 @@ export async function flash(
   if (!device) {
     throw new Error("Device not found");
   }
-  await device.open({ baudRate: ESP_ROM_BAUD });
+  await device.open({
+    baudRate: ESP_ROM_BAUD,
+    dataBits: 8,
+    stopBits: 1,
+    parity: "none",
+  });
   const debugLogger = new DebugLogger(logger);
   const esploader = new ESPLoader(device, debugLogger);
   proceed?.(calcProceed("CONNECT", 100));
