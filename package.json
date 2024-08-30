@@ -68,7 +68,7 @@
     "typescript-eslint": "^7.16.0"
   },
   "dependencies": {
-    "@9wick/adafruit-webserial-esptool": "^6.0.0-beta.7",
+    "@9wick/adafruit-webserial-esptool": "^6.0.0-beta.8",
     "@9wick/node-web-serial-ponyfill": "^0.5.3-beta.4",
     "@graphql-codegen/cli": "^1.13.5",
     "@graphql-codegen/typescript": "^1.13.5",
