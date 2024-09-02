@@ -1,0 +1,9 @@
+{
+  "net": "wirelesslan",
+  "wifi": [
+    {
+      "ssid": "xxxxx",
+      "pass": "xxxxx"
+    }
+  ]
+}

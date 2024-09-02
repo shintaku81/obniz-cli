@@ -312,6 +312,7 @@ export class ObnizOsInteractiveSerial {
       this.send(`\n`);
       try {
         await this.waitFor("DeviceKey", 3 * 1000);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         break;
       } catch (e) {
         ++tryCount;
