@@ -5,7 +5,9 @@ export const PrepareToken = async (input: {
 }): Promise<string> => {
   const token = input.token || getDefaultStorage().get("token");
   if (!token) {
-    throw new Error("Token is required");
+    throw new Error(
+      "Token is required. Please signin first with 'obniz-cli signin' or provide --token option.",
+    );
   }
   return token;
 };

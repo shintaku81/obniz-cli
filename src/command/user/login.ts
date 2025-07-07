@@ -7,7 +7,7 @@ import { getDefaultStorage } from "../../libs/storage.js";
 const ora = getOra();
 
 export const LoginCommand = async (app?: { id: string; token: string }) => {
-  let spinner = ora(`Singin...`).start();
+  let spinner = ora(`Signin...`).start();
   const token = await Login((text) => {
     spinner.text = text;
   }, app);

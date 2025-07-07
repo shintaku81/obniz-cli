@@ -228,8 +228,8 @@ export class ObnizOsInteractiveSerial {
             );
           }
         } else if (tryCount === 3) {
-          chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
-            await this._tryCloseOpenSerial();
+          (chalk.yellow(`Seems bad. Trying ReOpening Serial Port`),
+            await this._tryCloseOpenSerial());
         } else {
           // TimedOut
           throw new Error(`Timed out. Target device seems not in normal mode.`);
@@ -328,10 +328,10 @@ export class ObnizOsInteractiveSerial {
             { keep: true },
           );
         } else if (tryCount === 6) {
-          chalk.yellow(
+          (chalk.yellow(
             `Failed Setting devicekey ${tryCount} times. Device seems not launched. Trying ReOpening Serial Port`,
           ),
-            await this._tryCloseOpenSerial();
+            await this._tryCloseOpenSerial());
         } else {
           // TimedOut
           throw new Error(
